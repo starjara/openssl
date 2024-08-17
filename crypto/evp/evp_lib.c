@@ -28,6 +28,8 @@
 #include "internal/provider.h"
 #include "evp_local.h"
 
+#define LOG_E printf("[evp/evp_lib.c] Enter: %s\n", __FUNCTION__)
+
 #if !defined(FIPS_MODULE)
 # include "crypto/asn1.h"
 
@@ -1168,6 +1170,7 @@ int EVP_PKEY_CTX_get_group_name(EVP_PKEY_CTX *ctx, char *name, size_t namelen)
 static EVP_PKEY *evp_pkey_keygen(OSSL_LIB_CTX *libctx, const char *name,
                                  const char *propq, const OSSL_PARAM *params)
 {
+  LOG_E;
     EVP_PKEY *pkey = NULL;
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_from_name(libctx, name, propq);
 
@@ -1183,6 +1186,7 @@ static EVP_PKEY *evp_pkey_keygen(OSSL_LIB_CTX *libctx, const char *name,
 EVP_PKEY *EVP_PKEY_Q_keygen(OSSL_LIB_CTX *libctx, const char *propq,
                             const char *type, ...)
 {
+  LOG_E;
     va_list args;
     size_t bits;
     char *name;

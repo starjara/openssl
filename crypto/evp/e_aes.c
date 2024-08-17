@@ -29,6 +29,8 @@
 #include "crypto/aes_platform.h"
 #include "evp_local.h"
 
+#define LOG_E printf("\t[evp/e_aes.c] Enter: %s\n", __FUNCTION__);
+
 typedef struct {
     union {
         OSSL_UNION_ALIGN;
@@ -144,6 +146,8 @@ static void ctr64_inc(unsigned char *counter)
 static int aesni_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                           const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     int ret, mode;
     EVP_AES_KEY *dat = EVP_C_DATA(EVP_AES_KEY,ctx);
 
@@ -180,6 +184,7 @@ static int aesni_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 static int aesni_cbc_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
                             const unsigned char *in, size_t len)
 {
+  LOG_E;
     aesni_cbc_encrypt(in, out, len, &EVP_C_DATA(EVP_AES_KEY,ctx)->ks.ks,
                       ctx->iv, EVP_CIPHER_CTX_is_encrypting(ctx));
 
@@ -189,6 +194,7 @@ static int aesni_cbc_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int aesni_ecb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
                             const unsigned char *in, size_t len)
 {
+  LOG_E;
     size_t bl = EVP_CIPHER_CTX_get_block_size(ctx);
 
     if (len < bl)
@@ -223,6 +229,8 @@ static int aesni_ctr_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int aesni_gcm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                               const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,ctx);
     if (!iv && !key)
         return 1;
@@ -260,6 +268,8 @@ static int aesni_gcm_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int aesni_xts_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                               const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_XTS_CTX *xctx = EVP_C_DATA(EVP_AES_XTS_CTX,ctx);
 
     if (!iv && !key)
@@ -314,6 +324,8 @@ static int aesni_xts_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int aesni_ccm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                               const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_CCM_CTX *cctx = EVP_C_DATA(EVP_AES_CCM_CTX,ctx);
     if (!iv && !key)
         return 1;
@@ -341,6 +353,8 @@ static int aesni_ccm_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int aesni_ocb_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                               const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_OCB_CTX *octx = EVP_C_DATA(EVP_AES_OCB_CTX,ctx);
     if (!iv && !key)
         return 1;
@@ -447,6 +461,8 @@ const EVP_CIPHER *EVP_aes_##keylen##_##mode(void) \
 static int aes_t4_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                            const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     int ret, mode, bits;
     EVP_AES_KEY *dat = EVP_C_DATA(EVP_AES_KEY,ctx);
 
@@ -546,6 +562,8 @@ static int aes_t4_ctr_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int aes_t4_gcm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                                const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,ctx);
     if (!iv && !key)
         return 1;
@@ -596,6 +614,8 @@ static int aes_t4_gcm_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int aes_t4_xts_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                                const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_XTS_CTX *xctx = EVP_C_DATA(EVP_AES_XTS_CTX,ctx);
 
     if (!iv && !key)
@@ -669,6 +689,8 @@ static int aes_t4_xts_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int aes_t4_ccm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                                const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_CCM_CTX *cctx = EVP_C_DATA(EVP_AES_CCM_CTX,ctx);
     if (!iv && !key)
         return 1;
@@ -695,6 +717,8 @@ static int aes_t4_ccm_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int aes_t4_ocb_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                                const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_OCB_CTX *octx = EVP_C_DATA(EVP_AES_OCB_CTX,ctx);
     if (!iv && !key)
         return 1;
@@ -990,6 +1014,7 @@ static int s390x_aes_ofb_init_key(EVP_CIPHER_CTX *ctx,
                                   const unsigned char *key,
                                   const unsigned char *ivec, int enc)
 {
+  LOG_E;
     S390X_AES_OFB_CTX *cctx = EVP_C_DATA(S390X_AES_OFB_CTX, ctx);
     const unsigned char *iv = ctx->oiv;
     const int keylen = EVP_CIPHER_CTX_get_key_length(ctx);
@@ -1048,6 +1073,8 @@ static int s390x_aes_cfb_init_key(EVP_CIPHER_CTX *ctx,
                                   const unsigned char *key,
                                   const unsigned char *ivec, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     S390X_AES_CFB_CTX *cctx = EVP_C_DATA(S390X_AES_CFB_CTX, ctx);
     const unsigned char *iv = ctx->oiv;
     const int keylen = EVP_CIPHER_CTX_get_key_length(ctx);
@@ -1117,6 +1144,8 @@ static int s390x_aes_cfb8_init_key(EVP_CIPHER_CTX *ctx,
                                    const unsigned char *key,
                                    const unsigned char *ivec, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     S390X_AES_CFB_CTX *cctx = EVP_C_DATA(S390X_AES_CFB_CTX, ctx);
     const unsigned char *iv = ctx->oiv;
     const int keylen = EVP_CIPHER_CTX_get_key_length(ctx);
@@ -1345,6 +1374,7 @@ static void s390x_aes_gcm_setiv(S390X_AES_GCM_CTX *ctx,
  */
 static int s390x_aes_gcm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
 {
+  LOG_E;
     S390X_AES_GCM_CTX *gctx = EVP_C_DATA(S390X_AES_GCM_CTX, c);
     S390X_AES_GCM_CTX *gctx_out;
     EVP_CIPHER_CTX *out;
@@ -1519,6 +1549,8 @@ static int s390x_aes_gcm_init_key(EVP_CIPHER_CTX *ctx,
                                   const unsigned char *key,
                                   const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     S390X_AES_GCM_CTX *gctx = EVP_C_DATA(S390X_AES_GCM_CTX, ctx);
     int keylen;
 
@@ -1925,6 +1957,8 @@ static int s390x_aes_ccm_init_key(EVP_CIPHER_CTX *ctx,
                                   const unsigned char *key,
                                   const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     S390X_AES_CCM_CTX *cctx = EVP_C_DATA(S390X_AES_CCM_CTX, ctx);
     int keylen;
 
@@ -2307,6 +2341,8 @@ const EVP_CIPHER *EVP_aes_##keylen##_##mode(void) \
 static int aes_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                         const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
     int ret, mode;
     EVP_AES_KEY *dat = EVP_C_DATA(EVP_AES_KEY,ctx);
 
@@ -2561,6 +2597,7 @@ static int aes_gcm_cleanup(EVP_CIPHER_CTX *c)
 
 static int aes_gcm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
 {
+  LOG_E;
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,c);
     switch (type) {
     case EVP_CTRL_INIT:
@@ -2704,6 +2741,8 @@ static int aes_gcm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
 static int aes_gcm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                             const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,ctx);
     if (!iv && !key)
         return 1;
@@ -3120,6 +3159,8 @@ static int aes_xts_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
 static int aes_xts_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                             const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_XTS_CTX *xctx = EVP_C_DATA(EVP_AES_XTS_CTX,ctx);
 
     if (!iv && !key)
@@ -3375,6 +3416,8 @@ static int aes_ccm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
 static int aes_ccm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                             const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_CCM_CTX *cctx = EVP_C_DATA(EVP_AES_CCM_CTX,ctx);
     if (!iv && !key)
         return 1;
@@ -3561,6 +3604,8 @@ typedef struct {
 static int aes_wrap_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                              const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     int len;
     EVP_AES_WRAP_CTX *wctx = EVP_C_DATA(EVP_AES_WRAP_CTX,ctx);
 
@@ -3799,6 +3844,8 @@ static int aes_ocb_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
 static int aes_ocb_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                             const unsigned char *iv, int enc)
 {
+  LOG_E;
+  printf("AAAAAAAAAAAAAAAAAAAAAAAAA\n");
     EVP_AES_OCB_CTX *octx = EVP_C_DATA(EVP_AES_OCB_CTX,ctx);
     if (!iv && !key)
         return 1;

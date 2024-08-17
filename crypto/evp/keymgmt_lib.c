@@ -15,6 +15,8 @@
 #include "internal/provider.h"
 #include "evp_local.h"
 
+#define LOG_E printf("[evp/keymgmt_lib.c] Enter: %s\n", __FUNCTION__);
+
 /*
  * match_type() checks if two EVP_KEYMGMT are matching key types.  This
  * function assumes that the caller has made all the necessary NULL checks.
@@ -60,6 +62,7 @@ int evp_keymgmt_util_try_import(const OSSL_PARAM params[], void *arg)
 int evp_keymgmt_util_assign_pkey(EVP_PKEY *pkey, EVP_KEYMGMT *keymgmt,
                                  void *keydata)
 {
+  LOG_E;
     if (pkey == NULL || keymgmt == NULL || keydata == NULL
         || !EVP_PKEY_set_type_by_keymgmt(pkey, keymgmt)) {
         ERR_raise(ERR_LIB_EVP, ERR_R_INTERNAL_ERROR);
@@ -72,6 +75,7 @@ int evp_keymgmt_util_assign_pkey(EVP_PKEY *pkey, EVP_KEYMGMT *keymgmt,
 
 EVP_PKEY *evp_keymgmt_util_make_pkey(EVP_KEYMGMT *keymgmt, void *keydata)
 {
+  LOG_E;
     EVP_PKEY *pkey = NULL;
 
     if (keymgmt == NULL
@@ -448,6 +452,7 @@ int evp_keymgmt_util_match(EVP_PKEY *pk1, EVP_PKEY *pk2, int selection)
 
 int evp_keymgmt_util_copy(EVP_PKEY *to, EVP_PKEY *from, int selection)
 {
+  LOG_E;
     /* Save copies of pointers we want to play with without affecting |to| */
     EVP_KEYMGMT *to_keymgmt = to->keymgmt;
     void *to_keydata = to->keydata, *alloc_keydata = NULL;

@@ -28,6 +28,8 @@
 #include "crypto/evp.h"
 #include "pem_local.h"
 
+#define LOG_E printf("[pem/pem_pkey.c] Enter: %s\n", __FUNCTION__);
+
 int ossl_pem_check_suffix(const char *pem_str, const char *suffix);
 
 static EVP_PKEY *pem_read_bio_key_decoder(BIO *bp, EVP_PKEY **x,
@@ -102,6 +104,7 @@ static EVP_PKEY *pem_read_bio_key_legacy(BIO *bp, EVP_PKEY **x,
                                          const char *propq,
                                          int selection)
 {
+  LOG_E;
     char *nm = NULL;
     const unsigned char *p = NULL;
     unsigned char *data = NULL;

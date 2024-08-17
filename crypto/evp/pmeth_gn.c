@@ -22,6 +22,8 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
+#define LOG_E printf("[evp/pmeth_gn.c] Enter: %s\n", __FUNCTION__)
+
 static int gen_init(EVP_PKEY_CTX *ctx, int operation)
 {
     int ret = 0;
@@ -127,6 +129,7 @@ static int ossl_callback_to_pkey_gencb(const OSSL_PARAM params[], void *arg)
 
 int EVP_PKEY_generate(EVP_PKEY_CTX *ctx, EVP_PKEY **ppkey)
 {
+  LOG_E;
     int ret = 0;
     EVP_PKEY *allocated_pkey = NULL;
     /* Legacy compatible keygen callback info, only used with provider impls */
@@ -316,6 +319,7 @@ int EVP_PKEY_CTX_get_keygen_info(EVP_PKEY_CTX *ctx, int idx)
 EVP_PKEY *EVP_PKEY_new_mac_key(int type, ENGINE *e,
                                const unsigned char *key, int keylen)
 {
+  LOG_E;
     EVP_PKEY_CTX *mac_ctx = NULL;
     EVP_PKEY *mac_key = NULL;
     mac_ctx = EVP_PKEY_CTX_new_id(type, e);
@@ -363,6 +367,7 @@ int EVP_PKEY_fromdata_init(EVP_PKEY_CTX *ctx)
 int EVP_PKEY_fromdata(EVP_PKEY_CTX *ctx, EVP_PKEY **ppkey, int selection,
                       OSSL_PARAM params[])
 {
+  LOG_E;
     void *keydata = NULL;
     EVP_PKEY *allocated_pkey = NULL;
 

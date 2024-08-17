@@ -17,6 +17,8 @@
 #include "crypto/ctype.h"
 #include "crypto/rand.h"
 
+#define LOG_E printf("[crypto/context.c] Enter: %s\n", __FUNCTION__);
+
 struct ossl_lib_ctx_onfree_list_st {
     ossl_lib_ctx_onfree_fn *fn;
     struct ossl_lib_ctx_onfree_list_st *next;
@@ -71,6 +73,7 @@ int ossl_lib_ctx_is_child(OSSL_LIB_CTX *ctx)
 
 static int context_init(OSSL_LIB_CTX *ctx)
 {
+  LOG_E;
     size_t i;
     int exdata_done = 0;
 

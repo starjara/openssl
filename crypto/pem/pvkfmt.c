@@ -27,6 +27,8 @@
 #include "crypto/pem.h"
 #include "crypto/evp.h"
 
+#define LOG_E printf("[pem/pvkfmt.c] Enter: %s\n", __FUNCTION__);
+
 /*
  * Utility function: read a DWORD (4 byte unsigned integer) in little endian
  * format
@@ -69,6 +71,7 @@ static int read_lebn(const unsigned char **in, unsigned int nbyte, BIGNUM **r)
     (isdss == 0 ? EVP_PKEY_RSA : isdss == 1 ? EVP_PKEY_DSA : EVP_PKEY_NONE)
 static EVP_PKEY *evp_pkey_new0_key(void *key, int evp_type)
 {
+  LOG_E;
     EVP_PKEY *pkey = NULL;
 
     /*

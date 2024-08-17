@@ -17,6 +17,8 @@
 
 #include "cipher_aes_ccm.h"
 
+#define LOG_E printf("[implemantations/ciphers/cipher_aes_ccm_hw.c] Enter: %s\n", __FUNCTION__);
+
 #define AES_HW_CCM_SET_KEY_FN(fn_set_enc_key, fn_blk, fn_ccm_enc, fn_ccm_dec)  \
     fn_set_enc_key(key, keylen * 8, &actx->ccm.ks.ks);                         \
     CRYPTO_ccm128_init(&ctx->ccm_ctx, ctx->m, ctx->l, &actx->ccm.ks.ks,        \
@@ -27,6 +29,7 @@
 static int ccm_generic_aes_initkey(PROV_CCM_CTX *ctx, const unsigned char *key,
                                    size_t keylen)
 {
+  LOG_E;
     PROV_AES_CCM_CTX *actx = (PROV_AES_CCM_CTX *)ctx;
 
 #ifdef HWAES_CAPABLE

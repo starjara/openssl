@@ -35,6 +35,10 @@
 #include "internal/provider.h"
 #include "evp_local.h"
 
+#include "verse.h"
+
+#define LOG_E printf("[evp/pmeth_lib.c] Enter: %s\n", __FUNCTION__);
+
 #ifndef FIPS_MODULE
 
 static int evp_pkey_ctx_store_cached_data(EVP_PKEY_CTX *ctx,
@@ -183,15 +187,25 @@ static EVP_PKEY_CTX *int_ctx_new(OSSL_LIB_CTX *libctx,
                                  int id)
 
 {
+  LOG_E;
+  //verse_enter(0);
     EVP_PKEY_CTX *ret = NULL;
     const EVP_PKEY_METHOD *pmeth = NULL, *app_pmeth = NULL;
     EVP_KEYMGMT *keymgmt = NULL;
 
+    /*
+    EVP_PKEY dup;
+    EVP_PKEY *pkey;
+
+    verse_read((__u64) pkey_o, &dup, sizeof(dup));
+    pkey = &dup;
+    */
+    
     /* Code below to be removed when legacy support is dropped. */
     /* BEGIN legacy */
     if (id == -1) {
         if (pkey != NULL && !evp_pkey_is_provided(pkey)) {
-            id = pkey->type;
+	  id = pkey->type;
         } else {
             if (pkey != NULL) {
                 /* Must be provided if we get here */
@@ -219,6 +233,7 @@ static EVP_PKEY_CTX *int_ctx_new(OSSL_LIB_CTX *libctx,
     }
 
 #ifndef FIPS_MODULE
+    //printf("\tFIPS_MODULE ndef\n");
     /*
      * Here, we extract what information we can for the purpose of
      * supporting usage with implementations from providers, to make
@@ -261,6 +276,7 @@ static EVP_PKEY_CTX *int_ctx_new(OSSL_LIB_CTX *libctx,
     /* END legacy */
 #endif /* FIPS_MODULE */
  common:
+    //printf("\tcommon\n");
     /*
      * If there's no engine and no app supplied pmeth and there's a name, we try
      * fetching a provider implementation.
@@ -357,6 +373,8 @@ static EVP_PKEY_CTX *int_ctx_new(OSSL_LIB_CTX *libctx,
         }
     }
 
+    //verse_write((__u64) pkey_o, &dup, sizeof(dup));
+    //verse_exit(1);
     return ret;
 }
 

@@ -48,6 +48,8 @@
 #include <openssl/aes.h>
 #include "aes_local.h"
 
+#define LOG_E printf("[aes/aes_x86core.c] Enter: %s\n", __FUNCTION__);
+
 /*
  * These two parameters control which table, 256-byte or 2KB, is
  * referenced in outer and respectively inner rounds.
@@ -576,6 +578,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  LOG_E;
 
     u32 *rk;
     int i, j, status;

@@ -25,6 +25,11 @@
 #include "internal/refcount.h"
 #include "internal/ktls.h"
 
+/* VERSE */
+#include "verse.h"
+
+#define LOG_E printf("[ssl/ssl-lib.c] Enter: %s\n", __FUNCTION__)
+
 static int ssl_undefined_function_1(SSL *ssl, SSL3_RECORD *r, size_t s, int t,
                                     SSL_MAC_BUF *mac, size_t macsize)
 {
@@ -688,6 +693,12 @@ SSL *SSL_new(SSL_CTX *ctx)
 {
     SSL *s;
 
+    /* ======================= VERSE ================== */
+    LOG_E;
+    static int new_index = 5;
+    verse_create(new_index ++);
+    /* ================================================ */
+
     if (ctx == NULL) {
         ERR_raise(ERR_LIB_SSL, SSL_R_NULL_SSL_CTX);
         return NULL;
@@ -1187,6 +1198,12 @@ void SSL_certs_clear(SSL *s)
 void SSL_free(SSL *s)
 {
     int i;
+
+    /* ========== VERSE ==========*/
+    LOG_E;
+    static int free_index = 0;
+    verse_destroy(free_index ++ );
+    /* ===========================*/
 
     if (s == NULL)
         return;
@@ -3237,6 +3254,7 @@ static int ssl_session_cmp(const SSL_SESSION *a, const SSL_SESSION *b)
 SSL_CTX *SSL_CTX_new_ex(OSSL_LIB_CTX *libctx, const char *propq,
                         const SSL_METHOD *meth)
 {
+  LOG_E;
     SSL_CTX *ret = NULL;
 
     if (meth == NULL) {

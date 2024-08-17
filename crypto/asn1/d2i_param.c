@@ -15,9 +15,12 @@
 #include "crypto/asn1.h"
 #include "crypto/evp.h"
 
+#define LOG_E printf("[asn1/d2i_param.c] Enter: %s\n", __FUNCTION__)
+
 EVP_PKEY *d2i_KeyParams(int type, EVP_PKEY **a, const unsigned char **pp,
                         long length)
 {
+  LOG_E;
     EVP_PKEY *ret = NULL;
 
     if ((a == NULL) || (*a == NULL)) {
@@ -48,6 +51,7 @@ err:
 
 EVP_PKEY *d2i_KeyParams_bio(int type, EVP_PKEY **a, BIO *in)
 {
+  LOG_E;
     BUF_MEM *b = NULL;
     const unsigned char *p;
     void *ret = NULL;

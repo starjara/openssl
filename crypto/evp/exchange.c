@@ -18,6 +18,8 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
+#define LOG_E printf("[evp/exchange.c] Enter: %s\n", __FUNCTION__);
+
 static EVP_KEYEXCH *evp_keyexch_new(OSSL_PROVIDER *prov)
 {
     EVP_KEYEXCH *exchange = OPENSSL_zalloc(sizeof(EVP_KEYEXCH));
@@ -199,6 +201,7 @@ int EVP_PKEY_derive_init(EVP_PKEY_CTX *ctx)
 
 int EVP_PKEY_derive_init_ex(EVP_PKEY_CTX *ctx, const OSSL_PARAM params[])
 {
+  LOG_E;
     int ret;
     void *provkey = NULL;
     EVP_KEYEXCH *exchange = NULL;

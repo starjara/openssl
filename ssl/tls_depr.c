@@ -13,6 +13,8 @@
 #include <openssl/engine.h>
 #include "ssl_local.h"
 
+#define LOG_E printf("[ssl/tls_depr.c] Enter: %s\n", __FUNCTION__);
+
 /*
  * Engine APIs are only used to support applications that still use ENGINEs.
  * Once ENGINE is removed completely, all of this code can also be removed.
@@ -148,6 +150,7 @@ HMAC_CTX *ssl_hmac_get0_HMAC_CTX(SSL_HMAC *ctx)
 /* Some deprecated public APIs pass DH objects */
 EVP_PKEY *ssl_dh_to_pkey(DH *dh)
 {
+  LOG_E;
 # ifndef OPENSSL_NO_DH
     EVP_PKEY *ret;
 

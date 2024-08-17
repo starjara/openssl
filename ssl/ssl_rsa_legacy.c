@@ -14,8 +14,11 @@
 #include <openssl/rsa.h>
 #include <openssl/ssl.h>
 
+#define LOG_E printf("[ssl/ssl_rsa_legacy.c] Enter: %s\n", __FUNCTION__);
+
 int SSL_use_RSAPrivateKey(SSL *ssl, RSA *rsa)
 {
+  LOG_E;
     EVP_PKEY *pkey;
     int ret;
 
@@ -98,6 +101,7 @@ int SSL_use_RSAPrivateKey_ASN1(SSL *ssl, const unsigned char *d, long len)
 
 int SSL_CTX_use_RSAPrivateKey(SSL_CTX *ctx, RSA *rsa)
 {
+  LOG_E;
     int ret;
     EVP_PKEY *pkey;
 

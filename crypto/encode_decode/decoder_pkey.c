@@ -19,6 +19,8 @@
 #include "crypto/decoder.h"
 #include "encoder_local.h"
 
+#define LOG_E printf("[encode_decode/decoder_pkey.c] Enter: %s\n", __FUNCTION__);
+
 int OSSL_DECODER_CTX_set_passphrase(OSSL_DECODER_CTX *ctx,
                                     const unsigned char *kstr,
                                     size_t klen)
@@ -67,6 +69,7 @@ static int decoder_construct_pkey(OSSL_DECODER_INSTANCE *decoder_inst,
                                   const OSSL_PARAM *params,
                                   void *construct_data)
 {
+  LOG_E;
     struct decoder_pkey_data_st *data = construct_data;
     OSSL_DECODER *decoder = OSSL_DECODER_INSTANCE_get_decoder(decoder_inst);
     void *decoderctx = OSSL_DECODER_INSTANCE_get_decoder_ctx(decoder_inst);

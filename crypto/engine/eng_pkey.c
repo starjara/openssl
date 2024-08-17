@@ -12,6 +12,8 @@
 
 #include "eng_local.h"
 
+#define LOG_E printf("[engine/eng_pkey.c] Enter: %s\n", __FUNCTION__);
+
 /* Basic get/set stuff */
 
 int ENGINE_set_load_privkey_function(ENGINE *e,
@@ -56,6 +58,7 @@ ENGINE_SSL_CLIENT_CERT_PTR ENGINE_get_ssl_client_cert_function(const ENGINE
 EVP_PKEY *ENGINE_load_private_key(ENGINE *e, const char *key_id,
                                   UI_METHOD *ui_method, void *callback_data)
 {
+  LOG_E;
     EVP_PKEY *pkey;
 
     if (e == NULL) {
@@ -85,6 +88,7 @@ EVP_PKEY *ENGINE_load_private_key(ENGINE *e, const char *key_id,
 EVP_PKEY *ENGINE_load_public_key(ENGINE *e, const char *key_id,
                                  UI_METHOD *ui_method, void *callback_data)
 {
+  LOG_E;
     EVP_PKEY *pkey;
 
     if (e == NULL) {
@@ -116,6 +120,7 @@ int ENGINE_load_ssl_client_cert(ENGINE *e, SSL *s,
                                 EVP_PKEY **ppkey, STACK_OF(X509) **pother,
                                 UI_METHOD *ui_method, void *callback_data)
 {
+  LOG_E;
 
     if (e == NULL) {
         ERR_raise(ERR_LIB_ENGINE, ERR_R_PASSED_NULL_PARAMETER);

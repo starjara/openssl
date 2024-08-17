@@ -11,6 +11,10 @@
 #include "crypto/cryptlib.h"
 #include "internal/thread_once.h"
 
+#include "verse.h"
+
+#define LOG_E printf("[crypto/ex_data.c] Enter:%s\n", __FUNCTION__);
+
 int ossl_do_ex_data_init(OSSL_LIB_CTX *ctx)
 {
     OSSL_EX_DATA_GLOBAL *global = ossl_lib_ctx_get_ex_data_global(ctx);
@@ -213,6 +217,7 @@ int CRYPTO_get_ex_new_index(int class_index, long argl, void *argp,
 int ossl_crypto_new_ex_data_ex(OSSL_LIB_CTX *ctx, int class_index, void *obj,
                                CRYPTO_EX_DATA *ad)
 {
+  LOG_E;
     int mx, i;
     void *ptr;
     EX_CALLBACK **storage = NULL;
@@ -227,8 +232,26 @@ int ossl_crypto_new_ex_data_ex(OSSL_LIB_CTX *ctx, int class_index, void *obj,
     if (ip == NULL)
         return 0;
 
+    /*
+    printf("ad: %p\n", ad);
+    printf("ad->ctx: %p\n", &(ad->ctx));
+    printf("ad->sk: %p\n", &(ad->sk));
+    if(obj == 0x80000000) {
+      if(ctx != NULL)
+	//verse_write((unsigned long long)&(ad->ctx), (void *)ctx, sizeof(ad->ctx));
+	//printf("write ad->ctx\n");
+	//verse_write((unsigned long long) &(ad->sk), &tmp, sizeof(tmp));
+	//printf("write ad->sk\n");
+    }
+    else {
+      ad->ctx = ctx;
+      ad->sk = NULL;
+    }
+    */
     ad->ctx = ctx;
     ad->sk = NULL;
+    // printf("CC\n");
+
     mx = sk_EX_CALLBACK_num(ip->meth);
     if (mx > 0) {
         if (mx < (int)OSSL_NELEM(stack))
@@ -245,6 +268,7 @@ int ossl_crypto_new_ex_data_ex(OSSL_LIB_CTX *ctx, int class_index, void *obj,
         ERR_raise(ERR_LIB_CRYPTO, ERR_R_MALLOC_FAILURE);
         return 0;
     }
+    // printf("AA\n");
     for (i = 0; i < mx; i++) {
         if (storage[i] != NULL && storage[i]->new_func != NULL) {
             ptr = CRYPTO_get_ex_data(ad, i);
@@ -252,6 +276,7 @@ int ossl_crypto_new_ex_data_ex(OSSL_LIB_CTX *ctx, int class_index, void *obj,
                                  storage[i]->argl, storage[i]->argp);
         }
     }
+    // printf("BB\n");
     if (storage != stack)
         OPENSSL_free(storage);
     return 1;

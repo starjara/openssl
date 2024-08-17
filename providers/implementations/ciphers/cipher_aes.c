@@ -20,6 +20,8 @@
 #include "prov/implementations.h"
 #include "prov/providercommon.h"
 
+#include "verse.h"
+
 static OSSL_FUNC_cipher_freectx_fn aes_freectx;
 static OSSL_FUNC_cipher_dupctx_fn aes_dupctx;
 
@@ -40,6 +42,8 @@ static void *aes_dupctx(void *ctx)
         return NULL;
 
     ret = OPENSSL_malloc(sizeof(*ret));
+    // ret = (PROV_AES_CTX *)verse_mmap(0x10000, 0, 0x1000, PROT_READ | PROT_WRITE);
+
     if (ret == NULL) {
         ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);
         return NULL;

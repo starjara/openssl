@@ -24,6 +24,8 @@ static void SSL_SESSION_list_remove(SSL_CTX *ctx, SSL_SESSION *s);
 static void SSL_SESSION_list_add(SSL_CTX *ctx, SSL_SESSION *s);
 static int remove_session_lock(SSL_CTX *ctx, SSL_SESSION *c, int lck);
 
+#define LOG_E printf("[ssl/ssl_sess.c] Enter: %s\n", __FUNCTION__)
+
 DEFINE_STACK_OF(SSL_SESSION)
 
 __owur static int sess_timedout(time_t t, SSL_SESSION *ss)
@@ -122,6 +124,8 @@ void *SSL_SESSION_get_ex_data(const SSL_SESSION *s, int idx)
 SSL_SESSION *SSL_SESSION_new(void)
 {
     SSL_SESSION *ss;
+
+    LOG_E;
 
     if (!OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS, NULL))
         return NULL;

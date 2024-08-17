@@ -617,6 +617,7 @@ static int
 padlock_aes_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                      const unsigned char *iv, int enc)
 {
+  printf("PADLOCK\n");
     struct padlock_cipher_data *cdata;
     int key_len = EVP_CIPHER_CTX_get_key_length(ctx) * 8;
     unsigned long mode = EVP_CIPHER_CTX_get_mode(ctx);

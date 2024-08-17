@@ -98,6 +98,7 @@ static int aes_wrap_init(void *vctx, const unsigned char *key,
                          size_t keylen, const unsigned char *iv,
                          size_t ivlen, const OSSL_PARAM params[], int enc)
 {
+  printf("ARSTRS\n");
     PROV_CIPHER_CTX *ctx = (PROV_CIPHER_CTX *)vctx;
     PROV_AES_WRAP_CTX *wctx = (PROV_AES_WRAP_CTX *)vctx;
 

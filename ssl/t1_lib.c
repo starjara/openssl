@@ -27,6 +27,10 @@
 #include "ssl_local.h"
 #include <openssl/ct.h>
 
+#include "verse.h"
+
+#define LOG_E printf("[ssl/t1_lib.c] Enter: %s\n", __FUNCTION__);
+
 static const SIGALG_LOOKUP *find_sig_alg(SSL *s, X509 *x, EVP_PKEY *pkey);
 static int tls12_sigalg_allowed(const SSL *s, int op, const SIGALG_LOOKUP *lu);
 
@@ -1167,6 +1171,7 @@ static const uint16_t tls_default_sigalg[] = {
 
 int ssl_setup_sig_algs(SSL_CTX *ctx)
 {
+  LOG_E;
     size_t i;
     const SIGALG_LOOKUP *lu;
     SIGALG_LOOKUP *cache
@@ -3517,6 +3522,7 @@ __owur int tls13_set_encoded_pub_key(EVP_PKEY *pkey,
                                      const unsigned char *enckey,
                                      size_t enckeylen)
 {
+  LOG_E;
     if (EVP_PKEY_is_a(pkey, "DH")) {
         int bits = EVP_PKEY_get_bits(pkey);
 

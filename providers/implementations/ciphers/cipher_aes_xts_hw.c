@@ -39,6 +39,7 @@ static int cipher_hw_aes_xts_generic_initkey(PROV_CIPHER_CTX *ctx,
                                              const unsigned char *key,
                                              size_t keylen)
 {
+  printf("AIOENTIROST\n");
     PROV_AES_XTS_CTX *xctx = (PROV_AES_XTS_CTX *)ctx;
     OSSL_xts_stream_fn stream_enc = NULL;
     OSSL_xts_stream_fn stream_dec = NULL;

@@ -23,6 +23,8 @@
 #include "crypto/evp.h"
 #include "internal/asn1.h"
 
+#define LOG_E printf("[asn1/d2i_pr.c] Enter: %s\n", __FUNCTION__)
+
 static EVP_PKEY *
 d2i_PrivateKey_decoder(int keytype, EVP_PKEY **a, const unsigned char **pp,
                        long length, OSSL_LIB_CTX *libctx, const char *propq)
@@ -78,6 +80,7 @@ EVP_PKEY *
 ossl_d2i_PrivateKey_legacy(int keytype, EVP_PKEY **a, const unsigned char **pp,
                            long length, OSSL_LIB_CTX *libctx, const char *propq)
 {
+  LOG_E;
     EVP_PKEY *ret;
     const unsigned char *p = *pp;
 

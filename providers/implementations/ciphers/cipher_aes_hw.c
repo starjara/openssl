@@ -16,14 +16,17 @@
 #include <openssl/proverr.h>
 #include "cipher_aes.h"
 
+#define LOG_E printf("[implemantations/cipher_aes_hw.c] Enter: %s\n", __FUNCTION__);
 static int cipher_hw_aes_initkey(PROV_CIPHER_CTX *dat,
                                  const unsigned char *key, size_t keylen)
 {
+  LOG_E;
     int ret;
     PROV_AES_CTX *adat = (PROV_AES_CTX *)dat;
     AES_KEY *ks = &adat->ks.ks;
 
     dat->ks = ks;
+    printf("%s\n", ks);
 
     if ((dat->mode == EVP_CIPH_ECB_MODE || dat->mode == EVP_CIPH_CBC_MODE)
         && !dat->enc) {

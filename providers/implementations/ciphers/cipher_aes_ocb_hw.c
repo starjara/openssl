@@ -33,6 +33,7 @@ static int cipher_hw_aes_ocb_generic_initkey(PROV_CIPHER_CTX *vctx,
                                              const unsigned char *key,
                                              size_t keylen)
 {
+  printf("BBBBBCXT\n");
     PROV_AES_OCB_CTX *ctx = (PROV_AES_OCB_CTX *)vctx;
 
 /*

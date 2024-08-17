@@ -25,9 +25,12 @@
 
 #include "crypto/evp.h"
 
+#define LOG_E printf("[asn1/d2i_pu.c] Enter: %s\n", __FUNCTION__);
+
 EVP_PKEY *d2i_PublicKey(int type, EVP_PKEY **a, const unsigned char **pp,
                         long length)
 {
+  LOG_E;
     EVP_PKEY *ret;
     EVP_PKEY *copy = NULL;
 

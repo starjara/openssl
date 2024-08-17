@@ -28,6 +28,8 @@
 #include "internal/provider.h"
 #include "internal/sizes.h"
 
+#define LOG_E printf("[x509/x_pubkey.c] Enter: %s\n", __FUNCTION__);
+
 struct X509_pubkey_st {
     X509_ALGOR *algor;
     ASN1_BIT_STRING *public_key;
@@ -131,6 +133,7 @@ static int x509_pubkey_ex_d2i_ex(ASN1_VALUE **pval,
                                  char opt, ASN1_TLC *ctx, OSSL_LIB_CTX *libctx,
                                  const char *propq)
 {
+  LOG_E;
     const unsigned char *in_saved = *in;
     size_t publen;
     X509_PUBKEY *pubkey;
@@ -397,6 +400,7 @@ int X509_PUBKEY_set(X509_PUBKEY **x, EVP_PKEY *pkey)
  */
 static int x509_pubkey_decode(EVP_PKEY **ppkey, const X509_PUBKEY *key)
 {
+  LOG_E;
     EVP_PKEY *pkey;
     int nid;
 
@@ -622,6 +626,7 @@ RSA *d2i_RSA_PUBKEY(RSA **a, const unsigned char **pp, long length)
 
 int i2d_RSA_PUBKEY(const RSA *a, unsigned char **pp)
 {
+  LOG_E;
     EVP_PKEY *pktmp;
     int ret;
     if (!a)
@@ -664,6 +669,7 @@ DH *ossl_d2i_DH_PUBKEY(DH **a, const unsigned char **pp, long length)
 
 int ossl_i2d_DH_PUBKEY(const DH *a, unsigned char **pp)
 {
+  LOG_E;
     EVP_PKEY *pktmp;
     int ret;
     if (!a)
@@ -705,6 +711,7 @@ DH *ossl_d2i_DHx_PUBKEY(DH **a, const unsigned char **pp, long length)
 
 int ossl_i2d_DHx_PUBKEY(const DH *a, unsigned char **pp)
 {
+  LOG_E;
     EVP_PKEY *pktmp;
     int ret;
     if (!a)
@@ -771,6 +778,7 @@ DSA *ossl_d2i_DSA_PUBKEY(DSA **a, const unsigned char **pp, long length)
 
 int i2d_DSA_PUBKEY(const DSA *a, unsigned char **pp)
 {
+  LOG_E;
     EVP_PKEY *pktmp;
     int ret;
     if (!a)
@@ -816,6 +824,7 @@ EC_KEY *d2i_EC_PUBKEY(EC_KEY **a, const unsigned char **pp, long length)
 
 int i2d_EC_PUBKEY(const EC_KEY *a, unsigned char **pp)
 {
+  LOG_E;
     EVP_PKEY *pktmp;
     int ret;
 
@@ -857,6 +866,7 @@ ECX_KEY *ossl_d2i_ED25519_PUBKEY(ECX_KEY **a,
 
 int ossl_i2d_ED25519_PUBKEY(const ECX_KEY *a, unsigned char **pp)
 {
+  LOG_E;
     EVP_PKEY *pktmp;
     int ret;
 
@@ -899,6 +909,7 @@ ECX_KEY *ossl_d2i_ED448_PUBKEY(ECX_KEY **a,
 
 int ossl_i2d_ED448_PUBKEY(const ECX_KEY *a, unsigned char **pp)
 {
+  LOG_E;
     EVP_PKEY *pktmp;
     int ret;
 
@@ -941,6 +952,7 @@ ECX_KEY *ossl_d2i_X25519_PUBKEY(ECX_KEY **a,
 
 int ossl_i2d_X25519_PUBKEY(const ECX_KEY *a, unsigned char **pp)
 {
+  LOG_E;
     EVP_PKEY *pktmp;
     int ret;
 
@@ -983,6 +995,7 @@ ECX_KEY *ossl_d2i_X448_PUBKEY(ECX_KEY **a,
 
 int ossl_i2d_X448_PUBKEY(const ECX_KEY *a, unsigned char **pp)
 {
+  LOG_E;
     EVP_PKEY *pktmp;
     int ret;
 

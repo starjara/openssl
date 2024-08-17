@@ -37,6 +37,7 @@ int RSA_print_fp(FILE *fp, const RSA *x, int off)
 
 int RSA_print(BIO *bp, const RSA *x, int off)
 {
+  printf("??\n");
     EVP_PKEY *pk;
     int ret;
     pk = EVP_PKEY_new();

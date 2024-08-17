@@ -20,10 +20,12 @@
 #include "crypto/x509.h"
 
 /* Extract a private key from a PKCS8 structure */
+#define LOG_E printf("[openssl-evp_pkey.c] Enter: %s\n", __func__);
 
 EVP_PKEY *evp_pkcs82pkey_legacy(const PKCS8_PRIV_KEY_INFO *p8, OSSL_LIB_CTX *libctx,
                                 const char *propq)
 {
+  LOG_E;
     EVP_PKEY *pkey = NULL;
     const ASN1_OBJECT *algoid;
     char obj_tmp[80];
@@ -66,6 +68,7 @@ EVP_PKEY *evp_pkcs82pkey_legacy(const PKCS8_PRIV_KEY_INFO *p8, OSSL_LIB_CTX *lib
 EVP_PKEY *EVP_PKCS82PKEY_ex(const PKCS8_PRIV_KEY_INFO *p8, OSSL_LIB_CTX *libctx,
                             const char *propq)
 {
+  LOG_E
     EVP_PKEY *pkey = NULL;
     const unsigned char *p8_data = NULL;
     unsigned char *encoded_data = NULL;
@@ -95,6 +98,7 @@ EVP_PKEY *EVP_PKCS82PKEY_ex(const PKCS8_PRIV_KEY_INFO *p8, OSSL_LIB_CTX *libctx,
 
 EVP_PKEY *EVP_PKCS82PKEY(const PKCS8_PRIV_KEY_INFO *p8)
 {
+  LOG_E
     return EVP_PKCS82PKEY_ex(p8, NULL, NULL);
 }
 
@@ -102,6 +106,7 @@ EVP_PKEY *EVP_PKCS82PKEY(const PKCS8_PRIV_KEY_INFO *p8)
 
 PKCS8_PRIV_KEY_INFO *EVP_PKEY2PKCS8(const EVP_PKEY *pkey)
 {
+  LOG_E
     PKCS8_PRIV_KEY_INFO *p8 = NULL;
     OSSL_ENCODER_CTX *ctx = NULL;
 
@@ -163,32 +168,38 @@ PKCS8_PRIV_KEY_INFO *EVP_PKEY2PKCS8(const EVP_PKEY *pkey)
 
 int EVP_PKEY_get_attr_count(const EVP_PKEY *key)
 {
+  LOG_E
     return X509at_get_attr_count(key->attributes);
 }
 
 int EVP_PKEY_get_attr_by_NID(const EVP_PKEY *key, int nid, int lastpos)
 {
+  LOG_E
     return X509at_get_attr_by_NID(key->attributes, nid, lastpos);
 }
 
 int EVP_PKEY_get_attr_by_OBJ(const EVP_PKEY *key, const ASN1_OBJECT *obj,
                              int lastpos)
 {
+  LOG_E
     return X509at_get_attr_by_OBJ(key->attributes, obj, lastpos);
 }
 
 X509_ATTRIBUTE *EVP_PKEY_get_attr(const EVP_PKEY *key, int loc)
 {
+  LOG_E
     return X509at_get_attr(key->attributes, loc);
 }
 
 X509_ATTRIBUTE *EVP_PKEY_delete_attr(EVP_PKEY *key, int loc)
 {
+  LOG_E
     return X509at_delete_attr(key->attributes, loc);
 }
 
 int EVP_PKEY_add1_attr(EVP_PKEY *key, X509_ATTRIBUTE *attr)
 {
+  LOG_E
     if (X509at_add1_attr(&key->attributes, attr))
         return 1;
     return 0;
@@ -198,6 +209,7 @@ int EVP_PKEY_add1_attr_by_OBJ(EVP_PKEY *key,
                               const ASN1_OBJECT *obj, int type,
                               const unsigned char *bytes, int len)
 {
+  LOG_E
     if (X509at_add1_attr_by_OBJ(&key->attributes, obj, type, bytes, len))
         return 1;
     return 0;
@@ -207,6 +219,7 @@ int EVP_PKEY_add1_attr_by_NID(EVP_PKEY *key,
                               int nid, int type,
                               const unsigned char *bytes, int len)
 {
+  LOG_E
     if (X509at_add1_attr_by_NID(&key->attributes, nid, type, bytes, len))
         return 1;
     return 0;
@@ -216,6 +229,7 @@ int EVP_PKEY_add1_attr_by_txt(EVP_PKEY *key,
                               const char *attrname, int type,
                               const unsigned char *bytes, int len)
 {
+  LOG_E
     if (X509at_add1_attr_by_txt(&key->attributes, attrname, type, bytes, len))
         return 1;
     return 0;
@@ -223,6 +237,7 @@ int EVP_PKEY_add1_attr_by_txt(EVP_PKEY *key,
 
 const char *EVP_PKEY_get0_type_name(const EVP_PKEY *key)
 {
+  LOG_E
     const EVP_PKEY_ASN1_METHOD *ameth;
     const char *name = NULL;
 
@@ -240,6 +255,7 @@ const char *EVP_PKEY_get0_type_name(const EVP_PKEY *key)
 
 const OSSL_PROVIDER *EVP_PKEY_get0_provider(const EVP_PKEY *key)
 {
+  LOG_E
     if (evp_pkey_is_provided(key))
         return EVP_KEYMGMT_get0_provider(key->keymgmt);
     return NULL;

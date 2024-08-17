@@ -50,6 +50,8 @@
 #include <openssl/aes.h>
 #include "aes_local.h"
 
+#define LOG_E printf("[aes/aes_core.c] Enter: %s\n", __FUNCTION__);
+
 #if defined(OPENSSL_AES_CONST_TIME) && !defined(AES_ASM)
 
 # if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
@@ -554,6 +556,7 @@ static void Cipher(const unsigned char *in, unsigned char *out,
     AddRoundKey(state, w + nr*2);
 
     memcpy(out, state, 16);
+
 }
 
 static void InvCipher(const unsigned char *in, unsigned char *out,
@@ -631,6 +634,7 @@ static void KeyExpansion(const unsigned char *key, u64 *w,
 int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  LOG_E;
     u64 *rk;
 
     if (!userKey || !key)
@@ -657,6 +661,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  LOG_E;
     return AES_set_encrypt_key(userKey, bits, key);
 }
 
@@ -667,12 +672,20 @@ int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
 void AES_encrypt(const unsigned char *in, unsigned char *out,
                  const AES_KEY *key)
 {
+  LOG_E;
+  printf("\tShort\n");
     const u64 *rk;
+
+    verse_create(0);
+    verse_enter(0);
 
     assert(in && out && key);
     rk = (u64*)key->rd_key;
 
     Cipher(in, out, rk, key->rounds);
+
+    verse_exit(0)
+    verse_destroy(0);
 }
 
 /*
@@ -682,12 +695,19 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
 void AES_decrypt(const unsigned char *in, unsigned char *out,
                  const AES_KEY *key)
 {
+  LOG_E;
     const u64 *rk;
+
+    verse_create(1);
+    verse_enter(1);
 
     assert(in && out && key);
     rk = (u64*)key->rd_key;
 
     InvCipher(in, out, rk, key->rounds);
+
+    verse_exit(1);
+    verse_destroy(0);
 }
 #elif !defined(AES_ASM)
 /*-
@@ -1278,6 +1298,7 @@ static const u32 rcon[] = {
 int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  LOG_E;
 
     u32 *rk;
     int i = 0;
@@ -1380,6 +1401,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  LOG_E;
 
     u32 *rk;
     int i, j, status;
@@ -1433,6 +1455,8 @@ int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
 void AES_encrypt(const unsigned char *in, unsigned char *out,
                  const AES_KEY *key) {
 
+  // LOG_E;
+  // printf("\tLong\n");
     const u32 *rk;
     u32 s0, s1, s2, s3, t0, t1, t2, t3;
 #ifndef FULL_UNROLL
@@ -1624,6 +1648,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
 void AES_decrypt(const unsigned char *in, unsigned char *out,
                  const AES_KEY *key)
 {
+  LOG_E;
 
     const u32 *rk;
     u32 s0, s1, s2, s3, t0, t1, t2, t3;
@@ -1857,6 +1882,7 @@ static const u32 rcon[] = {
 int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  LOG_E;
     u32 *rk;
     int i = 0;
     u32 temp;
@@ -1958,6 +1984,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  LOG_E;
 
     u32 *rk;
     int i, j, status;

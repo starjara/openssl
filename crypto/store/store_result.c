@@ -34,6 +34,8 @@
 # define OSSL_OBJECT_PKCS12 -1
 #endif
 
+#define LOG_E printf("[store/store_restul.c] Enter: %s\n", __FUNCTION__)
+
 /*
  * ossl_store_handle_load_result() is initially written to be a companion
  * to our 'file:' scheme provider implementation, but has been made generic
@@ -188,6 +190,7 @@ static EVP_PKEY *try_key_ref(struct extracted_param_data_st *data,
                              const OSSL_PROVIDER *provider,
                              OSSL_LIB_CTX *libctx, const char *propq)
 {
+  LOG_E;
     EVP_PKEY *pk = NULL;
     EVP_KEYMGMT *keymgmt = NULL;
     void *keydata = NULL;

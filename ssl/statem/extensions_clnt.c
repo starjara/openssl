@@ -12,6 +12,8 @@
 #include "internal/cryptlib.h"
 #include "statem_local.h"
 
+#define LOG_E printf("[ssl/statem/extensions_clnt.c] Enter: %s\n", __FUNCTION__);
+
 EXT_RETURN tls_construct_ctos_renegotiate(SSL *s, WPACKET *pkt,
                                           unsigned int context, X509 *x,
                                           size_t chainidx)
@@ -1762,6 +1764,7 @@ int tls_parse_stoc_supported_versions(SSL *s, PACKET *pkt, unsigned int context,
 int tls_parse_stoc_key_share(SSL *s, PACKET *pkt, unsigned int context, X509 *x,
                              size_t chainidx)
 {
+  LOG_E;
 #ifndef OPENSSL_NO_TLS1_3
     unsigned int group_id;
     PACKET encoded_pt;

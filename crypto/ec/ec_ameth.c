@@ -26,6 +26,8 @@
 #include <openssl/param_build.h>
 #include "ec_local.h"
 
+#define LOG_E printf("[ec/ec_ameth.c] Enter: %s\n", __FUNCTION__);
+
 static int eckey_param2type(int *pptype, void **ppval, const EC_KEY *ec_key)
 {
     const EC_GROUP *group;
@@ -629,6 +631,7 @@ static int ec_pkey_import_from(const OSSL_PARAM params[], void *vpctx)
 
 static int ec_pkey_copy(EVP_PKEY *to, EVP_PKEY *from)
 {
+  LOG_E;
     EC_KEY *eckey = from->pkey.ec;
     EC_KEY *dupkey = NULL;
     int ret;
