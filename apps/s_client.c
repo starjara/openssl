@@ -16,6 +16,8 @@
 #include <errno.h>
 #include <openssl/e_os2.h>
 
+#define LOG_E printf("[apps/s_client.c] Enter: %s\n", __FUNCTION__);
+
 #ifndef OPENSSL_NO_SOCK
 
 /*
@@ -159,6 +161,7 @@ static int psk_use_session_cb(SSL *s, const EVP_MD *md,
                               const unsigned char **id, size_t *idlen,
                               SSL_SESSION **sess)
 {
+  LOG_E;
     SSL_SESSION *usesess = NULL;
     const SSL_CIPHER *cipher = NULL;
 

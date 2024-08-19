@@ -23,6 +23,8 @@
 #include "prov/implementations.h"
 #include "prov/providercommon.h"
 
+#define LOG_E printf("[providers/implementations/ciphers/cipher_aes_cpc_hmac_sha.c] %s\n", __FUNCTION__);
+
 #ifndef AES_CBC_HMAC_SHA_CAPABLE
 # define IMPLEMENT_CIPHER(nm, sub, kbits, blkbits, ivbits, flags)              \
 const OSSL_DISPATCH ossl_##nm##kbits##sub##_functions[] = {                    \
@@ -50,6 +52,7 @@ static int aes_einit(void *ctx, const unsigned char *key, size_t keylen,
                           const unsigned char *iv, size_t ivlen,
                           const OSSL_PARAM params[])
 {
+  LOG_E;
     if (!ossl_cipher_generic_einit(ctx, key, keylen, iv, ivlen, NULL))
         return 0;
     return aes_set_ctx_params(ctx, params);
@@ -311,6 +314,7 @@ static void base_init(void *provctx, PROV_AES_HMAC_SHA_CTX *ctx,
                       size_t kbits, size_t blkbits, size_t ivbits,
                       uint64_t flags)
 {
+  LOG_E;
     ossl_cipher_generic_initkey(&ctx->base, kbits, blkbits, ivbits,
                                 EVP_CIPH_CBC_MODE, flags,
                                 &meths->base, provctx);
@@ -321,6 +325,7 @@ static void *aes_cbc_hmac_sha1_newctx(void *provctx, size_t kbits,
                                       size_t blkbits, size_t ivbits,
                                       uint64_t flags)
 {
+  LOG_E;
     PROV_AES_HMAC_SHA1_CTX *ctx;
 
     if (!ossl_prov_is_running())
@@ -358,6 +363,7 @@ static void *aes_cbc_hmac_sha256_newctx(void *provctx, size_t kbits,
                                         size_t blkbits, size_t ivbits,
                                         uint64_t flags)
 {
+  LOG_E;
     PROV_AES_HMAC_SHA256_CTX *ctx;
 
     if (!ossl_prov_is_running())

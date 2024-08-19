@@ -28,6 +28,8 @@
 #include "internal/constant_time.h"
 #include "evp_local.h"
 
+#define LOG_E printf("[crypto/evp/e_aes_cbc_hmac_sha1.c] Enter: %s\n", __FUNCTION__);
+
 typedef struct {
     AES_KEY ks;
     SHA_CTX head, tail, md;

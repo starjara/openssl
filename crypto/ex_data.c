@@ -217,7 +217,7 @@ int CRYPTO_get_ex_new_index(int class_index, long argl, void *argp,
 int ossl_crypto_new_ex_data_ex(OSSL_LIB_CTX *ctx, int class_index, void *obj,
                                CRYPTO_EX_DATA *ad)
 {
-  LOG_E;
+  //LOG_E;
     int mx, i;
     void *ptr;
     EX_CALLBACK **storage = NULL;

@@ -100,6 +100,7 @@ int evp_keymgmt_util_export(const EVP_PKEY *pk, int selection,
 void *evp_keymgmt_util_export_to_provider(EVP_PKEY *pk, EVP_KEYMGMT *keymgmt,
                                           int selection)
 {
+  LOG_E;
     struct evp_keymgmt_util_try_import_data_st import_data;
     OP_CACHE_ELEM *op;
 

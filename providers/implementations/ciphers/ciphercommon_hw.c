@@ -9,6 +9,7 @@
 
 #include "prov/ciphercommon.h"
 
+#define LOG_E printf("[implementations/cipher/ciphercommon_hw.c] Enter: %s\n" __FUNCTION__);
 /*-
  * The generic cipher functions for cipher modes cbc, ecb, ofb, cfb and ctr.
  * Used if there is no special hardware implementations.

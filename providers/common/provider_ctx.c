@@ -11,8 +11,11 @@
 #include "prov/provider_ctx.h"
 #include "prov/bio.h"
 
+#define LOG_E printf("[provider/common/provider_ctx.c] Enter: %s\n", __FUNCTION__);
+
 PROV_CTX *ossl_prov_ctx_new(void)
 {
+  LOG_E;
     return OPENSSL_zalloc(sizeof(PROV_CTX));
 }
 

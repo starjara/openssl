@@ -30,6 +30,7 @@ static OSSL_FUNC_cipher_set_ctx_params_fn aes_siv_set_ctx_params;
 static void *aes_siv_newctx(void *provctx, size_t keybits, unsigned int mode,
                             uint64_t flags)
 {
+  printf("siv\n");
     PROV_AES_SIV_CTX *ctx;
 
     if (!ossl_prov_is_running())

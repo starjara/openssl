@@ -12,6 +12,8 @@
 #include "statem_local.h"
 #include "internal/cryptlib.h"
 
+#define LOG_E printf("[ssl/statem/extensions_srvr.c] Enter: %s\n", __FUNCTION__);
+
 #define COOKIE_STATE_FORMAT_VERSION     1
 
 /*
@@ -989,6 +991,7 @@ static SSL_TICKET_STATUS tls_get_stateful_ticket(SSL *s, PACKET *tick,
 int tls_parse_ctos_psk(SSL *s, PACKET *pkt, unsigned int context, X509 *x,
                        size_t chainidx)
 {
+  LOG_E;
     PACKET identities, binders, binder;
     size_t binderoffset, hashsize;
     SSL_SESSION *sess = NULL;

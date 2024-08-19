@@ -19,6 +19,7 @@ static void aes_siv_cleanup(void *vctx);
 
 static int aes_siv_initkey(void *vctx, const unsigned char *key, size_t keylen)
 {
+  printf("sivsiv\n");
     PROV_AES_SIV_CTX *ctx = (PROV_AES_SIV_CTX *)vctx;
     SIV128_CONTEXT *sctx = &ctx->siv;
     size_t klen  = keylen / 2;

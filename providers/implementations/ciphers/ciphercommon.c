@@ -18,6 +18,8 @@
 #include "prov/provider_ctx.h"
 #include "prov/providercommon.h"
 
+#define LOG_E printf("[providers/implementation/ciphers/chiphercommon.c] Enter: %s\n", __FUNCTION__);
+
 /*-
  * Generic cipher functions for OSSL_PARAM gettables and settables
  */
@@ -190,6 +192,8 @@ static int cipher_generic_init_internal(PROV_CIPHER_CTX *ctx,
                                         const unsigned char *iv, size_t ivlen,
                                         const OSSL_PARAM params[], int enc)
 {
+  printf("\t");
+  LOG_E;
     ctx->num = 0;
     ctx->bufsz = 0;
     ctx->updated = 0;
@@ -210,6 +214,7 @@ static int cipher_generic_init_internal(PROV_CIPHER_CTX *ctx,
         memcpy(ctx->iv, ctx->oiv, ctx->ivlen);
 
     if (key != NULL) {
+      printf("\tkey != NULL\n");
         if (ctx->variable_keylength == 0) {
             if (keylen != ctx->keylen) {
                 ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_KEY_LENGTH);
@@ -218,10 +223,15 @@ static int cipher_generic_init_internal(PROV_CIPHER_CTX *ctx,
         } else {
             ctx->keylen = keylen;
         }
+	/* JARA: call hw_aes_init */
         if (!ctx->hw->init(ctx, key, ctx->keylen))
             return 0;
         ctx->key_set = 1;
     }
+    else {
+      printf("\tkey == NULL\n");
+    }
+
     return ossl_cipher_generic_set_ctx_params(ctx, params);
 }
 
@@ -229,6 +239,7 @@ int ossl_cipher_generic_einit(void *vctx, const unsigned char *key,
                               size_t keylen, const unsigned char *iv,
                               size_t ivlen, const OSSL_PARAM params[])
 {
+  //LOG_E;
     return cipher_generic_init_internal((PROV_CIPHER_CTX *)vctx, key, keylen,
                                         iv, ivlen, params, 1);
 }
@@ -621,6 +632,7 @@ int ossl_cipher_generic_get_ctx_params(void *vctx, OSSL_PARAM params[])
 
 int ossl_cipher_generic_set_ctx_params(void *vctx, const OSSL_PARAM params[])
 {
+  LOG_E;
     PROV_CIPHER_CTX *ctx = (PROV_CIPHER_CTX *)vctx;
     const OSSL_PARAM *p;
 
@@ -693,6 +705,7 @@ void ossl_cipher_generic_initkey(void *vctx, size_t kbits, size_t blkbits,
                                  uint64_t flags, const PROV_CIPHER_HW *hw,
                                  void *provctx)
 {
+  LOG_E;
     PROV_CIPHER_CTX *ctx = (PROV_CIPHER_CTX *)vctx;
 
     if ((flags & PROV_CIPHER_FLAG_INVERSE_CIPHER) != 0)

@@ -27,6 +27,8 @@
 #define OCB_MIN_IV_LEN      1
 #define OCB_MAX_IV_LEN      15
 
+#define LOG_E printf("[providers/ciphers/cipherN_aes_ocb.c] Enter: %s\n", __FUNCTION__);
+
 PROV_CIPHER_FUNC(int, ocb_cipher, (PROV_AES_OCB_CTX *ctx,
                                    const unsigned char *in, unsigned char *out,
                                    size_t nextblock));
@@ -306,6 +308,7 @@ static int aes_ocb_block_final(void *vctx, unsigned char *out, size_t *outl,
 static void *aes_ocb_newctx(void *provctx, size_t kbits, size_t blkbits,
                             size_t ivbits, unsigned int mode, uint64_t flags)
 {
+  LOG_E;
     PROV_AES_OCB_CTX *ctx;
 
     if (!ossl_prov_is_running())
@@ -333,6 +336,7 @@ static void aes_ocb_freectx(void *vctx)
 
 static void *aes_ocb_dupctx(void *vctx)
 {
+  LOG_E;
     PROV_AES_OCB_CTX *in = (PROV_AES_OCB_CTX *)vctx;
     PROV_AES_OCB_CTX *ret;
 

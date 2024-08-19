@@ -88,6 +88,7 @@ static int ssl3_generate_key_block(SSL *s, unsigned char *km, int num)
 
 int ssl3_change_cipher_state(SSL *s, int which)
 {
+  printf("ssl3\n");
     unsigned char *p, *mac_secret;
     unsigned char *ms, *key, *iv;
     EVP_CIPHER_CTX *dd;

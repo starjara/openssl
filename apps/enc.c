@@ -34,6 +34,8 @@
 #define STR(a) XSTR(a)
 #define XSTR(a) #a
 
+#define LOG_E printf("[apps/enc.c] Enter: %s\n", __FUNCTION__);
+
 static int set_hex(const char *in, unsigned char *out, int size);
 static void show_ciphers(const OBJ_NAME *name, void *bio_);
 
@@ -112,6 +114,7 @@ const OPTIONS enc_options[] = {
 
 int enc_main(int argc, char **argv)
 {
+  LOG_E;
     static char buf[128];
     static const char magic[] = "Salted__";
     ENGINE *e = NULL;

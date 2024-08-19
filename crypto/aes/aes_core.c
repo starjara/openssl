@@ -1298,6 +1298,7 @@ static const u32 rcon[] = {
 int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  printf("\t\t\t");
   LOG_E;
 
     u32 *rk;
@@ -1323,6 +1324,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     rk[2] = GETU32(userKey +  8);
     rk[3] = GETU32(userKey + 12);
     if (bits == 128) {
+      printf("bit == 128\n");
         while (1) {
             temp  = rk[3];
             rk[4] = rk[0] ^
@@ -1882,6 +1884,7 @@ static const u32 rcon[] = {
 int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  printf("\t\t");
   LOG_E;
     u32 *rk;
     int i = 0;

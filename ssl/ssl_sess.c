@@ -448,6 +448,7 @@ int ssl_generate_session_id(SSL *s, SSL_SESSION *ss)
 
 int ssl_get_new_session(SSL *s, int session)
 {
+  LOG_E;
     /* This gets used by clients and servers. */
 
     SSL_SESSION *ss = NULL;

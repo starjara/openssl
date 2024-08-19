@@ -21,6 +21,7 @@
 static int cipher_hw_aesni_initkey(PROV_CIPHER_CTX *dat,
                                    const unsigned char *key, size_t keylen)
 {
+printf("AAAAAAAAAAABB\n");
     int ret;
     PROV_AES_CTX *adat = (PROV_AES_CTX *)dat;
     AES_KEY *ks = &adat->ks.ks;

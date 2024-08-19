@@ -18,6 +18,8 @@
 #include "prov/providercommon.h"
 #include "prov/implementations.h"
 
+#define LOG_E printf("[providers/ciphers/cipher_aes_wrp.c] Enter: %s\n", __FUNCTION__);
+
 /* AES wrap with padding has IV length of 4, without padding 8 */
 #define AES_WRAP_PAD_IVLEN   4
 #define AES_WRAP_NOPAD_IVLEN 8
@@ -50,6 +52,7 @@ typedef struct prov_aes_wrap_ctx_st {
 static void *aes_wrap_newctx(size_t kbits, size_t blkbits,
                              size_t ivbits, unsigned int mode, uint64_t flags)
 {
+  LOG_E;
     PROV_AES_WRAP_CTX *wctx;
     PROV_CIPHER_CTX *ctx;
 

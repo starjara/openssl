@@ -20,13 +20,15 @@
 static int cipher_hw_aes_initkey(PROV_CIPHER_CTX *dat,
                                  const unsigned char *key, size_t keylen)
 {
+  printf("\t\t");
   LOG_E;
     int ret;
     PROV_AES_CTX *adat = (PROV_AES_CTX *)dat;
     AES_KEY *ks = &adat->ks.ks;
 
+    printf("%lx\n", ks->rd_key);
+
     dat->ks = ks;
-    printf("%s\n", ks);
 
     if ((dat->mode == EVP_CIPH_ECB_MODE || dat->mode == EVP_CIPH_CBC_MODE)
         && !dat->enc) {

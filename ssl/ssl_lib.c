@@ -26,7 +26,7 @@
 #include "internal/ktls.h"
 
 /* VERSE */
-#include "verse.h"
+#include <openssl/verse_prot.h>
 
 #define LOG_E printf("[ssl/ssl-lib.c] Enter: %s\n", __FUNCTION__)
 
@@ -691,12 +691,11 @@ int SSL_CTX_set_ssl_version(SSL_CTX *ctx, const SSL_METHOD *meth)
 
 SSL *SSL_new(SSL_CTX *ctx)
 {
+    LOG_E;
     SSL *s;
 
     /* ======================= VERSE ================== */
-    LOG_E;
-    static int new_index = 5;
-    verse_create(new_index ++);
+    verse_create(session_count);
     /* ================================================ */
 
     if (ctx == NULL) {
@@ -1197,6 +1196,7 @@ void SSL_certs_clear(SSL *s)
 
 void SSL_free(SSL *s)
 {
+  LOG_E;
     int i;
 
     /* ========== VERSE ==========*/
@@ -3465,6 +3465,7 @@ SSL_CTX *SSL_CTX_new_ex(OSSL_LIB_CTX *libctx, const char *propq,
 
 SSL_CTX *SSL_CTX_new(const SSL_METHOD *meth)
 {
+  LOG_E;
     return SSL_CTX_new_ex(NULL, NULL, meth);
 }
 
@@ -3482,6 +3483,7 @@ int SSL_CTX_up_ref(SSL_CTX *ctx)
 
 void SSL_CTX_free(SSL_CTX *a)
 {
+  LOG_E;
     int i;
     size_t j;
 
@@ -3969,6 +3971,7 @@ static int ssl_do_handshake_intern(void *vargs)
 
 int SSL_do_handshake(SSL *s)
 {
+  LOG_E;
     int ret = 1;
 
     if (s->handshake_func == NULL) {

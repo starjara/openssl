@@ -14,6 +14,8 @@
 #include <errno.h>
 #include <openssl/e_os2.h>      /* For ossl_inline */
 
+#define LOG_E printf("[crypto/stack/stack.c] Enter: %s\n", __FUNCTION__);
+
 /*
  * The initial number of nodes in the array.
  */
@@ -449,6 +451,7 @@ void *OPENSSL_sk_value(const OPENSSL_STACK *st, int i)
 
 void *OPENSSL_sk_set(OPENSSL_STACK *st, int i, const void *data)
 {
+  LOG_E;
     if (st == NULL) {
         ERR_raise(ERR_LIB_CRYPTO, ERR_R_PASSED_NULL_PARAMETER);
         return NULL;

@@ -1578,7 +1578,7 @@ EVP_PKEY *EVP_PKEY_new(void)
 static int pkey_set_type(EVP_PKEY *pkey, ENGINE *e, int type, const char *str,
                          int len, EVP_KEYMGMT *keymgmt)
 {
-  LOG_E;
+  //LOG_E;
   //verse_enter(0);
   
 #ifndef FIPS_MODULE
@@ -1714,7 +1714,7 @@ static int pkey_set_type(EVP_PKEY *pkey, ENGINE *e, int type, const char *str,
 #ifndef FIPS_MODULE
 static void find_ameth(const char *name, void *data)
 {
-  LOG_E;
+  //LOG_E;
     const char **str = data;
 
     /*
@@ -1737,7 +1737,7 @@ static void find_ameth(const char *name, void *data)
 
 int EVP_PKEY_set_type_by_keymgmt(EVP_PKEY *pkey, EVP_KEYMGMT *keymgmt)
 {
-  LOG_E;
+  //LOG_E;
 #ifndef FIPS_MODULE
 # define EVP_PKEY_TYPE_STR str[0]
 # define EVP_PKEY_TYPE_STRLEN (str[0] == NULL ? -1 : (int)strlen(str[0]))
@@ -1767,7 +1767,7 @@ int EVP_PKEY_set_type_by_keymgmt(EVP_PKEY *pkey, EVP_KEYMGMT *keymgmt)
 
 int EVP_PKEY_up_ref(EVP_PKEY *pkey)
 {
-  LOG_E;
+  //LOG_E;
     int i;
 
     if (CRYPTO_UP_REF(&pkey->references, &i, pkey->lock) <= 0)
@@ -1781,7 +1781,7 @@ int EVP_PKEY_up_ref(EVP_PKEY *pkey)
 #ifndef FIPS_MODULE
 EVP_PKEY *EVP_PKEY_dup(EVP_PKEY *pkey)
 {
-  LOG_E
+  //LOG_E
     EVP_PKEY *dup_pk;
 
     if (pkey == NULL) {
@@ -1891,7 +1891,7 @@ static void evp_pkey_free_it(EVP_PKEY *x)
 
 void EVP_PKEY_free(EVP_PKEY *x)
 {
-  LOG_E;
+  //LOG_E;
     int i;
 
     if (x == NULL)
@@ -1900,6 +1900,7 @@ void EVP_PKEY_free(EVP_PKEY *x)
 
     CRYPTO_DOWN_REF(&x->references, &i, x->lock);
     REF_PRINT_COUNT("EVP_PKEY", x);
+
     if (i > 0)
         return;
     REF_ASSERT_ISNT(i < 0);
@@ -1911,7 +1912,6 @@ void EVP_PKEY_free(EVP_PKEY *x)
 #ifndef FIPS_MODULE
     sk_X509_ATTRIBUTE_pop_free(x->attributes, X509_ATTRIBUTE_free);
 #endif
-    LOG_E
     OPENSSL_free(x);
 }
 
@@ -1947,6 +1947,7 @@ void *evp_pkey_export_to_provider(EVP_PKEY *pk, OSSL_LIB_CTX *libctx,
                                   EVP_KEYMGMT **keymgmt,
                                   const char *propquery)
 {
+  LOG_E;
     EVP_KEYMGMT *allocated_keymgmt = NULL;
     EVP_KEYMGMT *tmp_keymgmt = NULL;
     int selection = OSSL_KEYMGMT_SELECT_ALL;

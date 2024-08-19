@@ -21,6 +21,8 @@
 #include "prov/provider_util.h"
 #include "internal/nelem.h"
 
+#define LOG_E printf("[providers/common/provider_util.c] Enter: %s\n", __FUNCTION__);
+
 void ossl_prov_cipher_reset(PROV_CIPHER *pc)
 {
     EVP_CIPHER_free(pc->alloc_cipher);
@@ -34,6 +36,7 @@ void ossl_prov_cipher_reset(PROV_CIPHER *pc)
 
 int ossl_prov_cipher_copy(PROV_CIPHER *dst, const PROV_CIPHER *src)
 {
+  LOG_E;
     if (src->alloc_cipher != NULL && !EVP_CIPHER_up_ref(src->alloc_cipher))
         return 0;
 #if !defined(FIPS_MODULE) && !defined(OPENSSL_NO_ENGINE)
@@ -51,6 +54,7 @@ int ossl_prov_cipher_copy(PROV_CIPHER *dst, const PROV_CIPHER *src)
 static int load_common(const OSSL_PARAM params[], const char **propquery,
                        ENGINE **engine)
 {
+  LOG_E;
     const OSSL_PARAM *p;
 
     *propquery = NULL;
@@ -92,6 +96,7 @@ int ossl_prov_cipher_load_from_params(PROV_CIPHER *pc,
                                       const OSSL_PARAM params[],
                                       OSSL_LIB_CTX *ctx)
 {
+  LOG_E;
     const OSSL_PARAM *p;
     const char *propquery;
 
@@ -177,6 +182,7 @@ int ossl_prov_digest_load_from_params(PROV_DIGEST *pd,
                                       const OSSL_PARAM params[],
                                       OSSL_LIB_CTX *ctx)
 {
+  LOG_E;
     const OSSL_PARAM *p;
     const char *propquery;
 

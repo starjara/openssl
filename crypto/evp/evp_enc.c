@@ -27,6 +27,8 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
+#define LOG_E printf("[evp/evp_enc.c] Enter: %s\n", __FUNCTION__);
+
 int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX *ctx)
 {
     if (ctx == NULL)
@@ -68,6 +70,7 @@ int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX *ctx)
 
 EVP_CIPHER_CTX *EVP_CIPHER_CTX_new(void)
 {
+  LOG_E;
     return OPENSSL_zalloc(sizeof(EVP_CIPHER_CTX));
 }
 
@@ -85,6 +88,7 @@ static int evp_cipher_init_internal(EVP_CIPHER_CTX *ctx,
                                     const unsigned char *iv, int enc,
                                     const OSSL_PARAM params[])
 {
+  LOG_E;
     int n;
 #if !defined(OPENSSL_NO_ENGINE) && !defined(FIPS_MODULE)
     ENGINE *tmpimpl = NULL;
@@ -207,6 +211,7 @@ static int evp_cipher_init_internal(EVP_CIPHER_CTX *ctx,
     }
     ctx->cipher = cipher;
     if (ctx->algctx == NULL) {
+      printf("\talgctx == NULL\n");
         ctx->algctx = ctx->cipher->newctx(ossl_provider_ctx(cipher->prov));
         if (ctx->algctx == NULL) {
             ERR_raise(ERR_LIB_EVP, EVP_R_INITIALIZATION_ERROR);
@@ -265,6 +270,7 @@ static int evp_cipher_init_internal(EVP_CIPHER_CTX *ctx,
             return 0;
         }
 
+	printf("\teinit\n");
         return ctx->cipher->einit(ctx->algctx,
                                   key,
                                   key == NULL ? 0
@@ -1474,6 +1480,7 @@ int EVP_CIPHER_CTX_copy(EVP_CIPHER_CTX *out, const EVP_CIPHER_CTX *in)
 
 EVP_CIPHER *evp_cipher_new(void)
 {
+  LOG_E;
     EVP_CIPHER *cipher = OPENSSL_zalloc(sizeof(EVP_CIPHER));
 
     if (cipher != NULL) {
@@ -1522,6 +1529,7 @@ static void *evp_cipher_from_algorithm(const int name_id,
                                        const OSSL_ALGORITHM *algodef,
                                        OSSL_PROVIDER *prov)
 {
+  LOG_E;
     const OSSL_DISPATCH *fns = algodef->implementation;
     EVP_CIPHER *cipher = NULL;
     int fnciphcnt = 0, fnctxcnt = 0;

@@ -21,6 +21,8 @@
 #include <openssl/core_names.h>
 #include <openssl/trace.h>
 
+#define LOG_E printf("[ssl/t1_enc.c] Enter: %s\n", __FUNCTION__);
+
 /* seed1 through seed5 are concatenated */
 static int tls1_PRF(SSL *s,
                     const void *seed1, size_t seed1_len,
@@ -185,6 +187,7 @@ static int tls_iv_length_within_key_block(const EVP_CIPHER *c)
 
 int tls1_change_cipher_state(SSL *s, int which)
 {
+  LOG_E;
     unsigned char *p, *mac_secret;
     unsigned char *ms, *key, *iv;
     EVP_CIPHER_CTX *dd;

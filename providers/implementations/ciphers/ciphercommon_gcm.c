@@ -16,6 +16,9 @@
 #include "prov/providercommon.h"
 #include "prov/provider_ctx.h"
 
+#include <openssl/verse_prot.h>
+#define LOG_E printf("[providers/ciphers/ciphercommon_gcm.c] Enter: %s\n", __FUNCTION__);
+
 static int gcm_tls_init(PROV_GCM_CTX *dat, unsigned char *aad, size_t aad_len);
 static int gcm_tls_iv_set_fixed(PROV_GCM_CTX *ctx, unsigned char *iv,
                                 size_t len);
@@ -49,32 +52,57 @@ static int gcm_init(void *vctx, const unsigned char *key, size_t keylen,
                     const unsigned char *iv, size_t ivlen,
                     const OSSL_PARAM params[], int enc)
 {
+  LOG_E;
     PROV_GCM_CTX *ctx = (PROV_GCM_CTX *)vctx;
 
     if (!ossl_prov_is_running())
         return 0;
 
-    ctx->enc = enc;
+    //ctx->enc = enc;
+    printf("%d\n", keylen);
+    verse_enter(session_count);
+    //verse_write((unsigned long long)(&(ctx->iv_state)+1), &enc, sizeof(enc));
 
     if (iv != NULL) {
+      printf("\tSet iv\n");
         if (ivlen == 0 || ivlen > sizeof(ctx->iv)) {
             ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_IV_LENGTH);
             return 0;
         }
-        ctx->ivlen = ivlen;
-        memcpy(ctx->iv, iv, ivlen);
-        ctx->iv_state = IV_STATE_BUFFERED;
+        // ctx->ivlen = ivlen;
+	verse_write((unsigned long long)&(ctx->ivlen), &ivlen, sizeof(ivlen));
+
+        // memcpy(ctx->iv, iv, ivlen);
+	verse_write((unsigned long long)&(ctx->iv),(void *) iv, ivlen);
+
+        // ctx->iv_state = IV_STATE_BUFFERED;
+	int tmp = IV_STATE_BUFFERED;
+	verse_write((unsigned long long)&(ctx->iv_state), &tmp, sizeof(ctx->iv_state));
     }
 
+    /* JARA: Add variable tmp */
     if (key != NULL) {
-        if (keylen != ctx->keylen) {
-            ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_KEY_LENGTH);
-            return 0;
-        }
-        if (!ctx->hw->setkey(ctx, key, ctx->keylen))
-            return 0;
-        ctx->tls_enc_records = 0;
+      printf("\tSet key\n");
+      size_t tmp = 0;
+      //verse_read((unsigned long long)&(ctx->keylen), &tmp, sizeof(tmp));
+      printf("\ttmp: %d\tkeylen: %d\n", ctx->keylen, keylen);
+      
+      if (keylen != ctx->keylen) {
+	//if (keylen != tmp) {
+	ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_KEY_LENGTH);
+	return 0;
+      }
+      printf("\tsetkey before\n");
+      if (!ctx->hw->setkey(ctx, key, ctx->keylen))
+	//if (!ctx->hw->setkey(ctx, key, tmp))
+	return 0;
+      printf("\tsetkey after\n");
+      ctx->tls_enc_records = 0;
+      tmp = 0;
+      //verse_write((unsigned long long)&(ctx->tls_enc_records), &tmp, sizeof(tmp));
     }
+    /* JARA */
+    verse_exit(session_count);
     return ossl_gcm_set_ctx_params(ctx, params);
 }
 

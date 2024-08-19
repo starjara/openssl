@@ -35,6 +35,7 @@ static void aes_freectx(void *vctx)
 
 static void *aes_dupctx(void *ctx)
 {
+  printf("aes_dupctx\n");
     PROV_AES_CTX *in = (PROV_AES_CTX *)ctx;
     PROV_AES_CTX *ret;
 
@@ -63,7 +64,7 @@ IMPLEMENT_generic_cipher(aes, AES, ecb, ECB, 0, 128, 128, 0, block)
 IMPLEMENT_generic_cipher(aes, AES, cbc, CBC, 0, 256, 128, 128, block)
 /* ossl_aes192cbc_functions */
 IMPLEMENT_generic_cipher(aes, AES, cbc, CBC, 0, 192, 128, 128, block)
-/* ossl_aes128cbc_functions */
+/* ossl_aes128cbc */
 IMPLEMENT_generic_cipher(aes, AES, cbc, CBC, 0, 128, 128, 128, block)
 /* ossl_aes256ofb_functions */
 IMPLEMENT_generic_cipher(aes, AES, ofb, OFB, 0, 256, 8, 128, stream)

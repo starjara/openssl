@@ -111,6 +111,7 @@ static int aes_xts_dinit(void *vctx, const unsigned char *key, size_t keylen,
 static void *aes_xts_newctx(void *provctx, unsigned int mode, uint64_t flags,
                             size_t kbits, size_t blkbits, size_t ivbits)
 {
+  printf("AA\n");
     PROV_AES_XTS_CTX *ctx = OPENSSL_zalloc(sizeof(*ctx));
 
     if (ctx != NULL) {

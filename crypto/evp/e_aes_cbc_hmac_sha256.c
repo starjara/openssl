@@ -28,6 +28,8 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
+#define LOG_E printf("[crypto/evp/e_aes_cbc_hmac_sha256.c] Enter: %s\n", __FUNCTION__);
+
 typedef struct {
     AES_KEY ks;
     SHA256_CTX head, tail, md;
@@ -66,6 +68,7 @@ static int aesni_cbc_hmac_sha256_init_key(EVP_CIPHER_CTX *ctx,
                                           const unsigned char *inkey,
                                           const unsigned char *iv, int enc)
 {
+  LOG_E;
     EVP_AES_HMAC_SHA256 *key = data(ctx);
     int ret;
 

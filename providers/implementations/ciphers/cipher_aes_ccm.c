@@ -20,8 +20,11 @@
 #include "prov/implementations.h"
 #include "prov/providercommon.h"
 
+#define LOG_E printf("provider/ciphers/cipher_aes_ccm.c] Enter: %s\n", __FUNCTION__);
+
 static void *aes_ccm_newctx(void *provctx, size_t keybits)
 {
+  LOG_E;
     PROV_AES_CCM_CTX *ctx;
 
     if (!ossl_prov_is_running())

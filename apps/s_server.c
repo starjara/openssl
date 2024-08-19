@@ -23,6 +23,8 @@
 #include <openssl/ssl.h>
 #include <openssl/decoder.h>
 
+#define LOG_E printf("[apps/s_server.c] Enter: %s\n", __FUNCTION__);
+
 #ifndef OPENSSL_NO_SOCK
 
 /*
@@ -191,6 +193,7 @@ static unsigned int psk_server_cb(SSL *ssl, const char *identity,
 static int psk_find_session_cb(SSL *ssl, const unsigned char *identity,
                                size_t identity_len, SSL_SESSION **sess)
 {
+  LOG_E;
     SSL_SESSION *tmpsess = NULL;
     unsigned char *key;
     long key_len;

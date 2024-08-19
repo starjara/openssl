@@ -14,6 +14,8 @@
 #include <openssl/asn1t.h>
 #include <openssl/x509.h>
 
+#define LOG_E printf("[ssl/ssl_asn1.c] Enter: %s\n", __FUNCTION__);
+
 typedef struct {
     uint32_t version;
     int32_t ssl_version;
@@ -243,6 +245,7 @@ static int ssl_session_memcpy(unsigned char *dst, size_t *pdstlen,
 SSL_SESSION *d2i_SSL_SESSION(SSL_SESSION **a, const unsigned char **pp,
                              long length)
 {
+  LOG_E;
     long id;
     size_t tmpl;
     const unsigned char *p = *pp;

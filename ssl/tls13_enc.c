@@ -339,6 +339,7 @@ static int derive_secret_key_and_iv(SSL *s, int sending, const EVP_MD *md,
                                     unsigned char *key, unsigned char *iv,
                                     EVP_CIPHER_CTX *ciph_ctx)
 {
+  printf("tls13\n");
     size_t ivlen, keylen, taglen;
     int hashleni = EVP_MD_get_size(md);
     size_t hashlen;

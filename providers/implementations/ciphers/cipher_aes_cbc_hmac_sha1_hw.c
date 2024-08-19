@@ -16,6 +16,8 @@
 
 #include "cipher_aes_cbc_hmac_sha.h"
 
+#define LOG_E printf("[providers/implementations/ciper_aes_cbc_hmac_sha1_hw.c] Enter: %s\n", __FUNCTION__);
+
 #if !defined(AES_CBC_HMAC_SHA_CAPABLE) || !defined(AESNI_CAPABLE)
 int ossl_cipher_capable_aes_cbc_hmac_sha1(void)
 {
@@ -45,6 +47,7 @@ int ossl_cipher_capable_aes_cbc_hmac_sha1(void)
 static int aesni_cbc_hmac_sha1_init_key(PROV_CIPHER_CTX *vctx,
                                         const unsigned char *key, size_t keylen)
 {
+  LOG_E;
     int ret;
     PROV_AES_HMAC_SHA_CTX *ctx = (PROV_AES_HMAC_SHA_CTX *)vctx;
     PROV_AES_HMAC_SHA1_CTX *sctx = (PROV_AES_HMAC_SHA1_CTX *)vctx;

@@ -20,17 +20,35 @@
 #include "prov/implementations.h"
 #include "prov/providercommon.h"
 
+//#include "verse.h"
+#include <openssl/verse_prot.h>
+
+#define LOG_E printf("[providers/ciphers/chipher_aes_gcm.c] Enter: %s\n", __FUNCTION__);
+
 static void *aes_gcm_newctx(void *provctx, size_t keybits)
 {
+  LOG_E;
     PROV_AES_GCM_CTX *ctx;
+    PROV_AES_GCM_CTX *ctx2;
 
     if (!ossl_prov_is_running())
         return NULL;
 
     ctx = OPENSSL_zalloc(sizeof(*ctx));
+
     if (ctx != NULL)
         ossl_gcm_initctx(provctx, &ctx->base, keybits,
                          ossl_prov_aes_hw_gcm(keybits));
+
+    /* JARA: mapping domain memory */
+    verse_enter(session_count);
+    //ctx2 = (PROV_AES_GCM_CTX *)verse_mmap(0x10000, 0x0, 0x1000, PROT_READ | PROT_WRITE);
+    //verse_write((unsigned long long)ctx2, ctx, sizeof(*ctx));
+    verse_exit(session_count);
+    printf("\tContext created\n");
+    //return ctx2;
+    /* =========================== */
+
     return ctx;
 }
 
