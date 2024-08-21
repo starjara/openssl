@@ -26,7 +26,8 @@ static int remove_session_lock(SSL_CTX *ctx, SSL_SESSION *c, int lck);
 
 /* JARA: verse include */
 #include <openssl/verse_prot.h>
-#define LOG_E //printf("[ssl/ssl_sess.c] Enter: %s\n", __FUNCTION__)
+#define LOG_E printf("[ssl/ssl_sess.c] Enter: %s\n", __FUNCTION__)
+#define ssl_sess_print(fmt, ...) printf("ssl/ssl_sess.c[%s] "fmt, __FUNCTION__, ##__VA_ARGS__);
 /* JARA END */
 
 DEFINE_STACK_OF(SSL_SESSION)
@@ -129,7 +130,9 @@ SSL_SESSION *SSL_SESSION_new(void)
   /* JARA: increase the session count  */ 
   LOG_E;
   session_count ++;
+  
   verse_create(session_count);
+  ssl_sess_print("session_count: %d\n", session_count);
   /* JARA END */
     SSL_SESSION *ss;
 
@@ -858,7 +861,13 @@ static int remove_session_lock(SSL_CTX *ctx, SSL_SESSION *c, int lck)
 
 void SSL_SESSION_free(SSL_SESSION *ss)
 {
+  LOG_E;
     int i;
+
+    /* JARA: destroy the verse for exit */
+    ssl_sess_print("session_count: %d\n", session_count);
+    //verse_destroy(session_count);
+    /* JARA end */
 
     if (ss == NULL)
         return;

@@ -22,8 +22,7 @@
 
 //#include "verse.h"
 #include <openssl/verse_prot.h>
-
-#define LOG_E printf("[providers/ciphers/chipher_aes_gcm.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[providers/ciphers/chipher_aes_gcm.c] Enter: %s\n", __FUNCTION__);
 
 static void *aes_gcm_newctx(void *provctx, size_t keybits)
 {
@@ -77,11 +76,14 @@ static void aes_gcm_freectx(void *vctx)
     PROV_AES_GCM_CTX *ctx = (PROV_AES_GCM_CTX *)vctx;
 
     /* JARA: verse_munmap for session key */
-    printf("verse_munmap for aes_gcm session key\n");
-    printf("domain: %d\tAddr: 0x%llx\n", (int)ctx->ks >> AES_INDEX_OFFSET, (unsigned long long)ctx->ks);
-    verse_enter((int) ctx->ks >> AES_INDEX_OFFSET);
-    verse_munmap((unsigned long long)ctx->ks, 0x1000);
-    verse_exit(0);
+    // printf("verse_munmap for aes_gcm session key\n");
+    // printf("domain: %d\tAddr: 0x%llx\n", (int)ctx->ks >> AES_INDEX_OFFSET, (unsigned long long)ctx->ks);
+    // printf("[%p] domain: %d\tAddr: 0x%llx\n", ctx->ks, (int)ctx->ks >> AES_INDEX_OFFSET, (unsigned long long)ctx->ks);
+    if(ctx->ks != NULL) {
+      verse_enter((int) ctx->ks >> AES_INDEX_OFFSET);
+      verse_munmap((unsigned long long)ctx->ks, 0x1000);
+      verse_exit(0);
+    }
     /* JARA END */
 
     OPENSSL_clear_free(ctx,  sizeof(*ctx));

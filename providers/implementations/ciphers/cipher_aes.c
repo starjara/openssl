@@ -32,9 +32,12 @@ static void aes_freectx(void *vctx)
     PROV_AES_CTX *ctx = (PROV_AES_CTX *)vctx;
 
     /* JARA: verse_munmap for key data */
-    printf("verse_munmap for key data\n");
-    verse_enter(session_count);
-    verse_munmap(0x10000, 0x1000); 
+    if(ctx->ks != NULL) {
+      printf("verse_munmap for key data\n");
+      verse_enter((int)ctx->ks >> AES_INDEX_OFFSET);
+      verse_munmap((__u64)(ctx->ks), 0x1000); 
+      verse_exit(0);
+    }
     /* JARA end */
 
     ossl_cipher_generic_reset_ctx((PROV_CIPHER_CTX *)vctx);
