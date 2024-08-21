@@ -17,7 +17,7 @@
 #include "crypto/ctype.h"
 #include "crypto/rand.h"
 
-#define LOG_E printf("[crypto/context.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[crypto/context.c] Enter: %s\n", __FUNCTION__);
 
 struct ossl_lib_ctx_onfree_list_st {
     ossl_lib_ctx_onfree_fn *fn;

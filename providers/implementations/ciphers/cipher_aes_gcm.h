@@ -14,10 +14,15 @@
 
 typedef struct prov_aes_gcm_ctx_st {
     PROV_GCM_CTX base;          /* must be first entry in struct */
+  /*
     union {
         OSSL_UNION_ALIGN;
         AES_KEY ks;
-    } ks;                       /* AES key schedule to use */
+	} ks;
+  */
+  /* AES key schedule to use */
+  
+  AES_KEY *ks;
 
     /* Platform specific data */
     union {

@@ -51,9 +51,9 @@
 #include "evp_local.h"
 
 /* verse */
-#include <stdbool.h>
-#include "verse.h"
-#define LOG_E  printf("[crypto/evp/p_lib.c] Enter: %s\n", __func__);
+// #include <stdbool.h>
+// #include "verse.h"
+#define LOG_E  //printf("[crypto/evp/p_lib.c] Enter: %s\n", __func__);
 //#define LOG_E
 
 static int pkey_set_type(EVP_PKEY *pkey, ENGINE *e, int type, const char *str,

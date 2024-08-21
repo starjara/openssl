@@ -13,7 +13,7 @@
 #include <openssl/engine.h>
 #include "ssl_local.h"
 
-#define LOG_E printf("[ssl/tls_depr.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[ssl/tls_depr.c] Enter: %s\n", __FUNCTION__);
 
 /*
  * Engine APIs are only used to support applications that still use ENGINEs.

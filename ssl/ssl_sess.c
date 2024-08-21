@@ -24,7 +24,10 @@ static void SSL_SESSION_list_remove(SSL_CTX *ctx, SSL_SESSION *s);
 static void SSL_SESSION_list_add(SSL_CTX *ctx, SSL_SESSION *s);
 static int remove_session_lock(SSL_CTX *ctx, SSL_SESSION *c, int lck);
 
-#define LOG_E printf("[ssl/ssl_sess.c] Enter: %s\n", __FUNCTION__)
+/* JARA: verse include */
+#include <openssl/verse_prot.h>
+#define LOG_E //printf("[ssl/ssl_sess.c] Enter: %s\n", __FUNCTION__)
+/* JARA END */
 
 DEFINE_STACK_OF(SSL_SESSION)
 
@@ -123,9 +126,14 @@ void *SSL_SESSION_get_ex_data(const SSL_SESSION *s, int idx)
 
 SSL_SESSION *SSL_SESSION_new(void)
 {
+  /* JARA: increase the session count  */ 
+  LOG_E;
+  session_count ++;
+  verse_create(session_count);
+  /* JARA END */
     SSL_SESSION *ss;
 
-    LOG_E;
+
 
     if (!OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS, NULL))
         return NULL;

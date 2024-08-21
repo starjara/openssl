@@ -27,8 +27,7 @@
 
 /* VERSE */
 #include <openssl/verse_prot.h>
-
-#define LOG_E printf("[ssl/ssl-lib.c] Enter: %s\n", __FUNCTION__)
+#define LOG_E //printf("[ssl/ssl-lib.c] Enter: %s\n", __FUNCTION__)
 
 static int ssl_undefined_function_1(SSL *ssl, SSL3_RECORD *r, size_t s, int t,
                                     SSL_MAC_BUF *mac, size_t macsize)
@@ -695,7 +694,7 @@ SSL *SSL_new(SSL_CTX *ctx)
     SSL *s;
 
     /* ======================= VERSE ================== */
-    verse_create(session_count);
+    // verse_create(session_count);
     /* ================================================ */
 
     if (ctx == NULL) {
@@ -1198,12 +1197,6 @@ void SSL_free(SSL *s)
 {
   LOG_E;
     int i;
-
-    /* ========== VERSE ==========*/
-    LOG_E;
-    static int free_index = 0;
-    verse_destroy(free_index ++ );
-    /* ===========================*/
 
     if (s == NULL)
         return;
@@ -3980,8 +3973,10 @@ int SSL_do_handshake(SSL *s)
     }
 
     ossl_statem_check_finish_init(s, -1);
+    //printf("ossl_statem_check_finish_init\n");
 
     s->method->ssl_renegotiate_check(s, 0);
+    //printf("ssl_renegotiate_check\n");
 
     if (SSL_in_init(s) || SSL_in_before(s)) {
         if ((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
@@ -3990,11 +3985,16 @@ int SSL_do_handshake(SSL *s)
             memset(&args, 0, sizeof(args));
             args.s = s;
 
+	    //printf("before async_job\n");
             ret = ssl_start_async_job(s, &args, ssl_do_handshake_intern);
+	    //printf("after async_job\n");
         } else {
+	  //printf("before hadshaeck_fun\n");
             ret = s->handshake_func(s);
+	    //printf("after hadshaeck_fun\n");
         }
     }
+    //printf("End of %s\n", __FUNCTION__);
     return ret;
 }
 

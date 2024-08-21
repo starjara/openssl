@@ -28,7 +28,7 @@
 #include "internal/provider.h"
 #include "internal/sizes.h"
 
-#define LOG_E printf("[x509/x_pubkey.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[x509/x_pubkey.c] Enter: %s\n", __FUNCTION__);
 
 struct X509_pubkey_st {
     X509_ALGOR *algor;

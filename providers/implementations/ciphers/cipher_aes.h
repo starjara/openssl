@@ -13,10 +13,13 @@
 
 typedef struct prov_aes_ctx_st {
     PROV_CIPHER_CTX base;      /* Must be first */
+  /*
     union {
         OSSL_UNION_ALIGN;
         AES_KEY ks;
     } ks;
+  */
+  AES_KEY *ks;
 
     /* Platform specific data */
     union {

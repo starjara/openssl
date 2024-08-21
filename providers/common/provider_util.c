@@ -21,7 +21,7 @@
 #include "prov/provider_util.h"
 #include "internal/nelem.h"
 
-#define LOG_E printf("[providers/common/provider_util.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[providers/common/provider_util.c] Enter: %s\n", __FUNCTION__);
 
 void ossl_prov_cipher_reset(PROV_CIPHER *pc)
 {

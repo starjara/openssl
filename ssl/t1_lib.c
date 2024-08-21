@@ -29,7 +29,7 @@
 
 #include "verse.h"
 
-#define LOG_E printf("[ssl/t1_lib.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[ssl/t1_lib.c] Enter: %s\n", __FUNCTION__);
 
 static const SIGALG_LOOKUP *find_sig_alg(SSL *s, X509 *x, EVP_PKEY *pkey);
 static int tls12_sigalg_allowed(const SSL *s, int op, const SIGALG_LOOKUP *lu);

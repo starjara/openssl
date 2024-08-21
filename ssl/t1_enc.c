@@ -21,7 +21,7 @@
 #include <openssl/core_names.h>
 #include <openssl/trace.h>
 
-#define LOG_E printf("[ssl/t1_enc.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[ssl/t1_enc.c] Enter: %s\n", __FUNCTION__);
 
 /* seed1 through seed5 are concatenated */
 static int tls1_PRF(SSL *s,

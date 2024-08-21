@@ -3,6 +3,10 @@
 
 #include "verse.h"
 
-static int session_count = 0;
+#define AES_BASE 0x10000
+#define GCM_BASE 0xA0000
+#define AES_INDEX_OFFSET  24
+
+extern int session_count;
 
 #endif

@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <openssl/e_os2.h>      /* For ossl_inline */
 
-#define LOG_E printf("[crypto/stack/stack.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[crypto/stack/stack.c] Enter: %s\n", __FUNCTION__);
 
 /*
  * The initial number of nodes in the array.

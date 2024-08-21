@@ -29,7 +29,6 @@ static void *aes_gcm_newctx(void *provctx, size_t keybits)
 {
   LOG_E;
     PROV_AES_GCM_CTX *ctx;
-    PROV_AES_GCM_CTX *ctx2;
 
     if (!ossl_prov_is_running())
         return NULL;
@@ -41,11 +40,13 @@ static void *aes_gcm_newctx(void *provctx, size_t keybits)
                          ossl_prov_aes_hw_gcm(keybits));
 
     /* JARA: mapping domain memory */
+    /*
     verse_enter(session_count);
-    //ctx2 = (PROV_AES_GCM_CTX *)verse_mmap(0x10000, 0x0, 0x1000, PROT_READ | PROT_WRITE);
+    ctx2 = (AES_KEY *)verse_mmap(0x11000, 0x0, 0x1000, PROT_READ | PROT_WRITE);
     //verse_write((unsigned long long)ctx2, ctx, sizeof(*ctx));
     verse_exit(session_count);
     printf("\tContext created\n");
+    */
     //return ctx2;
     /* =========================== */
 
@@ -54,6 +55,7 @@ static void *aes_gcm_newctx(void *provctx, size_t keybits)
 
 static void *aes_gcm_dupctx(void *provctx)
 {
+  LOG_E;
     PROV_AES_GCM_CTX *ctx = provctx;
     PROV_AES_GCM_CTX *dctx = NULL;
 
@@ -62,7 +64,8 @@ static void *aes_gcm_dupctx(void *provctx)
 
     dctx = OPENSSL_memdup(ctx, sizeof(*ctx));
     if (dctx != NULL && dctx->base.gcm.key != NULL)
-        dctx->base.gcm.key = &dctx->ks.ks;
+      dctx->base.gcm.key = &dctx->ks;
+      //dctx->base.gcm.key = &dctx->ks.ks;
 
     return dctx;
 }
@@ -70,7 +73,16 @@ static void *aes_gcm_dupctx(void *provctx)
 static OSSL_FUNC_cipher_freectx_fn aes_gcm_freectx;
 static void aes_gcm_freectx(void *vctx)
 {
+  LOG_E;
     PROV_AES_GCM_CTX *ctx = (PROV_AES_GCM_CTX *)vctx;
+
+    /* JARA: verse_munmap for session key */
+    printf("verse_munmap for aes_gcm session key\n");
+    printf("domain: %d\tAddr: 0x%llx\n", (int)ctx->ks >> AES_INDEX_OFFSET, (unsigned long long)ctx->ks);
+    verse_enter((int) ctx->ks >> AES_INDEX_OFFSET);
+    verse_munmap((unsigned long long)ctx->ks, 0x1000);
+    verse_exit(0);
+    /* JARA END */
 
     OPENSSL_clear_free(ctx,  sizeof(*ctx));
 }

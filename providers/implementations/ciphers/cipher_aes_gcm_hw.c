@@ -17,6 +17,7 @@
 
 #include "cipher_aes_gcm.h"
 
+#include <openssl/verse_prot.h>
 #define LOG_E printf("[implemantations/ciphers/cipher_aes_gcm_hw.c] Enter: %s\n", __FUNCTION__);
 
 static int aes_gcm_initkey(PROV_GCM_CTX *ctx, const unsigned char *key,
@@ -24,7 +25,19 @@ static int aes_gcm_initkey(PROV_GCM_CTX *ctx, const unsigned char *key,
 {
   LOG_E;
     PROV_AES_GCM_CTX *actx = (PROV_AES_GCM_CTX *)ctx;
-    AES_KEY *ks = &actx->ks.ks;
+    // AES_KEY *ks = &actx->ks.ks;
+
+    /* JARA: verse_mmap for gcm init key */
+    static int count = 0;
+    //AES_KEY *ks = &actx->ks.ks;
+    verse_enter(session_count);
+    // AES_KEY *ks = (AES_KEY *)verse_mmap(0x100000 + count * 0x1000, 0, 0x1000, PROT_READ | PROT_WRITE);
+    AES_KEY *ks = (AES_KEY *)verse_mmap((GCM_BASE | (session_count << AES_INDEX_OFFSET)) + count * 0x1000,\
+					0, 0x1000, PROT_READ | PROT_WRITE);
+    verse_exit(session_count);
+    ctx->ks = ks;
+    count ++;
+    /* ================================= */
 
 # ifdef HWAES_CAPABLE
     if (HWAES_CAPABLE) {

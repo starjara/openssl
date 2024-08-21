@@ -93,6 +93,7 @@ struct prov_cipher_ctx_st {
     const PROV_CIPHER_HW *hw; /* hardware specific functions */
     const void *ks; /* Pointer to algorithm specific key data */
     OSSL_LIB_CTX *libctx;
+  
 };
 
 struct prov_cipher_hw_st {
@@ -318,7 +319,7 @@ static void name(PROV_CIPHER_CTX *dst, const PROV_CIPHER_CTX *src)             \
     CTX_TYPE *dctx = (CTX_TYPE *)dst;                                          \
                                                                                \
     *dctx = *sctx;                                                             \
-    dst->ks = &dctx->ks.ks;                                                    \
+    dst->ks = &dctx->ks;/*.ks;*/					\
 }
 
 #define CIPHER_DEFAULT_GETTABLE_CTX_PARAMS_START(name)                         \

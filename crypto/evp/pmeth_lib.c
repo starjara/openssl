@@ -37,7 +37,7 @@
 
 #include "verse.h"
 
-#define LOG_E printf("[evp/pmeth_lib.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[evp/pmeth_lib.c] Enter: %s\n", __FUNCTION__);
 
 #ifndef FIPS_MODULE
 

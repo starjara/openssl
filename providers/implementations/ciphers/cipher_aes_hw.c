@@ -16,17 +16,37 @@
 #include <openssl/proverr.h>
 #include "cipher_aes.h"
 
-#define LOG_E printf("[implemantations/cipher_aes_hw.c] Enter: %s\n", __FUNCTION__);
+/* JARA: verse includes */
+#include <openssl/verse_prot.h>
+#define LOG_E //printf("[implemantations/cipher_aes_hw.c] Enter: %s\n", __FUNCTION__);
+/* JARA END */
+
 static int cipher_hw_aes_initkey(PROV_CIPHER_CTX *dat,
                                  const unsigned char *key, size_t keylen)
 {
-  printf("\t\t");
+  //printf("\t\t");
   LOG_E;
     int ret;
+    /*
     PROV_AES_CTX *adat = (PROV_AES_CTX *)dat;
     AES_KEY *ks = &adat->ks.ks;
+    */
 
-    printf("%lx\n", ks->rd_key);
+    /* JARA: verse_mmap for new key */
+    static int count = 0;
+    
+    if(session_count == 0 && count == 0)
+      verse_create(session_count);
+    
+    verse_enter(session_count);
+    //AES_KEY *ks = (AES_KEY *)verse_mmap(0x10000 + count * 0x1000, 0, 0x1000, PROT_READ | PROT_WRITE);
+    AES_KEY *ks = (AES_KEY *)verse_mmap((AES_BASE | (session_count << AES_INDEX_OFFSET)) + count * 0x1000,\
+					0, 0x1000, PROT_READ | PROT_WRITE);
+    verse_exit(session_count);
+    count ++;
+    /* JARA END */
+
+    //printf("%lx\n", ks->rd_key);
 
     dat->ks = ks;
 

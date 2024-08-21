@@ -15,7 +15,7 @@
 #include "internal/provider.h"
 #include "evp_local.h"
 
-#define LOG_E printf("[evp/keymgmt_lib.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[evp/keymgmt_lib.c] Enter: %s\n", __FUNCTION__);
 
 /*
  * match_type() checks if two EVP_KEYMGMT are matching key types.  This

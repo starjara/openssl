@@ -20,14 +20,22 @@
 #include "prov/implementations.h"
 #include "prov/providercommon.h"
 
-#include "verse.h"
+#include <openssl/verse_prot.h>
+#define LOG_E printf("[providers/ciphers/cipher_aes.c] Enter: %s\n", __FUNCTION__);
 
 static OSSL_FUNC_cipher_freectx_fn aes_freectx;
 static OSSL_FUNC_cipher_dupctx_fn aes_dupctx;
 
 static void aes_freectx(void *vctx)
 {
+  LOG_E;
     PROV_AES_CTX *ctx = (PROV_AES_CTX *)vctx;
+
+    /* JARA: verse_munmap for key data */
+    printf("verse_munmap for key data\n");
+    verse_enter(session_count);
+    verse_munmap(0x10000, 0x1000); 
+    /* JARA end */
 
     ossl_cipher_generic_reset_ctx((PROV_CIPHER_CTX *)vctx);
     OPENSSL_clear_free(ctx,  sizeof(*ctx));
@@ -35,6 +43,7 @@ static void aes_freectx(void *vctx)
 
 static void *aes_dupctx(void *ctx)
 {
+  LOG_E;
   printf("aes_dupctx\n");
     PROV_AES_CTX *in = (PROV_AES_CTX *)ctx;
     PROV_AES_CTX *ret;

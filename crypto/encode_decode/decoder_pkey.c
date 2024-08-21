@@ -19,7 +19,7 @@
 #include "crypto/decoder.h"
 #include "encoder_local.h"
 
-#define LOG_E printf("[encode_decode/decoder_pkey.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[encode_decode/decoder_pkey.c] Enter: %s\n", __FUNCTION__);
 
 int OSSL_DECODER_CTX_set_passphrase(OSSL_DECODER_CTX *ctx,
                                     const unsigned char *kstr,

@@ -50,7 +50,45 @@
 #include <openssl/aes.h>
 #include "aes_local.h"
 
-#define LOG_E printf("[aes/aes_core.c] Enter: %s\n", __FUNCTION__);
+/* JARA: Portal defines */
+#include <openssl/verse_prot.h>
+#define LOG_E //printf("[aes/aes_core.c] Enter: %s\n", __FUNCTION__);
+int session_count;
+#define print_aes_core(fmt, ...) /*\ 
+				   printf("\t\t\t\tAES_CORE: " fmt, ##__VA_ARGS__); */
+#define aes_core_print(fmt, ...) \ 
+printf("\t\t\t\tAES_CORE[%s]: " fmt, __FUNCTION__, ##__VA_ARGS__);
+
+/* Store instructions */
+#define HSV_B(src, dst) \
+  asm volatile ("\n" \
+		"hsv.b %[src], %[dst]\n" \
+		: [src] "+r" (src), [dst] "=m" (dst) :: "memory" );
+#define HSV_W(src, dst) \
+  asm volatile ("\n" \
+		"hsv.w %[src], %[dst]\n" \
+		: [src] "+r" (src), [dst] "=m" (dst) :: "memory" );
+#define HSV_D(src, dst) \
+  asm volatile ("\n" \
+		"hsv.d %[src], %[dst]\n" \
+		: [src] "+r" (src), [dst] "=m" (dst) :: "memory" );
+ 
+/* Load instructions */
+#define HLV_B(src, dst) \
+  asm volatile ("\n" \
+		"hlv.b %[src], %[dst]\n" \
+		: [src] "+r" (src), [dst] "=m" (dst) :: "memory" );
+#define HLV_W(src, dst) \
+  asm volatile ("\n" \
+		"hlv.w %[src], %[dst]\n" \
+		: [src] "+r" (src), [dst] "=m" (dst) :: "memory" );
+#define HLV_D(src, dst) \
+  asm volatile ("\n" \
+		"hlv.d %[src], %[dst]\n" \
+		: [src] "+r" (src), [dst] "=m" (dst) :: "memory" );
+  
+/* ==================== */
+  
 
 #if defined(OPENSSL_AES_CONST_TIME) && !defined(AES_ASM)
 
@@ -673,19 +711,22 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
                  const AES_KEY *key)
 {
   LOG_E;
-  printf("\tShort\n");
     const u64 *rk;
 
+    /*
     verse_create(0);
     verse_enter(0);
+    */
 
     assert(in && out && key);
     rk = (u64*)key->rd_key;
 
     Cipher(in, out, rk, key->rounds);
 
+    /*
     verse_exit(0)
     verse_destroy(0);
+    */
 }
 
 /*
@@ -698,16 +739,20 @@ void AES_decrypt(const unsigned char *in, unsigned char *out,
   LOG_E;
     const u64 *rk;
 
+    /*
     verse_create(1);
     verse_enter(1);
+    */
 
     assert(in && out && key);
     rk = (u64*)key->rd_key;
 
     InvCipher(in, out, rk, key->rounds);
 
+    /*
     verse_exit(1);
     verse_destroy(0);
+    */
 }
 #elif !defined(AES_ASM)
 /*-
@@ -1298,8 +1343,12 @@ static const u32 rcon[] = {
 int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
-  printf("\t\t\t");
+  //printf("\t\t\t");
   LOG_E;
+  // print_aes_core("Entering domain %d\n", session_count);
+  // aes_core_print("Entering domain %d\n", (unsigned int)key >> AES_INDEX_OFFSET);
+  verse_enter((int)key >> AES_INDEX_OFFSET);
+  // aes_core_print("Entering domain %d success\n", session_count);
 
     u32 *rk;
     int i = 0;
@@ -1310,41 +1359,114 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     if (bits != 128 && bits != 192 && bits != 256)
         return -2;
 
-    rk = key->rd_key;
+    print_aes_core("Read rd_key\n");
+    rk = &key->rd_key;
 
+    print_aes_core("Set round\n");
     if (bits == 128)
-        key->rounds = 10;
+      temp = 10;
+      //key->rounds = 10;
     else if (bits == 192)
-        key->rounds = 12;
+      temp = 12;
+      //key->rounds = 12;
     else
-        key->rounds = 14;
+      temp = 14;
+      //key->rounds = 14;
+    print_aes_core("Set round end\n");
 
+    print_aes_core("Write round\n");
+    print_aes_core("temp: %p, %d\n", &temp, temp);
+    verse_write(&key->rounds, &temp, sizeof(int));
+    print_aes_core("Write round end\n");
+
+    print_aes_core("Set rk0 to 3\n");
+    /*
     rk[0] = GETU32(userKey     );
     rk[1] = GETU32(userKey +  4);
     rk[2] = GETU32(userKey +  8);
     rk[3] = GETU32(userKey + 12);
+    */
+
+    temp = GETU32(userKey);
+    verse_write((rk), &temp, sizeof(u32));
+    temp = GETU32(userKey + 4);
+    verse_write((rk + 1), &temp, sizeof(u32));
+    temp = GETU32(userKey + 8);
+    verse_write((rk + 2), &temp, sizeof(u32));
+    temp = GETU32(userKey + 12);
+    verse_write((rk + 3), &temp, sizeof(u32));
+    
+    print_aes_core("Set rk0 to 3 end\n");
     if (bits == 128) {
-      printf("bit == 128\n");
+      print_aes_core("bit == 128\n");
+      int temp2;
+      int val;
         while (1) {
-            temp  = rk[3];
-            rk[4] = rk[0] ^
-                (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
-                (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
-                (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
-                (Te1[(temp >> 24)       ] & 0x000000ff) ^
-                rcon[i];
+	  print_aes_core("Read rk[3]\n");
+	  /*
+	  temp  = rk[3];
+	  */
+	  verse_read((unsigned long long) (rk + 3), &temp, sizeof(temp));
+
+	  print_aes_core("Write rk[4]\n");
+	  /*
+	  rk[4] = rk[0] ^
+	    (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
+	    (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
+	    (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
+	    (Te1[(temp >> 24)       ] & 0x000000ff) ^
+	    rcon[i];
+	  */
+	  verse_read((unsigned long long) (rk), &temp2, sizeof(temp2));
+	  val = temp2 ^
+	    (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
+	    (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
+	    (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
+	    (Te1[(temp >> 24)       ] & 0x000000ff) ^
+	    rcon[i];
+	  verse_write((rk + 4), &val, sizeof(val));
+
+	  print_aes_core("Write rk[5] to rk[7]\n");
+	  /*
             rk[5] = rk[1] ^ rk[4];
             rk[6] = rk[2] ^ rk[5];
             rk[7] = rk[3] ^ rk[6];
+	  */
+
+	  verse_read((unsigned long long) (rk + 1), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 4), &temp2, sizeof(temp));
+	  val = temp ^ temp2;
+	  verse_write((rk + 5), &val, sizeof(val));
+
+	  verse_read((unsigned long long) (rk + 2), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 5), &temp2, sizeof(temp));
+	  val = temp ^ temp2;
+	  verse_write((rk + 6), &val, sizeof(val));
+
+	  verse_read((unsigned long long) (rk + 3), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 6), &temp2, sizeof(temp));
+	  val = temp ^ temp2;
+	  verse_write((rk + 7), &val, sizeof(val));
+
             if (++i == 10) {
-                return 0;
+	      verse_exit(0);
+	      return 0;
             }
             rk += 4;
         }
-    }
+    } /* End of if(bit == 128) */
+    print_aes_core("Write rk[4] to rk[5]\n");
+    /*
     rk[4] = GETU32(userKey + 16);
     rk[5] = GETU32(userKey + 20);
+    */
+    temp = GETU32(userKey + 16);
+    verse_write((rk + 4), &temp, sizeof(temp));
+    temp = GETU32(userKey + 20);
+    verse_write((rk + 5), &temp, sizeof(temp));
+    print_aes_core("Write rk[4] to rk[5] end\n");
     if (bits == 192) {
+      print_aes_core("bit == 192\n");
         while (1) {
             temp = rk[ 5];
             rk[ 6] = rk[ 0] ^
@@ -1364,23 +1486,74 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk += 6;
         }
     }
+    print_aes_core("Write rk[6] to rk[7]\n");
+    /*
     rk[6] = GETU32(userKey + 24);
     rk[7] = GETU32(userKey + 28);
+    */
+    temp = GETU32(userKey + 24);
+    verse_write((rk + 6), &temp, sizeof(temp));
+    temp = GETU32(userKey + 28);
+    verse_write((rk + 7), &temp, sizeof(temp));
+    print_aes_core("Write rk[6] to rk[7]\n");
     if (bits == 256) {
+      /* JARA: temp2 for in while */
+      print_aes_core("bit == 256\n");
+      int temp2;
+      int val;
         while (1) {
-            temp = rk[ 7];
+	  print_aes_core("Read rk[7]\n");
+	  /*
+          temp = rk[ 7];
+	  */
+	  verse_read((unsigned long long) (rk + 7), &temp, sizeof(temp));
+	  
+	  print_aes_core("Write rk[8]\n");
+	  /*
             rk[ 8] = rk[ 0] ^
                 (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
                 (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
                 (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
                 (Te1[(temp >> 24)       ] & 0x000000ff) ^
                 rcon[i];
+	  */
+	  verse_read((unsigned long long) (rk), &temp2, sizeof(temp));
+	  val = temp2 ^
+                (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
+                (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
+                (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
+                (Te1[(temp >> 24)       ] & 0x000000ff) ^
+                rcon[i];
+	  verse_write((rk + 8), &val, sizeof(val));
+
+	  print_aes_core("Write rk[9] to rk[11]\n");
+	  /*
             rk[ 9] = rk[ 1] ^ rk[ 8];
             rk[10] = rk[ 2] ^ rk[ 9];
             rk[11] = rk[ 3] ^ rk[10];
-            if (++i == 7) {
-                return 0;
-            }
+	  */
+	  verse_read((unsigned long long) (rk + 1), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 8), &temp2, sizeof(temp));
+	  val = temp ^ temp2;
+	  verse_write((rk + 9), &val, sizeof(val));
+
+	  verse_read((unsigned long long) (rk + 2), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 9), &temp2, sizeof(temp));
+	  val = temp ^ temp2;
+	  verse_write((rk + 10), &val, sizeof(val));
+
+	  verse_read((unsigned long long) (rk + 3), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 10), &temp2, sizeof(temp));
+	  val = temp ^ temp2;
+	  verse_write((rk + 11), &val, sizeof(val));
+	  print_aes_core("Write rk[9] to rk[11]\n");
+
+	  if (++i == 7) {
+	    verse_exit(0);
+	    return 0;
+	  }
+	  print_aes_core("Write rk[12] to rk[14]\n");
+	  /*
             temp = rk[11];
             rk[12] = rk[ 4] ^
                 (Te2[(temp >> 24)       ] & 0xff000000) ^
@@ -1390,10 +1563,35 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk[13] = rk[ 5] ^ rk[12];
             rk[14] = rk[ 6] ^ rk[13];
             rk[15] = rk[ 7] ^ rk[14];
+	  */
+	  verse_read((unsigned long long) (rk + 11), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 4), &temp2, sizeof(temp2));
+	  val = temp2 ^
+	    (Te2[(temp >> 24)       ] & 0xff000000) ^
+	    (Te3[(temp >> 16) & 0xff] & 0x00ff0000) ^
+	    (Te0[(temp >>  8) & 0xff] & 0x0000ff00) ^
+	    (Te1[(temp      ) & 0xff] & 0x000000ff);
+	  verse_write((rk + 12), &val, sizeof(val));
 
-            rk += 8;
-            }
+	  verse_read((unsigned long long) (rk + 5), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 12), &temp2, sizeof(temp));
+	  val = temp ^ temp2;
+	  verse_write((rk + 13), &val, sizeof(val));
+
+	  verse_read((unsigned long long) (rk + 6), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 13), &temp2, sizeof(temp));
+	  val = temp ^ temp2;
+	  verse_write((rk + 14), &val, sizeof(val));
+
+	  verse_read((unsigned long long) (rk + 7), &temp, sizeof(temp));
+	  verse_read((unsigned long long) (rk + 14), &temp2, sizeof(temp));
+	  val = temp ^ temp2;
+	  verse_write((rk + 15), &val, sizeof(val));
+
+	  rk += 8;
+	}
     }
+    verse_exit(session_count);
     return 0;
 }
 
@@ -1457,8 +1655,7 @@ int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
 void AES_encrypt(const unsigned char *in, unsigned char *out,
                  const AES_KEY *key) {
 
-  // LOG_E;
-  // printf("\tLong\n");
+  LOG_E;
     const u32 *rk;
     u32 s0, s1, s2, s3, t0, t1, t2, t3;
 #ifndef FULL_UNROLL
@@ -1467,6 +1664,15 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
 
     assert(in && out && key);
     rk = key->rd_key;
+
+    /* JARA: Test for encryption */
+    // aes_core_print("Entering domain %d\n", (unsigned int)key >> AES_INDEX_OFFSET);
+    verse_enter((int)key >> AES_INDEX_OFFSET);
+    // aes_core_print("Entering domain %d success\n", (unsigned int)key >> AES_INDEX_OFFSET);
+    AES_KEY temp_key;
+    verse_read((unsigned long long) key, &temp_key, sizeof(AES_KEY));
+    rk = &temp_key.rd_key;
+    /* ======================== */
 
     /*
      * map byte array block to cipher state
@@ -1477,6 +1683,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     s2 = GETU32(in +  8) ^ rk[2];
     s3 = GETU32(in + 12) ^ rk[3];
 #ifdef FULL_UNROLL
+    print_aes_core("FULL_UNROLL\n");
     /* round 1: */
     t0 = Te0[s0 >> 24] ^ Te1[(s1 >> 16) & 0xff] ^ Te2[(s2 >>  8) & 0xff] ^ Te3[s3 & 0xff] ^ rk[ 4];
     t1 = Te0[s1 >> 24] ^ Te1[(s2 >> 16) & 0xff] ^ Te2[(s3 >>  8) & 0xff] ^ Te3[s0 & 0xff] ^ rk[ 5];
@@ -1548,10 +1755,16 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     }
     rk += key->rounds << 2;
 #else  /* !FULL_UNROLL */
+    print_aes_core("Not FULL_UNROLL\n");
     /*
      * Nr - 1 full rounds:
      */
-    r = key->rounds >> 1;
+    /* JARA: round shift */
+    /* r = key->rounds >> 1; */
+    print_aes_core("Round shift\n");
+    verse_read((unsigned long long)&key->rounds, &r, sizeof(r));
+    r = r >> 1;
+
     for (;;) {
         t0 =
             Te0[(s0 >> 24)       ] ^
@@ -1609,6 +1822,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
             rk[3];
     }
 #endif /* ?FULL_UNROLL */
+    print_aes_core("?FULL_UNROLL\n");
     /*
      * apply last round and
      * map cipher state to byte array block:
@@ -1641,6 +1855,9 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
         (Te1[(t2      ) & 0xff] & 0x000000ff) ^
         rk[3];
     PUTU32(out + 12, s3);
+
+    /* JARA: verse_exit */
+    verse_exit(0);
 }
 
 /*
@@ -1884,7 +2101,7 @@ static const u32 rcon[] = {
 int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
-  printf("\t\t");
+  //printf("\t\t");
   LOG_E;
     u32 *rk;
     int i = 0;

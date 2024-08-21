@@ -18,7 +18,7 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
-#define LOG_E printf("[evp/exchange.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[evp/exchange.c] Enter: %s\n", __FUNCTION__);
 
 static EVP_KEYEXCH *evp_keyexch_new(OSSL_PROVIDER *prov)
 {

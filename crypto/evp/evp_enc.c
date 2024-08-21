@@ -27,7 +27,8 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
-#define LOG_E printf("[evp/evp_enc.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[evp/evp_enc.c] Enter: %s\n", __FUNCTION__);
+#define evp_enc_print(fmt, ...) //printf("\tEVP_ENC[%s]: " fmt, __FUNCTION__, ##__VA_ARGS__);
 
 int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX *ctx)
 {
@@ -211,7 +212,7 @@ static int evp_cipher_init_internal(EVP_CIPHER_CTX *ctx,
     }
     ctx->cipher = cipher;
     if (ctx->algctx == NULL) {
-      printf("\talgctx == NULL\n");
+      evp_enc_print("algctx == NULL\n");
         ctx->algctx = ctx->cipher->newctx(ossl_provider_ctx(cipher->prov));
         if (ctx->algctx == NULL) {
             ERR_raise(ERR_LIB_EVP, EVP_R_INITIALIZATION_ERROR);
@@ -270,7 +271,7 @@ static int evp_cipher_init_internal(EVP_CIPHER_CTX *ctx,
             return 0;
         }
 
-	printf("\teinit\n");
+	evp_enc_print("einit\n");
         return ctx->cipher->einit(ctx->algctx,
                                   key,
                                   key == NULL ? 0

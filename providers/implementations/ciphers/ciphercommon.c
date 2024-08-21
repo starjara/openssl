@@ -18,7 +18,10 @@
 #include "prov/provider_ctx.h"
 #include "prov/providercommon.h"
 
-#define LOG_E printf("[providers/implementation/ciphers/chiphercommon.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[providers/implementation/ciphers/chiphercommon.c] Enter: %s\n", __FUNCTION__);
+#define cipher_common_print(fmt, ...) /* \
+  printf("ciphercommon[%s]: "fmt, __FUNCTION__, ##__VA_ARGS__);
+				      */
 
 /*-
  * Generic cipher functions for OSSL_PARAM gettables and settables
@@ -192,7 +195,7 @@ static int cipher_generic_init_internal(PROV_CIPHER_CTX *ctx,
                                         const unsigned char *iv, size_t ivlen,
                                         const OSSL_PARAM params[], int enc)
 {
-  printf("\t");
+  //printf("\t");
   LOG_E;
     ctx->num = 0;
     ctx->bufsz = 0;
@@ -214,7 +217,7 @@ static int cipher_generic_init_internal(PROV_CIPHER_CTX *ctx,
         memcpy(ctx->iv, ctx->oiv, ctx->ivlen);
 
     if (key != NULL) {
-      printf("\tkey != NULL\n");
+      cipher_common_print("\tkey != NULL\n");
         if (ctx->variable_keylength == 0) {
             if (keylen != ctx->keylen) {
                 ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_KEY_LENGTH);
@@ -229,7 +232,7 @@ static int cipher_generic_init_internal(PROV_CIPHER_CTX *ctx,
         ctx->key_set = 1;
     }
     else {
-      printf("\tkey == NULL\n");
+      cipher_common_print("\tkey == NULL\n");
     }
 
     return ossl_cipher_generic_set_ctx_params(ctx, params);
@@ -641,6 +644,7 @@ int ossl_cipher_generic_set_ctx_params(void *vctx, const OSSL_PARAM params[])
 
     p = OSSL_PARAM_locate_const(params, OSSL_CIPHER_PARAM_PADDING);
     if (p != NULL) {
+      printf("pad\n");
         unsigned int pad;
 
         if (!OSSL_PARAM_get_uint(p, &pad)) {
@@ -651,6 +655,7 @@ int ossl_cipher_generic_set_ctx_params(void *vctx, const OSSL_PARAM params[])
     }
     p = OSSL_PARAM_locate_const(params, OSSL_CIPHER_PARAM_USE_BITS);
     if (p != NULL) {
+      printf("bits\n");
         unsigned int bits;
 
         if (!OSSL_PARAM_get_uint(p, &bits)) {
@@ -675,6 +680,7 @@ int ossl_cipher_generic_set_ctx_params(void *vctx, const OSSL_PARAM params[])
     }
     p = OSSL_PARAM_locate_const(params, OSSL_CIPHER_PARAM_NUM);
     if (p != NULL) {
+      printf("num\n");
         unsigned int num;
 
         if (!OSSL_PARAM_get_uint(p, &num)) {
@@ -683,6 +689,8 @@ int ossl_cipher_generic_set_ctx_params(void *vctx, const OSSL_PARAM params[])
         }
         ctx->num = num;
     }
+    printf("\t\t");
+    LOG_E;
     return 1;
 }
 
