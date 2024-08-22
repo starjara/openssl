@@ -1347,7 +1347,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
   //printf("\t\t\t");
   LOG_E;
   // aes_core_print("Entering domain %d\n", (unsigned int)key >> AES_INDEX_OFFSET);
-  verse_enter((__u64)key >> AES_INDEX_OFFSET);
+  verse_enter((int)key >> AES_INDEX_OFFSET);
   // aes_core_print("Entering domain %d success\n", session_count);
 
     u32 *rk;
@@ -1396,8 +1396,9 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     temp = GETU32(userKey + 12);
     verse_write((rk + 3), &temp, sizeof(u32));
 
-    printf("temp: 0x%x\n", temp);
-    printf("rk0: 0x%x\n", (u32)verse_read(rk + 3, sizeof(u32)));
+    aes_core_print("temp: 0x%x\n", temp);
+    aes_core_print("rk0: 0x%x\n", (u32)verse_read(rk + 3, sizeof(u32)));
+    printf("%p %p %p\n", rk, rk + 3, &rk[3]);
     
     print_aes_core("Set rk0 to 3 end\n");
     if (bits == 128) {
@@ -1728,15 +1729,18 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     /* JARA: Test for encryption */
     /* ToDo: Need change the rk access oprations as verse_read/write */
     // aes_core_print("Entering domain %d\n", (unsigned int)key >> AES_INDEX_OFFSET);
-    verse_enter((__u64)key >> AES_INDEX_OFFSET);
+    verse_enter((int)key >> AES_INDEX_OFFSET);
     // aes_core_print("Entering domain %d success\n", (unsigned int)key >> AES_INDEX_OFFSET);
 
     // verse_read((unsigned long long) key, &temp_key, sizeof(AES_KEY));
     printf("AES_encrypt\n");
+    /*
     AES_KEY temp_key;
     for(int i=0; i<sizeof(AES_KEY); i++) {
+      printf("%p %p %p\n", key, i, (unsigned char *)key+i);
       *(unsigned char *)((unsigned char *)&temp_key + i) = (unsigned char)verse_read((unsigned char *)key + i, sizeof(unsigned char));
     }
+    */
     //rk = &temp_key.rd_key;
     /* ======================== */
 
@@ -1750,13 +1754,11 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     s2 = GETU32(in +  8) ^ rk[2];
     s3 = GETU32(in + 12) ^ rk[3];
     */
-    printf("rk[0]: %p\trd_key[0]: %p\tkey->rd_key[0]: %p\n", rk, &temp_key.rd_key[0], key->rd_key[0]);
-    printf("rk[0]: 0x%x\trd_key[0]: 0x%x\tkey->rd_key[0]: 0x%x\n", verse_read(rk, sizeof(u32)), temp_key.rd_key[0], verse_read(&key->rd_key[0], sizeof(u32)));
 
     s0 = GETU32(in     ) ^ (u32)verse_read(&(rk[0]), sizeof(*rk));
-    s0 = GETU32(in +  4) ^ (u32)verse_read(&(rk[1]), sizeof(*rk));
-    s0 = GETU32(in +  8) ^ (u32)verse_read(&(rk[2]), sizeof(*rk));
-    s0 = GETU32(in + 12) ^ (u32)verse_read(&(rk[3]), sizeof(*rk));
+    s1 = GETU32(in +  4) ^ (u32)verse_read(&(rk[1]), sizeof(*rk));
+    s2 = GETU32(in +  8) ^ (u32)verse_read(&(rk[2]), sizeof(*rk));
+    s3 = GETU32(in + 12) ^ (u32)verse_read(&(rk[3]), sizeof(*rk));
 
 #ifdef FULL_UNROLL
     aes_core_print("FULL_UNROLL\n");
