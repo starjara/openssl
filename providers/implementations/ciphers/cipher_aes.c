@@ -21,7 +21,7 @@
 #include "prov/providercommon.h"
 
 #include <openssl/verse_prot.h>
-#define LOG_E printf("[providers/ciphers/cipher_aes.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[providers/ciphers/cipher_aes.c] Enter: %s\n", __FUNCTION__);
 
 static OSSL_FUNC_cipher_freectx_fn aes_freectx;
 static OSSL_FUNC_cipher_dupctx_fn aes_dupctx;

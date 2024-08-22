@@ -19,7 +19,7 @@
 /* JARA: verse includes */
 #include <openssl/verse_prot.h>
 #define LOG_E //printf("[implemantations/cipher_aes_hw.c] Enter: %s\n", __FUNCTION__);
-#define aes_hw_print(fmt, ...) printf("cipher_aes_hw.c[%s] " fmt, __FUNCTION__, ##__VA_ARGS__);
+#define aes_hw_print(fmt, ...) //printf("cipher_aes_hw.c[%s] " fmt, __FUNCTION__, ##__VA_ARGS__);
 /* JARA END */
 
 static int cipher_hw_aes_initkey(PROV_CIPHER_CTX *dat,

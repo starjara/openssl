@@ -54,10 +54,10 @@
 #include <openssl/verse_prot.h>
 #define LOG_E //printf("[aes/aes_core.c] Enter: %s\n", __FUNCTION__);
 int session_count;
-#define print_aes_core(fmt, ...) /*\ 
+#define print_aes_core(fmt, ...) /* \ 
 				   printf("\t\t\t\tAES_CORE: " fmt, ##__VA_ARGS__); */
-#define aes_core_print(fmt, ...) \ 
-printf("\t\t\t\tAES_CORE[%s]: " fmt, __FUNCTION__, ##__VA_ARGS__);
+#define aes_core_print(fmt, ...) /* \ 
+				    printf("\t\t\t\tAES_CORE[%s]: " fmt, __FUNCTION__, ##__VA_ARGS__); */
 				 
 
 /* /\* Store instructions *\/ */
@@ -1398,7 +1398,6 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 
     aes_core_print("temp: 0x%x\n", temp);
     aes_core_print("rk0: 0x%x\n", (u32)verse_read(rk + 3, sizeof(u32)));
-    printf("%p %p %p\n", rk, rk + 3, &rk[3]);
     
     print_aes_core("Set rk0 to 3 end\n");
     if (bits == 128) {
@@ -1733,7 +1732,6 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     // aes_core_print("Entering domain %d success\n", (unsigned int)key >> AES_INDEX_OFFSET);
 
     // verse_read((unsigned long long) key, &temp_key, sizeof(AES_KEY));
-    printf("AES_encrypt\n");
     /*
     AES_KEY temp_key;
     for(int i=0; i<sizeof(AES_KEY); i++) {
@@ -1846,7 +1844,6 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     r = r >> 1;
     */
     r = (int)verse_read(&key->rounds, sizeof(r)) >> 1;
-    printf("r: %d\n", r);
 
     for (;;) {
         t0 =

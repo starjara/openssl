@@ -26,8 +26,8 @@ static int remove_session_lock(SSL_CTX *ctx, SSL_SESSION *c, int lck);
 
 /* JARA: verse include */
 #include <openssl/verse_prot.h>
-#define LOG_E printf("[ssl/ssl_sess.c] Enter: %s\n", __FUNCTION__)
-#define ssl_sess_print(fmt, ...) printf("ssl/ssl_sess.c[%s] "fmt, __FUNCTION__, ##__VA_ARGS__);
+#define LOG_E // printf("[ssl/ssl_sess.c] Enter: %s\n", __FUNCTION__)
+#define ssl_sess_print(fmt, ...) // printf("ssl/ssl_sess.c[%s] "fmt, __FUNCTION__, ##__VA_ARGS__);
 /* JARA END */
 
 DEFINE_STACK_OF(SSL_SESSION)
