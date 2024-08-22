@@ -35,7 +35,7 @@ static int cipher_hw_aes_initkey(PROV_CIPHER_CTX *dat,
 
     /* JARA: verse_mmap for new key */
     static int count = 0;
-    static int cur;
+    static int cur = 0;
 
     if(cur != session_count) {
       cur = session_count;
