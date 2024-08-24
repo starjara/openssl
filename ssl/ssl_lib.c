@@ -27,7 +27,7 @@
 
 /* VERSE */
 #include <openssl/verse_prot.h>
-#define LOG_E //printf("[ssl/ssl-lib.c] Enter: %s\n", __FUNCTION__)
+#define LOG_E printf("[ssl/ssl-lib.c] Enter: %s\n", __FUNCTION__)
 
 static int ssl_undefined_function_1(SSL *ssl, SSL3_RECORD *r, size_t s, int t,
                                     SSL_MAC_BUF *mac, size_t macsize)
@@ -587,6 +587,7 @@ static void clear_ciphers(SSL *s)
 
 int SSL_clear(SSL *s)
 {
+  LOG_E;
     if (s->method == NULL) {
         ERR_raise(ERR_LIB_SSL, SSL_R_NO_METHOD_SPECIFIED);
         return 0;
@@ -694,7 +695,10 @@ SSL *SSL_new(SSL_CTX *ctx)
     SSL *s;
 
     /* ======================= VERSE ================== */
-    // verse_create(session_count);
+    session_count ++;
+    if(session_count >= 1024)
+      session_count = 1;
+    verse_create(session_count);
     /* ================================================ */
 
     if (ctx == NULL) {
@@ -1196,7 +1200,7 @@ void SSL_certs_clear(SSL *s)
 void SSL_free(SSL *s)
 {
   LOG_E;
-    int i;
+   int i;
 
     if (s == NULL)
         return;
@@ -1291,7 +1295,14 @@ void SSL_free(SSL *s)
 
     CRYPTO_THREAD_lock_free(s->lock);
 
+    /* JARA: domain destroy */
+    printf("Server? %d\n", s->server);
+    printf("%d session will be destroyed\n", session_count);
+    verse_destroy(session_count);
+    /* JARA End */
+
     OPENSSL_free(s);
+
 }
 
 void SSL_set0_rbio(SSL *s, BIO *rbio)
@@ -3459,6 +3470,10 @@ SSL_CTX *SSL_CTX_new_ex(OSSL_LIB_CTX *libctx, const char *propq,
 SSL_CTX *SSL_CTX_new(const SSL_METHOD *meth)
 {
   LOG_E;
+  /* JARA: Initial domain */
+  verse_create(0);
+  /* JARA End */
+  
     return SSL_CTX_new_ex(NULL, NULL, meth);
 }
 
@@ -3558,6 +3573,10 @@ void SSL_CTX_free(SSL_CTX *a)
     OPENSSL_free(a->propq);
 
     OPENSSL_free(a);
+
+    /* JARA: destroy init domain */
+    verse_destroy(0);
+    /* JARA End */
 }
 
 void SSL_CTX_set_default_passwd_cb(SSL_CTX *ctx, pem_password_cb *cb)

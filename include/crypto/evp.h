@@ -717,6 +717,10 @@ struct evp_pkey_st {
         int security_bits;
         int size;
     } cache;
+
+  /* JARA: EVP_PKEY domina num */
+  int domain_num;
+  /* JARA End */
 } /* EVP_PKEY */ ;
 
 #define EVP_PKEY_CTX_IS_SIGNATURE_OP(ctx) \

@@ -27,6 +27,7 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
+#include "openssl/verse_prot.h"
 #define LOG_E //printf("[evp/evp_enc.c] Enter: %s\n", __FUNCTION__);
 #define evp_enc_print(fmt, ...) //printf("\tEVP_ENC[%s]: " fmt, __FUNCTION__, ##__VA_ARGS__);
 
@@ -90,6 +91,14 @@ static int evp_cipher_init_internal(EVP_CIPHER_CTX *ctx,
                                     const OSSL_PARAM params[])
 {
   LOG_E;
+  /* JARA: create a domain for aes keys */
+  static int portal_init = 0;
+  if(session_count == 0 && portal_init == 0) {
+    verse_create(0);
+    portal_init = 1;
+  }
+  /* JARA End */
+  
     int n;
 #if !defined(OPENSSL_NO_ENGINE) && !defined(FIPS_MODULE)
     ENGINE *tmpimpl = NULL;

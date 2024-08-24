@@ -52,7 +52,7 @@
 
 /* verse */
 // #include <stdbool.h>
-// #include "verse.h"
+#include "openssl/verse_prot.h"
 #define LOG_E  //printf("[crypto/evp/p_lib.c] Enter: %s\n", __func__);
 //#define LOG_E
 
@@ -1554,6 +1554,7 @@ EVP_PKEY *EVP_PKEY_new(void)
         goto err;
     }
 #endif
+    
     return ret;
 
  err:
@@ -1913,6 +1914,7 @@ void EVP_PKEY_free(EVP_PKEY *x)
     sk_X509_ATTRIBUTE_pop_free(x->attributes, X509_ATTRIBUTE_free);
 #endif
     OPENSSL_free(x);
+
 }
 
 int EVP_PKEY_get_size(const EVP_PKEY *pkey)

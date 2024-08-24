@@ -52,12 +52,9 @@
 
 /* JARA: Portal defines */
 #include <openssl/verse_prot.h>
-#define LOG_E //printf("[aes/aes_core.c] Enter: %s\n", __FUNCTION__);
 int session_count;
-#define print_aes_core(fmt, ...) /* \ 
-				   printf("\t\t\t\tAES_CORE: " fmt, ##__VA_ARGS__); */
-#define aes_core_print(fmt, ...) /* \ 
-				    printf("\t\t\t\tAES_CORE[%s]: " fmt, __FUNCTION__, ##__VA_ARGS__); */
+#define LOG_E //printf("[aes/aes_core.c] Enter: %s\n", __FUNCTION__);
+#define aes_core_print(fmt, ...) //printf("\t\t\t\tAES_CORE[%s]: " fmt, __FUNCTION__, ##__VA_ARGS__); 
 				 
 
 /* /\* Store instructions *\/ */
@@ -1365,7 +1362,6 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     aes_core_print("Set round\n");
     if (bits == 128)
       temp = 10;
-    
     else if (bits == 192)
       temp = 12;
       //key->rounds = 12;
@@ -1379,7 +1375,6 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     verse_write(&key->rounds, &temp, sizeof(int));
     aes_core_print("Write round end\n");
 
-    print_aes_core("Set rk0 to 3\n");
     /*
     rk[0] = GETU32(userKey     );
     rk[1] = GETU32(userKey +  4);
@@ -1387,6 +1382,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     rk[3] = GETU32(userKey + 12);
     */
 
+    aes_core_print("Set rk0 to 3\n");
     temp = GETU32(userKey);
     verse_write((rk), &temp, sizeof(u32));
     temp = GETU32(userKey + 4);
@@ -1399,20 +1395,19 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     aes_core_print("temp: 0x%x\n", temp);
     aes_core_print("rk0: 0x%x\n", (u32)verse_read(rk + 3, sizeof(u32)));
     
-    print_aes_core("Set rk0 to 3 end\n");
+    aes_core_print("Set rk0 to 3 end\n");
     if (bits == 128) {
       aes_core_print("bit == 128\n");
-      u32 temp2;
       u32 val;
         while (1) {
-	  print_aes_core("Read rk[3]\n");
+	  aes_core_print("Read rk[3]\n");
 	  /*
 	  temp  = rk[3];
 	  */
 	  // verse_read((unsigned long long) (rk + 3), &temp, sizeof(temp));
 	  temp = verse_read((rk + 3), sizeof(temp));
 
-	  print_aes_core("Write rk[4]\n");
+	  aes_core_print("Write rk[4]\n");
 	  /*
 	  rk[4] = rk[0] ^
 	    (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
@@ -1439,7 +1434,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 
 	  verse_write((rk + 4), &val, sizeof(val));
 
-	  print_aes_core("Write rk[5] to rk[7]\n");
+	  aes_core_print("Write rk[5] to rk[7]\n");
 	  /*
             rk[5] = rk[1] ^ rk[4];
             rk[6] = rk[2] ^ rk[5];
@@ -1470,7 +1465,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 	  verse_write((rk + 7), &val, sizeof(val));
 
             if (++i == 10) {
-	      verse_exit(1);
+	      verse_exit();
 	      return 0;
             }
             rk += 4;
@@ -1485,7 +1480,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     verse_write((rk + 4), &temp, sizeof(temp));
     temp = GETU32(userKey + 20);
     verse_write((rk + 5), &temp, sizeof(temp));
-    print_aes_core("Write rk[4] to rk[5] end\n");
+    aes_core_print("Write rk[4] to rk[5] end\n");
     if (bits == 192) {
       aes_core_print("bit == 192\n");
         while (1) {
@@ -1507,7 +1502,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk += 6;
         }
     }
-    print_aes_core("Write rk[6] to rk[7]\n");
+    aes_core_print("Write rk[6] to rk[7]\n");
     /*
     rk[6] = GETU32(userKey + 24);
     rk[7] = GETU32(userKey + 28);
@@ -1516,21 +1511,18 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     verse_write((rk + 6), &temp, sizeof(temp));
     temp = GETU32(userKey + 28);
     verse_write((rk + 7), &temp, sizeof(temp));
-    print_aes_core("Write rk[6] to rk[7]\n");
+    aes_core_print("Write rk[6] to rk[7]\n");
     if (bits == 256) {
-      /* JARA: temp2 for in while */
+      /* JARA: val for write result */
       aes_core_print("bit == 256\n");
-      u32 temp2;
       u32 val;
         while (1) {
-	  print_aes_core("Read rk[7]\n");
 	  /*
           temp = rk[ 7];
 	  verse_read((unsigned long long) (rk + 7), &temp, sizeof(temp));
 	  */
           temp = verse_read((rk + 7), sizeof(temp));
 	  
-	  print_aes_core("Write rk[8]\n");
 	  /*
             rk[ 8] = rk[ 0] ^
                 (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
@@ -1557,7 +1549,6 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 
 	  verse_write(&(rk[8]), &val, sizeof(val));
 
-	  print_aes_core("Write rk[9] to rk[11]\n");
 	  /*
             rk[ 9] = rk[ 1] ^ rk[ 8];
             rk[10] = rk[ 2] ^ rk[ 9];
@@ -1587,10 +1578,8 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 	  val = verse_read((rk + 3), sizeof(temp)) ^ verse_read((rk + 10), sizeof(temp));
 	  verse_write((rk + 11), &val, sizeof(val));
 
-	  print_aes_core("Write rk[9] to rk[11] end\n");
-
 	  if (++i == 7) {
-	    verse_exit(1);
+	    verse_exit();
 	    return 0;
 	  }
 	  aes_core_print("Write rk[12] to rk[14]\n");
@@ -1651,7 +1640,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 	  rk += 8;
 	}
     }
-    verse_exit(1);
+    verse_exit();
     return 0;
 }
 
@@ -1726,7 +1715,6 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     rk = key->rd_key;
 
     /* JARA: Test for encryption */
-    /* ToDo: Need change the rk access oprations as verse_read/write */
     // aes_core_print("Entering domain %d\n", (unsigned int)key >> AES_INDEX_OFFSET);
     verse_enter((int)key >> AES_INDEX_OFFSET);
     // aes_core_print("Entering domain %d success\n", (unsigned int)key >> AES_INDEX_OFFSET);
@@ -1949,7 +1937,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     PUTU32(out + 12, s3);
 
     /* JARA: verse_exit */
-    verse_exit(1);
+    verse_exit();
 }
 
 /*

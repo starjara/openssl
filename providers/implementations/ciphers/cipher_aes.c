@@ -36,7 +36,7 @@ static void aes_freectx(void *vctx)
       printf("verse_munmap for key data\n");
       verse_enter((int)ctx->ks >> AES_INDEX_OFFSET);
       verse_munmap((__u64)(ctx->ks), 0x1000); 
-      verse_exit(0);
+      verse_exit();
     }
     /* JARA end */
 

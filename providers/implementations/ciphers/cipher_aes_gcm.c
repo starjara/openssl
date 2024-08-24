@@ -82,7 +82,7 @@ static void aes_gcm_freectx(void *vctx)
     if(ctx->ks != NULL) {
       verse_enter((int) ctx->ks >> AES_INDEX_OFFSET);
       verse_munmap((unsigned long long)ctx->ks, 0x1000);
-      verse_exit(0);
+      verse_exit();
     }
     /* JARA END */
 

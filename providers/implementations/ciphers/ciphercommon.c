@@ -18,6 +18,7 @@
 #include "prov/provider_ctx.h"
 #include "prov/providercommon.h"
 
+#include "openssl/verse_prot.h"
 #define LOG_E //printf("[providers/implementation/ciphers/chiphercommon.c] Enter: %s\n", __FUNCTION__);
 #define cipher_common_print(fmt, ...) /* \
   printf("ciphercommon[%s]: "fmt, __FUNCTION__, ##__VA_ARGS__);
@@ -201,6 +202,10 @@ static int cipher_generic_init_internal(PROV_CIPHER_CTX *ctx,
     ctx->bufsz = 0;
     ctx->updated = 0;
     ctx->enc = enc ? 1 : 0;
+
+    /* JARA: Init domai */
+    // ctx->domain_num = session_count;
+    /* JARA End */
 
     if (!ossl_prov_is_running())
         return 0;

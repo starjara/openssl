@@ -93,6 +93,8 @@ struct prov_cipher_ctx_st {
     const PROV_CIPHER_HW *hw; /* hardware specific functions */
     const void *ks; /* Pointer to algorithm specific key data */
     OSSL_LIB_CTX *libctx;
+
+  // int domain_num;
   
 };
 

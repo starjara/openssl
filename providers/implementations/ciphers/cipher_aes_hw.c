@@ -19,7 +19,7 @@
 /* JARA: verse includes */
 #include <openssl/verse_prot.h>
 #define LOG_E //printf("[implemantations/cipher_aes_hw.c] Enter: %s\n", __FUNCTION__);
-#define aes_hw_print(fmt, ...) //printf("cipher_aes_hw.c[%s] " fmt, __FUNCTION__, ##__VA_ARGS__);
+#define aes_hw_print(fmt, ...) printf("cipher_aes_hw.c[%s] " fmt, __FUNCTION__, ##__VA_ARGS__);
 /* JARA END */
 
 static int cipher_hw_aes_initkey(PROV_CIPHER_CTX *dat,
@@ -36,27 +36,27 @@ static int cipher_hw_aes_initkey(PROV_CIPHER_CTX *dat,
     /* JARA: verse_mmap for new key */
     static int count = 0;
     static int cur = 0;
+    AES_KEY *ks = dat->ks;
 
     if(cur != session_count) {
       cur = session_count;
       count = 0;
     }
     
-    aes_hw_print("session_count: %d mmap: 0x%llx dat: %p ks %p\n", \
-		 session_count, AES_BASE | (session_count << AES_INDEX_OFFSET) + count * 0x1000, dat, dat->ks);
-    if(session_count == 0 && count == 0)
-      verse_create(session_count);
-    
-    verse_enter(session_count);
-    //AES_KEY *ks = (AES_KEY *)verse_mmap(0x10000 + count * 0x1000, 0, 0x1000, PROT_READ | PROT_WRITE);
-    AES_KEY *ks = (AES_KEY *)verse_mmap((AES_BASE | (session_count << AES_INDEX_OFFSET)) + count * 0x1000,\
-					0, 0x1000, PROT_READ | PROT_WRITE);
-    verse_exit(1);
-					
-    count ++;
-    /* JARA END */
+    if(dat->ks == NULL) {
+      aes_hw_print("Need init\n");
+      aes_hw_print("session_count: %d\tdomain_num: %d\tmmap: 0x%llx dat: %p ks %p\n", \
+		   session_count, AES_BASE | (session_count << AES_INDEX_OFFSET) + (count * 0x1000), dat, dat->ks);
 
-    //printf("%lx\n", ks->rd_key);
+      verse_enter(session_count);
+      ks = (AES_KEY *)verse_mmap((AES_BASE | (session_count << AES_INDEX_OFFSET)) + (count * 0x1000), \ 
+					0, 0x1000, PROT_READ | PROT_WRITE);
+      verse_exit();
+      count ++;
+    }
+
+				
+    /* JARA END */
 
     dat->ks = ks;
 

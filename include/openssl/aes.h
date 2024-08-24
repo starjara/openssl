@@ -32,8 +32,6 @@ extern "C" {
 
 #  define AES_MAXNR 14
 
-#include "verse.h"
-
 /* This should be a hidden type, but EVP requires that the size be known */
 struct aes_key_st {
 #  ifdef AES_LONG

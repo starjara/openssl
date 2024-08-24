@@ -19,7 +19,7 @@
 
 #include <openssl/verse_prot.h>
 #define LOG_E //printf("[implemantations/ciphers/cipher_aes_gcm_hw.c] Enter: %s\n", __FUNCTION__);
-#define aes_gcm_hw_print(fmt, ...) //printf("cipher_aes_gcm_hw.c[%s] "fmt, __FUNCTION__, ##__VA_ARGS__);
+#define aes_gcm_hw_print(fmt, ...) printf("cipher_aes_gcm_hw.c[%s] "fmt, __FUNCTION__, ##__VA_ARGS__);
 
 static int aes_gcm_initkey(PROV_GCM_CTX *ctx, const unsigned char *key,
                                    size_t keylen)
@@ -35,15 +35,18 @@ static int aes_gcm_initkey(PROV_GCM_CTX *ctx, const unsigned char *key,
       cur = session_count;
       count = 0;
     }
-    //AES_KEY *ks = &actx->ks.ks;
-    aes_gcm_hw_print("session_count: %d 0x%lx\n", session_count, GCM_BASE | (session_count << AES_INDEX_OFFSET));
-    verse_enter(session_count);
-    // AES_KEY *ks = (AES_KEY *)verse_mmap(0x100000 + count * 0x1000, 0, 0x1000, PROT_READ | PROT_WRITE);
-    AES_KEY *ks = (AES_KEY *)verse_mmap((GCM_BASE | (session_count << AES_INDEX_OFFSET)) + count * 0x1000, \
+
+    AES_KEY *ks = NULL;
+    if(ctx->ks == NULL) {
+      aes_gcm_hw_print("session_count: %d 0x%lx\n", session_count, GCM_BASE | (session_count << AES_INDEX_OFFSET));
+      
+      verse_enter(session_count);
+      ks = (AES_KEY *)verse_mmap((GCM_BASE | (session_count << AES_INDEX_OFFSET)) + (count * 0x1000), \
 					0, 0x1000, PROT_READ | PROT_WRITE);
-    verse_exit(session_count);
-    ctx->ks = ks;
-    count ++;
+      verse_exit();
+      count ++;
+      ctx->ks = ks;
+    }
     /* ================================= */
 
 # ifdef HWAES_CAPABLE
