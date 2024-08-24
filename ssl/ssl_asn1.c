@@ -14,7 +14,7 @@
 #include <openssl/asn1t.h>
 #include <openssl/x509.h>
 
-#define LOG_E printf("[ssl/ssl_asn1.c] Enter: %s\n", __FUNCTION__);
+#define LOG_E //printf("[ssl/ssl_asn1.c] Enter: %s\n", __FUNCTION__);
 
 typedef struct {
     uint32_t version;

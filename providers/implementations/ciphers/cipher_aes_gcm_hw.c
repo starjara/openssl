@@ -19,7 +19,7 @@
 
 #include <openssl/verse_prot.h>
 #define LOG_E //printf("[implemantations/ciphers/cipher_aes_gcm_hw.c] Enter: %s\n", __FUNCTION__);
-#define aes_gcm_hw_print(fmt, ...) printf("cipher_aes_gcm_hw.c[%s] "fmt, __FUNCTION__, ##__VA_ARGS__);
+#define aes_gcm_hw_print(fmt, ...) //printf("cipher_aes_gcm_hw.c[%s] "fmt, __FUNCTION__, ##__VA_ARGS__);
 
 static int aes_gcm_initkey(PROV_GCM_CTX *ctx, const unsigned char *key,
                                    size_t keylen)
