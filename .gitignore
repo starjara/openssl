@@ -1,5 +1,6 @@
 # Ignore editor artefacts
 /.dir-locals.el
+/.openssl
 
 # Top level excludes
 /Makefile.in
