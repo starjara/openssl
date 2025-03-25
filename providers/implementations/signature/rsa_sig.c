@@ -34,6 +34,9 @@
 
 #define RSA_DEFAULT_DIGEST_NAME OSSL_DIGEST_NAME_SHA1
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-rsa_sig.c] Enter: %s\n", __func__);
+
 static OSSL_FUNC_signature_newctx_fn rsa_newctx;
 static OSSL_FUNC_signature_sign_init_fn rsa_sign_init;
 static OSSL_FUNC_signature_verify_init_fn rsa_verify_init;
@@ -506,6 +509,8 @@ static void free_tbuf(PROV_RSA_CTX *ctx)
 
 static int rsa_sign_init(void *vprsactx, void *vrsa, const OSSL_PARAM params[])
 {
+
+  LOG_E
     if (!ossl_prov_is_running())
         return 0;
     return rsa_signverify_init(vprsactx, vrsa, params, EVP_PKEY_OP_SIGN);
@@ -519,6 +524,8 @@ static int rsa_sign(void *vprsactx, unsigned char *sig, size_t *siglen,
     size_t rsasize = RSA_size(prsactx->rsa);
     size_t mdsize = rsa_get_md_size(prsactx);
 
+    LOG_E
+    
     if (!ossl_prov_is_running())
         return 0;
 
@@ -753,6 +760,7 @@ static int rsa_verify_recover(void *vprsactx,
 static int rsa_verify_init(void *vprsactx, void *vrsa,
                            const OSSL_PARAM params[])
 {
+  LOG_E
     if (!ossl_prov_is_running())
         return 0;
     return rsa_signverify_init(vprsactx, vrsa, params, EVP_PKEY_OP_VERIFY);
@@ -763,6 +771,8 @@ static int rsa_verify(void *vprsactx, const unsigned char *sig, size_t siglen,
 {
     PROV_RSA_CTX *prsactx = (PROV_RSA_CTX *)vprsactx;
     size_t rslen;
+
+    LOG_E
 
     if (!ossl_prov_is_running())
         return 0;

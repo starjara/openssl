@@ -20,6 +20,12 @@
 #include "ssl_local.h"
 #include "statem/statem_local.h"
 
+/* JARA: For Dom-V */
+#include "domv/domv.h"
+#define LOG_E printf("[openssl-ssl_sess.c] Enter: %s\n", __func__);
+static int domcount;
+/* End of JARA */
+
 static void SSL_SESSION_list_remove(SSL_CTX *ctx, SSL_SESSION *s);
 static void SSL_SESSION_list_add(SSL_CTX *ctx, SSL_SESSION *s);
 static int remove_session_lock(SSL_CTX *ctx, SSL_SESSION *c, int lck);
@@ -123,6 +129,8 @@ SSL_SESSION *SSL_SESSION_new(void)
 {
     SSL_SESSION *ss;
 
+    LOG_E
+
     if (!OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS, NULL))
         return NULL;
 
@@ -150,6 +158,12 @@ SSL_SESSION *SSL_SESSION_new(void)
         OPENSSL_free(ss);
         return NULL;
     }
+
+    /* JARA: Create a new domain */
+    domv_create(domcount);
+    ss->vmid = domcount++;
+    /* End JARA */
+    
     return ss;
 }
 
@@ -160,6 +174,8 @@ SSL_SESSION *SSL_SESSION_new(void)
 static SSL_SESSION *ssl_session_dup_intern(const SSL_SESSION *src, int ticket)
 {
     SSL_SESSION *dest;
+
+    LOG_E
 
     dest = OPENSSL_malloc(sizeof(*dest));
     if (dest == NULL) {
@@ -283,6 +299,7 @@ static SSL_SESSION *ssl_session_dup_intern(const SSL_SESSION *src, int ticket)
 
 SSL_SESSION *SSL_SESSION_dup(const SSL_SESSION *src)
 {
+  LOG_E
     return ssl_session_dup_intern(src, 1);
 }
 
@@ -295,6 +312,8 @@ SSL_SESSION *SSL_SESSION_dup(const SSL_SESSION *src)
 SSL_SESSION *ssl_session_dup(const SSL_SESSION *src, int ticket)
 {
     SSL_SESSION *sess = ssl_session_dup_intern(src, ticket);
+
+    LOG_E
 
     if (sess != NULL)
         sess->not_resumable = 0;
@@ -447,6 +466,8 @@ int ssl_get_new_session(SSL *s, int session)
     /* This gets used by clients and servers. */
 
     SSL_SESSION *ss = NULL;
+
+    LOG_E
 
     if ((ss = SSL_SESSION_new()) == NULL) {
         SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_MALLOC_FAILURE);
@@ -727,6 +748,8 @@ int SSL_CTX_add_session(SSL_CTX *ctx, SSL_SESSION *c)
     int ret = 0;
     SSL_SESSION *s;
 
+    LOG_E
+
     /*
      * add just 1 reference count for the SSL_CTX's session cache even though
      * it has two ways of access: each session is in a doubly linked list and
@@ -847,6 +870,8 @@ void SSL_SESSION_free(SSL_SESSION *ss)
 {
     int i;
 
+    LOG_E
+
     if (ss == NULL)
         return;
     CRYPTO_DOWN_REF(&ss->references, &i, ss->lock);
@@ -890,6 +915,9 @@ int SSL_SESSION_up_ref(SSL_SESSION *ss)
 
 int SSL_set_session(SSL *s, SSL_SESSION *session)
 {
+
+  LOG_E
+   
     ssl_clear_bad_session(s);
     if (s->ctx->method != s->method) {
         if (!SSL_set_ssl_method(s, s->ctx->method))
@@ -1169,6 +1197,8 @@ void SSL_CTX_flush_sessions(SSL_CTX *s, long t)
     SSL_SESSION *current;
     unsigned long i;
 
+    LOG_E
+
     if (!CRYPTO_THREAD_write_lock(s->lock))
         return;
 
@@ -1213,6 +1243,7 @@ void SSL_CTX_flush_sessions(SSL_CTX *s, long t)
 
 int ssl_clear_bad_session(SSL *s)
 {
+  LOG_E
     if ((s->session != NULL) &&
         !(s->shutdown & SSL_SENT_SHUTDOWN) &&
         !(SSL_in_init(s) || SSL_in_before(s))) {

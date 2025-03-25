@@ -19,6 +19,10 @@
 #include "internal/provider.h"
 #include "evp_local.h"
 
+/* JARA: For Dom-v */
+#define LOG_E printf("[openssl-mac_lib.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 EVP_MAC_CTX *EVP_MAC_CTX_new(EVP_MAC *mac)
 {
     EVP_MAC_CTX *ctx = OPENSSL_zalloc(sizeof(EVP_MAC_CTX));
@@ -134,6 +138,8 @@ static int evp_mac_final(EVP_MAC_CTX *ctx, int xof,
     OSSL_PARAM params[2];
     size_t macsize;
 
+    LOG_E
+      
     if (ctx == NULL || ctx->meth == NULL) {
         ERR_raise(ERR_LIB_EVP, EVP_R_INVALID_NULL_ALGORITHM);
         return 0;
@@ -165,7 +171,10 @@ static int evp_mac_final(EVP_MAC_CTX *ctx, int xof,
             return 0;
         }
     }
+    printf("ctx->meth->final !isNULL %d\n", NULL != ctx->meth->final);
+    printf("MAC type: %s\n", ctx->meth->type_name);
     res = ctx->meth->final(ctx->algctx, out, &l, outsize);
+    printf("End of evp_mac_final\n");
     if (outl != NULL)
         *outl = l;
     return res;

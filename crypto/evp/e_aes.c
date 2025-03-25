@@ -29,6 +29,10 @@
 #include "crypto/aes_platform.h"
 #include "evp_local.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-e_aes.c] Enter: %s\n", __func__);
+/* End JARA */
+
 typedef struct {
     union {
         OSSL_UNION_ALIGN;
@@ -147,6 +151,8 @@ static int aesni_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     int ret, mode;
     EVP_AES_KEY *dat = EVP_C_DATA(EVP_AES_KEY,ctx);
 
+    LOG_E
+
     mode = EVP_CIPHER_CTX_get_mode(ctx);
     if ((mode == EVP_CIPH_ECB_MODE || mode == EVP_CIPH_CBC_MODE)
         && !enc) {
@@ -224,6 +230,9 @@ static int aesni_gcm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                               const unsigned char *iv, int enc)
 {
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,ctx);
+
+    LOG_E
+    
     if (!iv && !key)
         return 1;
     if (key) {
@@ -261,6 +270,8 @@ static int aesni_xts_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                               const unsigned char *iv, int enc)
 {
     EVP_AES_XTS_CTX *xctx = EVP_C_DATA(EVP_AES_XTS_CTX,ctx);
+
+    LOG_E
 
     if (!iv && !key)
         return 1;
@@ -315,6 +326,9 @@ static int aesni_ccm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                               const unsigned char *iv, int enc)
 {
     EVP_AES_CCM_CTX *cctx = EVP_C_DATA(EVP_AES_CCM_CTX,ctx);
+
+    LOG_E
+    
     if (!iv && !key)
         return 1;
     if (key) {
@@ -342,6 +356,9 @@ static int aesni_ocb_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                               const unsigned char *iv, int enc)
 {
     EVP_AES_OCB_CTX *octx = EVP_C_DATA(EVP_AES_OCB_CTX,ctx);
+
+    LOG_E
+    
     if (!iv && !key)
         return 1;
     if (key) {
@@ -450,6 +467,8 @@ static int aes_t4_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     int ret, mode, bits;
     EVP_AES_KEY *dat = EVP_C_DATA(EVP_AES_KEY,ctx);
 
+    LOG_E
+
     mode = EVP_CIPHER_CTX_get_mode(ctx);
     bits = EVP_CIPHER_CTX_get_key_length(ctx) * 8;
     if ((mode == EVP_CIPH_ECB_MODE || mode == EVP_CIPH_CBC_MODE)
@@ -547,6 +566,9 @@ static int aes_t4_gcm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                                const unsigned char *iv, int enc)
 {
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,ctx);
+
+    LOG_E
+    
     if (!iv && !key)
         return 1;
     if (key) {
@@ -598,6 +620,8 @@ static int aes_t4_xts_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 {
     EVP_AES_XTS_CTX *xctx = EVP_C_DATA(EVP_AES_XTS_CTX,ctx);
 
+    LOG_E
+    
     if (!iv && !key)
         return 1;
 
@@ -670,6 +694,9 @@ static int aes_t4_ccm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                                const unsigned char *iv, int enc)
 {
     EVP_AES_CCM_CTX *cctx = EVP_C_DATA(EVP_AES_CCM_CTX,ctx);
+
+    LOG_E
+    
     if (!iv && !key)
         return 1;
     if (key) {
@@ -696,6 +723,9 @@ static int aes_t4_ocb_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                                const unsigned char *iv, int enc)
 {
     EVP_AES_OCB_CTX *octx = EVP_C_DATA(EVP_AES_OCB_CTX,ctx);
+
+    LOG_E
+    
     if (!iv && !key)
         return 1;
     if (key) {
@@ -969,6 +999,8 @@ static int s390x_aes_ecb_init_key(EVP_CIPHER_CTX *ctx,
     S390X_AES_ECB_CTX *cctx = EVP_C_DATA(S390X_AES_ECB_CTX, ctx);
     const int keylen = EVP_CIPHER_CTX_get_key_length(ctx);
 
+    LOG_E
+    
     cctx->fc = S390X_AES_FC(keylen);
     if (!enc)
         cctx->fc |= S390X_DECRYPT;
@@ -994,6 +1026,8 @@ static int s390x_aes_ofb_init_key(EVP_CIPHER_CTX *ctx,
     const unsigned char *iv = ctx->oiv;
     const int keylen = EVP_CIPHER_CTX_get_key_length(ctx);
     const int ivlen = EVP_CIPHER_CTX_get_iv_length(ctx);
+
+    LOG_E
 
     memcpy(cctx->kmo.param.cv, iv, ivlen);
     memcpy(cctx->kmo.param.k, key, keylen);
@@ -1052,6 +1086,8 @@ static int s390x_aes_cfb_init_key(EVP_CIPHER_CTX *ctx,
     const unsigned char *iv = ctx->oiv;
     const int keylen = EVP_CIPHER_CTX_get_key_length(ctx);
     const int ivlen = EVP_CIPHER_CTX_get_iv_length(ctx);
+
+    LOG_E
 
     cctx->fc = S390X_AES_FC(keylen);
     cctx->fc |= 16 << 24;   /* 16 bytes cipher feedback */
@@ -1122,6 +1158,8 @@ static int s390x_aes_cfb8_init_key(EVP_CIPHER_CTX *ctx,
     const int keylen = EVP_CIPHER_CTX_get_key_length(ctx);
     const int ivlen = EVP_CIPHER_CTX_get_iv_length(ctx);
 
+    LOG_E
+
     cctx->fc = S390X_AES_FC(keylen);
     cctx->fc |= 1 << 24;   /* 1 byte cipher feedback */
     if (!enc)
@@ -1171,6 +1209,8 @@ static int s390x_aes_gcm_aad(S390X_AES_GCM_CTX *ctx, const unsigned char *aad,
 {
     unsigned long long alen;
     int n, rem;
+
+    LOG_E
 
     if (ctx->kma.param.tpcl)
         return -2;
@@ -1231,6 +1271,8 @@ static int s390x_aes_gcm(S390X_AES_GCM_CTX *ctx, const unsigned char *in,
     } buf;
     size_t inlen;
     int n, rem, i;
+
+    LOG_E
 
     mlen = ctx->kma.param.tpcl + len;
     if (mlen > ((U64(1) << 36) - 32) || (sizeof(len) == 8 && mlen < len))
@@ -1521,6 +1563,8 @@ static int s390x_aes_gcm_init_key(EVP_CIPHER_CTX *ctx,
 {
     S390X_AES_GCM_CTX *gctx = EVP_C_DATA(S390X_AES_GCM_CTX, ctx);
     int keylen;
+
+    LOG_E
 
     if (iv == NULL && key == NULL)
         return 1;
@@ -1928,6 +1972,8 @@ static int s390x_aes_ccm_init_key(EVP_CIPHER_CTX *ctx,
     S390X_AES_CCM_CTX *cctx = EVP_C_DATA(S390X_AES_CCM_CTX, ctx);
     int keylen;
 
+    LOG_E
+      
     if (iv == NULL && key == NULL)
         return 1;
 
@@ -2310,6 +2356,8 @@ static int aes_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     int ret, mode;
     EVP_AES_KEY *dat = EVP_C_DATA(EVP_AES_KEY,ctx);
 
+    LOG_E;
+
     mode = EVP_CIPHER_CTX_get_mode(ctx);
     if ((mode == EVP_CIPH_ECB_MODE || mode == EVP_CIPH_CBC_MODE)
         && !enc) {
@@ -2551,6 +2599,7 @@ BLOCK_CIPHER_generic_pack(NID_aes, 128, 0)
 static int aes_gcm_cleanup(EVP_CIPHER_CTX *c)
 {
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,c);
+    LOG_E
     if (gctx == NULL)
         return 0;
     OPENSSL_cleanse(&gctx->gcm, sizeof(gctx->gcm));
@@ -2705,6 +2754,9 @@ static int aes_gcm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                             const unsigned char *iv, int enc)
 {
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,ctx);
+
+    LOG_E
+
     if (!iv && !key)
         return 1;
     if (key) {
@@ -2786,6 +2838,9 @@ static int aes_gcm_tls_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 {
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,ctx);
     int rv = -1;
+
+    LOG_E
+
     /* Encrypt/decrypt must be performed in place */
     if (out != in
         || len < (EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN))
@@ -2924,6 +2979,8 @@ static int aes_gcm_iv_generate(EVP_AES_GCM_CTX *gctx, int offset)
 {
     int sz = gctx->ivlen - offset;
 
+    LOG_E
+
     /* Must be at least 96 bits */
     if (sz <= 0 || gctx->ivlen < 12)
         return 0;
@@ -2939,6 +2996,8 @@ static int aes_gcm_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
                           const unsigned char *in, size_t len)
 {
     EVP_AES_GCM_CTX *gctx = EVP_C_DATA(EVP_AES_GCM_CTX,ctx);
+
+    LOG_E
 
     /* If not set up, return error */
     if (!gctx->key_set)
@@ -3121,6 +3180,8 @@ static int aes_xts_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                             const unsigned char *iv, int enc)
 {
     EVP_AES_XTS_CTX *xctx = EVP_C_DATA(EVP_AES_XTS_CTX,ctx);
+
+    LOG_E
 
     if (!iv && !key)
         return 1;
@@ -3376,6 +3437,9 @@ static int aes_ccm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                             const unsigned char *iv, int enc)
 {
     EVP_AES_CCM_CTX *cctx = EVP_C_DATA(EVP_AES_CCM_CTX,ctx);
+
+    LOG_E
+    
     if (!iv && !key)
         return 1;
     if (key)
@@ -3473,6 +3537,8 @@ static int aes_ccm_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 {
     EVP_AES_CCM_CTX *cctx = EVP_C_DATA(EVP_AES_CCM_CTX,ctx);
     CCM128_CONTEXT *ccm = &cctx->ccm;
+
+    LOG_E
     /* If not set up, return error */
     if (!cctx->key_set)
         return -1;
@@ -3563,6 +3629,8 @@ static int aes_wrap_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 {
     int len;
     EVP_AES_WRAP_CTX *wctx = EVP_C_DATA(EVP_AES_WRAP_CTX,ctx);
+
+    LOG_E
 
     if (iv == NULL && key == NULL)
         return 1;
@@ -3800,6 +3868,9 @@ static int aes_ocb_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                             const unsigned char *iv, int enc)
 {
     EVP_AES_OCB_CTX *octx = EVP_C_DATA(EVP_AES_OCB_CTX,ctx);
+
+    LOG_E
+    
     if (!iv && !key)
         return 1;
     if (key) {

@@ -23,8 +23,14 @@
 #include <openssl/opensslv.h>
 #include "internal/endian.h"
 
+/* JARA: For Dom-V */
+#include "domv/domv.h"
+#define LOG_E printf("[openssl-sha256.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 int SHA224_Init(SHA256_CTX *c)
 {
+  LOG_E
     memset(c, 0, sizeof(*c));
     c->h[0] = 0xc1059ed8UL;
     c->h[1] = 0x367cd507UL;
@@ -40,6 +46,7 @@ int SHA224_Init(SHA256_CTX *c)
 
 int SHA256_Init(SHA256_CTX *c)
 {
+  LOG_E
     memset(c, 0, sizeof(*c));
     c->h[0] = 0x6a09e667UL;
     c->h[1] = 0xbb67ae85UL;
@@ -55,6 +62,7 @@ int SHA256_Init(SHA256_CTX *c)
 
 int SHA224_Update(SHA256_CTX *c, const void *data, size_t len)
 {
+  LOG_E
     return SHA256_Update(c, data, len);
 }
 
@@ -80,20 +88,27 @@ int SHA224_Final(unsigned char *md, SHA256_CTX *c)
 #define HASH_MAKE_STRING(c,s)   do {    \
         unsigned long ll;               \
         unsigned int  nn;               \
+	printf("HASH_MAKE_STRING\n"); \
         switch ((c)->md_len)            \
         {   case SHA224_DIGEST_LENGTH:  \
                 for (nn=0;nn<SHA224_DIGEST_LENGTH/4;nn++)       \
-                {   ll=(c)->h[nn]; (void)HOST_l2c(ll,(s));   }  \
+ /* {   ll=(c)->h[nn]; (void)HOST_l2c(ll,(s));   } */			\
+		    {   ll=(c)->h[nn]; if(0x80000000 <= (unsigned long)s && (unsigned long) s <= 0x80001000) { \
+		  (void) HOST_l2c_hyp(ll, (s));} else{ (void)HOST_l2c(ll,(s));}   }  \ 
                 break;                  \
             case SHA256_DIGEST_LENGTH:  \
                 for (nn=0;nn<SHA256_DIGEST_LENGTH/4;nn++)       \
-                {   ll=(c)->h[nn]; (void)HOST_l2c(ll,(s));   }  \
+		  /*{   ll=(c)->h[nn]; (void)HOST_l2c(ll,(s));   }*/  \ 
+		    {   ll=(c)->h[nn]; if(0x80000000 <= (unsigned long)s && (unsigned long) s <= 0x80001000) { \
+			(void) HOST_l2c_hyp(ll, (s));} else{ (void)HOST_l2c(ll,(s));}   }  \ 
                 break;                  \
             default:                    \
                 if ((c)->md_len > SHA256_DIGEST_LENGTH) \
                     return 0;                           \
                 for (nn=0;nn<(c)->md_len/4;nn++)                \
-                {   ll=(c)->h[nn]; (void)HOST_l2c(ll,(s));   }  \
+		  /* {   ll=(c)->h[nn]; (void)HOST_l2c(ll,(s));   } */ \ 
+		    {   ll=(c)->h[nn]; if(0x80000000 <= (unsigned long)s && (unsigned long) s <= 0x80001000) { \
+			(void) HOST_l2c_hyp(ll, (s));} else{ (void)HOST_l2c(ll,(s));}   }  \ 
                 break;                  \
         }                               \
         } while (0)
@@ -151,6 +166,11 @@ static void sha256_block_data_order(SHA256_CTX *ctx, const void *in,
     SHA_LONG X[16], l;
     int i;
     const unsigned char *data = in;
+
+    LOG_E
+      printf("ORDER1\n");
+    printf("ctx->h: %p\n", ctx->h);
+    printf("in: %p\n", in);
 
     while (num--) {
 
@@ -230,6 +250,9 @@ static void sha256_block_data_order(SHA256_CTX *ctx, const void *in,
     int i;
     const unsigned char *data = in;
     DECLARE_IS_ENDIAN;
+
+    LOG_E
+      printf("ORDER2\n");
 
     while (num--) {
 
@@ -354,6 +377,7 @@ static void sha256_block_data_order(SHA256_CTX *ctx, const void *in,
         ctx->h[7] += h;
 
     }
+    printf("End of ORDER2\n");
 }
 
 # endif

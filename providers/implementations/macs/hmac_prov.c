@@ -26,6 +26,10 @@
 #include "prov/provider_util.h"
 #include "prov/providercommon.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-hmac_prov.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 /*
  * Forward declaration of everything implemented here.  This is not strictly
  * necessary for the compiler, but provides an assurance that the signatures
@@ -224,6 +228,8 @@ static int hmac_final(void *vmacctx, unsigned char *out, size_t *outl,
 {
     unsigned int hlen;
     struct hmac_data_st *macctx = vmacctx;
+
+    LOG_E
 
     if (!ossl_prov_is_running())
         return 0;

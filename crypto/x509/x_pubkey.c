@@ -28,6 +28,10 @@
 #include "internal/provider.h"
 #include "internal/sizes.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[opensll-x_pubkey.c] Enter: %s\n", __func__);
+/* End JARA */
+
 struct X509_pubkey_st {
     X509_ALGOR *algor;
     ASN1_BIT_STRING *public_key;
@@ -400,6 +404,8 @@ static int x509_pubkey_decode(EVP_PKEY **ppkey, const X509_PUBKEY *key)
     EVP_PKEY *pkey;
     int nid;
 
+    LOG_E
+
     nid = OBJ_obj2nid(key->algor->algorithm);
     if (!key->flag_force_legacy) {
 #ifndef OPENSSL_NO_ENGINE
@@ -624,6 +630,9 @@ int i2d_RSA_PUBKEY(const RSA *a, unsigned char **pp)
 {
     EVP_PKEY *pktmp;
     int ret;
+
+    LOG_E
+    
     if (!a)
         return 0;
     pktmp = EVP_PKEY_new();
@@ -666,6 +675,7 @@ int ossl_i2d_DH_PUBKEY(const DH *a, unsigned char **pp)
 {
     EVP_PKEY *pktmp;
     int ret;
+    LOG_E
     if (!a)
         return 0;
     pktmp = EVP_PKEY_new();
@@ -707,6 +717,7 @@ int ossl_i2d_DHx_PUBKEY(const DH *a, unsigned char **pp)
 {
     EVP_PKEY *pktmp;
     int ret;
+    LOG_E
     if (!a)
         return 0;
     pktmp = EVP_PKEY_new();
@@ -773,6 +784,7 @@ int i2d_DSA_PUBKEY(const DSA *a, unsigned char **pp)
 {
     EVP_PKEY *pktmp;
     int ret;
+    LOG_E
     if (!a)
         return 0;
     pktmp = EVP_PKEY_new();
@@ -819,6 +831,7 @@ int i2d_EC_PUBKEY(const EC_KEY *a, unsigned char **pp)
     EVP_PKEY *pktmp;
     int ret;
 
+    LOG_E
     if (a == NULL)
         return 0;
     if ((pktmp = EVP_PKEY_new()) == NULL) {
@@ -860,6 +873,7 @@ int ossl_i2d_ED25519_PUBKEY(const ECX_KEY *a, unsigned char **pp)
     EVP_PKEY *pktmp;
     int ret;
 
+    LOG_E
     if (a == NULL)
         return 0;
     if ((pktmp = EVP_PKEY_new()) == NULL) {
@@ -902,6 +916,7 @@ int ossl_i2d_ED448_PUBKEY(const ECX_KEY *a, unsigned char **pp)
     EVP_PKEY *pktmp;
     int ret;
 
+    LOG_E
     if (a == NULL)
         return 0;
     if ((pktmp = EVP_PKEY_new()) == NULL) {
@@ -943,6 +958,7 @@ int ossl_i2d_X25519_PUBKEY(const ECX_KEY *a, unsigned char **pp)
 {
     EVP_PKEY *pktmp;
     int ret;
+    LOG_E
 
     if (a == NULL)
         return 0;
@@ -985,6 +1001,7 @@ int ossl_i2d_X448_PUBKEY(const ECX_KEY *a, unsigned char **pp)
 {
     EVP_PKEY *pktmp;
     int ret;
+    LOG_E
 
     if (a == NULL)
         return 0;

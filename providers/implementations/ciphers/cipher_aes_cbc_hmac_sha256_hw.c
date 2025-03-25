@@ -16,6 +16,10 @@
 
 #include "cipher_aes_cbc_hmac_sha.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-cipher_aes_cbc_hmac_sha256_hw.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 #if !defined(AES_CBC_HMAC_SHA_CAPABLE) || !defined(AESNI_CAPABLE)
 int ossl_cipher_capable_aes_cbc_hmac_sha256(void)
 {
@@ -51,6 +55,8 @@ static int aesni_cbc_hmac_sha256_init_key(PROV_CIPHER_CTX *vctx,
     PROV_AES_HMAC_SHA_CTX *ctx = (PROV_AES_HMAC_SHA_CTX *)vctx;
     PROV_AES_HMAC_SHA256_CTX *sctx = (PROV_AES_HMAC_SHA256_CTX *)vctx;
 
+    LOG_E
+
     if (ctx->base.enc)
         ret = aesni_set_encrypt_key(key, ctx->base.keylen * 8, &ctx->ks);
     else
@@ -74,6 +80,8 @@ static void sha256_update(SHA256_CTX *c, const void *data, size_t len)
 {
     const unsigned char *ptr = data;
     size_t res;
+
+    LOG_E
 
     if ((res = c->num)) {
         res = SHA256_CBLOCK - res;
@@ -145,6 +153,8 @@ static size_t tls1_multi_block_encrypt(void *vctx,
 #  if defined(BSWAP8)
     u64 seqnum;
 #  endif
+
+    LOG_E
 
     /* ask for IVs in bulk */
     if (RAND_bytes_ex(ctx->base.libctx, (IVs = blocks[0].c), 16 * x4, 0) <= 0)
@@ -403,6 +413,8 @@ static int aesni_cbc_hmac_sha256_cipher(PROV_CIPHER_CTX *vctx,
     size_t iv = 0; /* explicit IV in TLS 1.1 and * later */
     size_t aes_off = 0, blocks;
     size_t sha_off = SHA256_CBLOCK - sctx->md.num;
+
+    LOG_E
 
     ctx->payload_length = NO_PAYLOAD_LENGTH;
 
@@ -689,6 +701,8 @@ static void aesni_cbc_hmac_sha256_set_mac_key(void *vctx,
     unsigned int i;
     unsigned char hmac_key[64];
 
+    LOG_E
+
     memset(hmac_key, 0, sizeof(hmac_key));
 
     if (len > sizeof(hmac_key)) {
@@ -720,6 +734,8 @@ static int aesni_cbc_hmac_sha256_set_tls1_aad(void *vctx,
     PROV_AES_HMAC_SHA256_CTX *sctx = (PROV_AES_HMAC_SHA256_CTX *)vctx;
     unsigned char *p = aad_rec;
     unsigned int len;
+
+    LOG_E
 
     if (aad_len != EVP_AEAD_TLS1_AAD_LEN)
         return -1;
@@ -770,6 +786,8 @@ static int aesni_cbc_hmac_sha256_tls1_multiblock_aad(
     PROV_AES_HMAC_SHA256_CTX *sctx = (PROV_AES_HMAC_SHA256_CTX *)vctx;
     unsigned int n4x = 1, x4;
     unsigned int frag, last, packlen, inp_len;
+
+    LOG_E
 
     inp_len = param->inp[11] << 8 | param->inp[12];
 

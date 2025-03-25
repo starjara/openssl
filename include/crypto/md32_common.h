@@ -64,6 +64,9 @@
  */
 
 #include <openssl/crypto.h>
+/* JARA: For Dom-V */
+#include "domv/domv.h"
+/* End of JARA */
 
 #if !defined(DATA_ORDER_IS_BIG_ENDIAN) && !defined(DATA_ORDER_IS_LITTLE_ENDIAN)
 # error "DATA_ORDER must be defined!"
@@ -106,6 +109,23 @@
                          *((c)++)=(unsigned char)(((l)>> 8)&0xff),      \
                          *((c)++)=(unsigned char)(((l)    )&0xff),      \
                          l)
+/* JARA: For Dom-v */
+#define HOST_l2c_hyp(l,c)                     \
+  ({                                          \
+  unsigned char temp;                    \
+  temp = (l >> 24) & 0xff; domv_write(c++, &temp, 1, 0); \
+  temp = (l >> 16) & 0xff; domv_write(c++, &temp, 1, 0); \
+  temp = (l >>  8) & 0xff; domv_write(c++, &temp, 1, 0); \
+  temp = (l      ) & 0xff; domv_write(c++, &temp, 1, 0); \
+  l;                                      \
+    })
+
+/* (*((c)++)=(unsigned char)(((l)>>24)&0xff),				\ */
+/*  *((c)++)=(unsigned char)(((l)>>16)&0xff),				\ */
+/*  *((c)++)=(unsigned char)(((l)>> 8)&0xff),				\ */
+/*  *((c)++)=(unsigned char)(((l)    )&0xff),				\ */
+/*  l) */
+/* End of JARA */
 
 #elif defined(DATA_ORDER_IS_LITTLE_ENDIAN)
 
@@ -118,6 +138,23 @@
                          *((c)++)=(unsigned char)(((l)>>16)&0xff),      \
                          *((c)++)=(unsigned char)(((l)>>24)&0xff),      \
                          l)
+/* JARA: For Dom-v */
+#define HOST_l2c_hyp(l,c)                     \
+  ({                                          \
+  unsigned char temp;                    \
+  temp = (l      ) & 0xff; domv_write(c++, &temp, 1, 0); \
+  temp = (l >>  8) & 0xff; domv_write(c++, &temp, 1, 0); \
+  temp = (l >> 16) & 0xff; domv_write(c++, &temp, 1, 0); \
+  temp = (l >> 24) & 0xff; domv_write(c++, &temp, 1, 0); \
+  l;                                      \
+    })
+
+/* (*((c)++)=(unsigned char)(((l)>>24)&0xff),				\ */
+/*  *((c)++)=(unsigned char)(((l)>>16)&0xff),				\ */
+/*  *((c)++)=(unsigned char)(((l)>> 8)&0xff),				\ */
+/*  *((c)++)=(unsigned char)(((l)    )&0xff),				\ */
+/*  l) */
+/* End of JARA */
 
 #endif
 
@@ -192,6 +229,9 @@ int HASH_FINAL(unsigned char *md, HASH_CTX *c)
 {
     unsigned char *p = (unsigned char *)c->data;
     size_t n = c->num;
+
+    printf("[openssl-md32_common.h] Enter: %s\n", __func__);
+    printf("md: %p\tp: %p\n", md, p);
 
     p[n] = 0x80;                /* there is always room for one */
     n++;

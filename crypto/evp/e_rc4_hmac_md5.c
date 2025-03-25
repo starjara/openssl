@@ -28,6 +28,10 @@
 # include <openssl/md5.h>
 # include "crypto/evp.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-e_rc4_hmac_md5.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 typedef struct {
     RC4_KEY ks;
     MD5_CTX head, tail, md;
@@ -84,6 +88,8 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
     unsigned int l;
 # endif
     size_t plen = key->payload_length;
+
+    LOG_E
 
     if (plen != NO_PAYLOAD_LENGTH && len != (plen + MD5_DIGEST_LENGTH))
         return 0;

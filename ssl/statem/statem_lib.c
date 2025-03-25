@@ -21,6 +21,10 @@
 #include <openssl/x509.h>
 #include <openssl/trace.h>
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-statem_lib.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 /*
  * Map error codes to TLS/SSL alart types.
  */
@@ -44,6 +48,8 @@ int ssl3_do_write(SSL *s, int type)
 {
     int ret;
     size_t written = 0;
+
+    LOG_E
 
     ret = ssl3_write_bytes(s, type, &s->init_buf->data[s->init_off],
                            s->init_num, &written);
@@ -568,6 +574,8 @@ int tls_construct_finished(SSL *s, WPACKET *pkt)
     const char *sender;
     size_t slen;
 
+    LOG_E
+
     /* This is a real handshake so make sure we clean it up at the end */
     if (!s->server && s->post_handshake_auth != SSL_PHA_REQUESTED)
         s->statem.cleanuphand = 1;
@@ -703,6 +711,8 @@ int ssl3_take_mac(SSL *s)
 {
     const char *sender;
     size_t slen;
+
+    LOG_E
 
     if (!s->server) {
         sender = s->method->ssl3_enc->server_finished_label;
@@ -1272,6 +1282,8 @@ int tls_get_message_body(SSL *s, size_t *len)
     size_t n, readbytes;
     unsigned char *p;
     int i;
+
+    LOG_E
 
     if (s->s3.tmp.message_type == SSL3_MT_CHANGE_CIPHER_SPEC) {
         /* We've already read everything in */

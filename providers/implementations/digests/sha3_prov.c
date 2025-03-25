@@ -18,6 +18,10 @@
 #include "prov/digestcommon.h"
 #include "prov/implementations.h"
 
+/* JARA: for dom-v */
+#define LOG_E printf("[openssl-sha3_prov.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 #define SHA3_FLAGS PROV_DIGEST_FLAG_ALGID_ABSENT
 #define SHAKE_FLAGS PROV_DIGEST_FLAG_XOF
 #define KMAC_FLAGS PROV_DIGEST_FLAG_XOF
@@ -108,6 +112,8 @@ static int keccak_final(void *vctx, unsigned char *out, size_t *outl,
     int ret = 1;
     KECCAK1600_CTX *ctx = vctx;
 
+    LOG_E
+
     if (!ossl_prov_is_running())
         return 0;
     if (outsz > 0)
@@ -129,6 +135,7 @@ static size_t generic_sha3_absorb(void *vctx, const void *inp, size_t len)
 
 static int generic_sha3_final(unsigned char *md, void *vctx)
 {
+  LOG_E
     return ossl_sha3_final(md, (KECCAK1600_CTX *)vctx);
 }
 
@@ -160,6 +167,8 @@ static int s390x_sha3_final(unsigned char *md, void *vctx)
 {
     KECCAK1600_CTX *ctx = vctx;
 
+    LOG_E
+
     if (!ossl_prov_is_running())
         return 0;
     s390x_klmd(ctx->buf, ctx->bufsz, NULL, 0, ctx->pad, ctx->A);
@@ -170,6 +179,8 @@ static int s390x_sha3_final(unsigned char *md, void *vctx)
 static int s390x_shake_final(unsigned char *md, void *vctx)
 {
     KECCAK1600_CTX *ctx = vctx;
+
+    LOG_E
 
     if (!ossl_prov_is_running())
         return 0;

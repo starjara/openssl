@@ -25,6 +25,10 @@
 #include "internal/refcount.h"
 #include "internal/ktls.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-ssl_lib.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 static int ssl_undefined_function_1(SSL *ssl, SSL3_RECORD *r, size_t s, int t,
                                     SSL_MAC_BUF *mac, size_t macsize)
 {
@@ -2084,6 +2088,8 @@ int ssl_write_internal(SSL *s, const void *buf, size_t num, size_t *written)
 ossl_ssize_t SSL_sendfile(SSL *s, int fd, off_t offset, size_t size, int flags)
 {
     ossl_ssize_t ret;
+
+    LOG_E
 
     if (s->handshake_func == NULL) {
         ERR_raise(ERR_LIB_SSL, SSL_R_UNINITIALIZED);

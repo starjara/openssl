@@ -16,6 +16,10 @@
 #include "internal/numbers.h"   /* includes SIZE_MAX */
 #include "evp_local.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-m_sigver.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 #ifndef FIPS_MODULE
 
 static int update(EVP_MD_CTX *ctx, const void *data, size_t datalen)
@@ -408,6 +412,8 @@ int EVP_DigestSignUpdate(EVP_MD_CTX *ctx, const void *data, size_t dsize)
 {
     EVP_PKEY_CTX *pctx = ctx->pctx;
 
+    LOG_E
+
     if (pctx == NULL
             || pctx->operation != EVP_PKEY_OP_SIGNCTX
             || pctx->op.sig.algctx == NULL
@@ -437,6 +443,8 @@ int EVP_DigestSignUpdate(EVP_MD_CTX *ctx, const void *data, size_t dsize)
 int EVP_DigestVerifyUpdate(EVP_MD_CTX *ctx, const void *data, size_t dsize)
 {
     EVP_PKEY_CTX *pctx = ctx->pctx;
+
+    LOG_E
 
     if (pctx == NULL
             || pctx->operation != EVP_PKEY_OP_VERIFYCTX

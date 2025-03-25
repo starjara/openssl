@@ -31,6 +31,10 @@
 #include "prov/provider_util.h"
 #include "prov/providercommon.h"
 
+/* JARA: For Dom-v */
+#define LOG_E printf("[openssl-krb5kdf.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 /* KRB5 KDF defined in RFC 3961, Section 5.1 */
 
 static OSSL_FUNC_kdf_newctx_fn krb5kdf_new;
@@ -108,6 +112,8 @@ static int krb5kdf_derive(void *vctx, unsigned char *key, size_t keylen,
     KRB5KDF_CTX *ctx = (KRB5KDF_CTX *)vctx;
     const EVP_CIPHER *cipher;
     ENGINE *engine;
+
+    LOG_E
 
     if (!ossl_prov_is_running() || !krb5kdf_set_ctx_params(ctx, params))
         return 0;

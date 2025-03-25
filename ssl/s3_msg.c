@@ -9,9 +9,14 @@
 
 #include "ssl_local.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-s3_msg.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 int ssl3_do_change_cipher_spec(SSL *s)
 {
     int i;
+    LOG_E
 
     if (s->server)
         i = SSL3_CHANGE_CIPHER_SERVER_READ;
@@ -42,6 +47,7 @@ int ssl3_do_change_cipher_spec(SSL *s)
 
 int ssl3_send_alert(SSL *s, int level, int desc)
 {
+  LOG_E
     /* Map tls/ssl alert value to correct one */
     if (SSL_TREAT_AS_TLS13(s))
         desc = tls13_alert_code(desc);
@@ -78,6 +84,8 @@ int ssl3_dispatch_alert(SSL *s)
     size_t alertlen;
     void (*cb) (const SSL *ssl, int type, int val) = NULL;
     size_t written;
+
+    LOG_E
 
     s->s3.alert_dispatch = 0;
     alertlen = 2;

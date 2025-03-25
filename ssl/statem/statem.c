@@ -18,6 +18,10 @@
 #include "statem_local.h"
 #include <assert.h>
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-statem.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 /*
  * This file implements the SSL/TLS/DTLS state machines.
  *
@@ -118,6 +122,7 @@ void ossl_statem_set_renegotiate(SSL *s)
 
 void ossl_statem_send_fatal(SSL *s, int al)
 {
+  LOG_E
     /* We shouldn't call SSLfatal() twice. Once is enough */
     if (s->statem.in_init && s->statem.state == MSG_FLOW_ERROR)
       return;
@@ -137,6 +142,8 @@ void ossl_statem_send_fatal(SSL *s, int al)
 void ossl_statem_fatal(SSL *s, int al, int reason, const char *fmt, ...)
 {
     va_list args;
+
+    LOG_E
 
     va_start(args, fmt);
     ERR_vset_error(ERR_LIB_SSL, reason, fmt, args);
@@ -322,6 +329,8 @@ static int state_machine(SSL *s, int server)
         /* Shouldn't have been called if we're already in the error state */
         return -1;
     }
+
+    LOG_E
 
     ERR_clear_error();
     clear_sys_error();

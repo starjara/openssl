@@ -20,6 +20,10 @@
 #include "internal/provider.h"
 #include "evp_local.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-kdf_lib.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 EVP_KDF_CTX *EVP_KDF_CTX_new(EVP_KDF *kdf)
 {
     EVP_KDF_CTX *ctx = NULL;
@@ -140,6 +144,8 @@ size_t EVP_KDF_CTX_get_kdf_size(EVP_KDF_CTX *ctx)
 int EVP_KDF_derive(EVP_KDF_CTX *ctx, unsigned char *key, size_t keylen,
                    const OSSL_PARAM params[])
 {
+  LOG_E
+  
     if (ctx == NULL)
         return 0;
 

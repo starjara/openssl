@@ -21,9 +21,16 @@
 #include <openssl/core_names.h>
 #include "internal/cryptlib.h"
 
+/* JARA: For dom-v */
+#include "domv/domv.h"
+#define LOG_E printf("[openssl-s3_lib.c] Enter: %s\n", __func__);
+/* End JARA */
+
 #define TLS13_NUM_CIPHERS       OSSL_NELEM(tls13_ciphers)
 #define SSL3_NUM_CIPHERS        OSSL_NELEM(ssl3_ciphers)
 #define SSL3_NUM_SCSVS          OSSL_NELEM(ssl3_scsvs)
+
+
 
 /* TLSv1.3 downgrade protection sentinel values */
 const unsigned char tls11downgrade[] = {
@@ -4397,6 +4404,8 @@ int ssl3_shutdown(SSL *s)
 {
     int ret;
 
+    LOG_E
+
     /*
      * Don't do anything much if we have not done the handshake or we don't
      * want to send messages :-)
@@ -4446,6 +4455,7 @@ int ssl3_shutdown(SSL *s)
 
 int ssl3_write(SSL *s, const void *buf, size_t len, size_t *written)
 {
+  LOG_E
     clear_sys_error();
     if (s->s3.renegotiate)
         ssl3_renegotiate_check(s, 0);
@@ -4458,6 +4468,8 @@ static int ssl3_read_internal(SSL *s, void *buf, size_t len, int peek,
                               size_t *readbytes)
 {
     int ret;
+    
+    LOG_E
 
     clear_sys_error();
     if (s->s3.renegotiate)
@@ -4487,6 +4499,7 @@ static int ssl3_read_internal(SSL *s, void *buf, size_t len, int peek,
 
 int ssl3_read(SSL *s, void *buf, size_t len, size_t *readbytes)
 {
+  LOG_E
     return ssl3_read_internal(s, buf, len, 0, readbytes);
 }
 
@@ -4603,6 +4616,8 @@ int ssl_generate_master_secret(SSL *s, unsigned char *pms, size_t pmslen,
     unsigned long alg_k = s->s3.tmp.new_cipher->algorithm_mkey;
     int ret = 0;
 
+    LOG_E
+
     if (alg_k & SSL_PSK) {
 #ifndef OPENSSL_NO_PSK
         unsigned char *pskpms, *t;
@@ -4674,6 +4689,8 @@ EVP_PKEY *ssl_generate_pkey(SSL *s, EVP_PKEY *pm)
     EVP_PKEY_CTX *pctx = NULL;
     EVP_PKEY *pkey = NULL;
 
+    LOG_E
+
     if (pm == NULL)
         return NULL;
     pctx = EVP_PKEY_CTX_new_from_pkey(s->ctx->libctx, pm, s->ctx->propq);
@@ -4738,6 +4755,8 @@ EVP_PKEY *ssl_generate_param_group(SSL *s, uint16_t id)
     EVP_PKEY *pkey = NULL;
     const TLS_GROUP_INFO *ginf = tls1_group_id_lookup(s->ctx, id);
 
+    LOG_E
+
     if (ginf == NULL)
         goto err;
 
@@ -4766,6 +4785,8 @@ EVP_PKEY *ssl_generate_param_group(SSL *s, uint16_t id)
 int ssl_gensecret(SSL *s, unsigned char *pms, size_t pmslen)
 {
     int rv = 0;
+
+    LOG_E
 
     /* SSLfatal() called as appropriate in the below functions */
     if (SSL_IS_TLS13(s)) {
@@ -4796,11 +4817,14 @@ int ssl_derive(SSL *s, EVP_PKEY *privkey, EVP_PKEY *pubkey, int gensecret)
     size_t pmslen = 0;
     EVP_PKEY_CTX *pctx;
 
+    LOG_E
+
     if (privkey == NULL || pubkey == NULL) {
         SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
         return 0;
     }
 
+    printf("Copy privkey\n");
     pctx = EVP_PKEY_CTX_new_from_pkey(s->ctx->libctx, privkey, s->ctx->propq);
 
     if (EVP_PKEY_derive_init(pctx) <= 0
@@ -4819,6 +4843,7 @@ int ssl_derive(SSL *s, EVP_PKEY *privkey, EVP_PKEY *pubkey, int gensecret)
         goto err;
     }
 
+    printf("Derive PKEY\n");
     if (EVP_PKEY_derive(pctx, pms, &pmslen) <= 0) {
         SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
         goto err;

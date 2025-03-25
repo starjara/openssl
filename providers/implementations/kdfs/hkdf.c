@@ -34,6 +34,11 @@
 #define HKDF_MAXBUF 2048
 #define HKDF_MAXINFO (32*1024)
 
+/* JARA: For Dom-v */
+#include "domv/domv.h"
+#define LOG_E printf("[openssl-hkdf.c] Enter: %s\n", __func__);
+/* End JARA */
+
 static OSSL_FUNC_kdf_newctx_fn kdf_hkdf_new;
 static OSSL_FUNC_kdf_freectx_fn kdf_hkdf_free;
 static OSSL_FUNC_kdf_reset_fn kdf_hkdf_reset;
@@ -152,6 +157,8 @@ static int kdf_hkdf_derive(void *vctx, unsigned char *key, size_t keylen,
     KDF_HKDF *ctx = (KDF_HKDF *)vctx;
     OSSL_LIB_CTX *libctx = PROV_LIBCTX_OF(ctx->provctx);
     const EVP_MD *md;
+
+    LOG_E
 
     if (!ossl_prov_is_running() || !kdf_hkdf_set_ctx_params(ctx, params))
         return 0;
@@ -410,6 +417,8 @@ static int HKDF(OSSL_LIB_CTX *libctx, const EVP_MD *evp_md,
     int ret, sz;
     size_t prk_len;
 
+    LOG_E
+
     sz = EVP_MD_get_size(evp_md);
     if (sz < 0)
         return 0;
@@ -457,6 +466,8 @@ static int HKDF_Extract(OSSL_LIB_CTX *libctx, const EVP_MD *evp_md,
                         unsigned char *prk, size_t prk_len)
 {
     int sz = EVP_MD_get_size(evp_md);
+
+    LOG_E
 
     if (sz < 0)
         return 0;
@@ -521,6 +532,8 @@ static int HKDF_Expand(const EVP_MD *evp_md,
     unsigned char prev[EVP_MAX_MD_SIZE];
     size_t done_len = 0, dig_len, n;
 
+    LOG_E
+
     sz = EVP_MD_get_size(evp_md);
     if (sz <= 0)
         return 0;
@@ -567,6 +580,10 @@ static int HKDF_Expand(const EVP_MD *evp_md,
                        dig_len;
 
         memcpy(okm + done_len, prev, copy_len);
+
+	/* JARA: memcpy with domv API */
+	//domv_write(okm + done_len, prev, copy_len, 0);
+	/* End JARA */
 
         done_len += copy_len;
     }
@@ -690,6 +707,8 @@ static int kdf_tls1_3_derive(void *vctx, unsigned char *key, size_t keylen,
 {
     KDF_HKDF *ctx = (KDF_HKDF *)vctx;
     const EVP_MD *md;
+
+    LOG_E
 
     if (!ossl_prov_is_running() || !kdf_tls1_3_set_ctx_params(ctx, params))
         return 0;

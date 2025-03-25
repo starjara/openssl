@@ -18,6 +18,10 @@
 #include <openssl/md5.h>
 #include <openssl/crypto.h>
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-md5_one.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 #ifdef CHARSET_EBCDIC
 # include <openssl/ebcdic.h>
 #endif
@@ -26,6 +30,8 @@ unsigned char *MD5(const unsigned char *d, size_t n, unsigned char *md)
 {
     MD5_CTX c;
     static unsigned char m[MD5_DIGEST_LENGTH];
+
+    LOG_E
 
     if (md == NULL)
         md = m;

@@ -27,6 +27,12 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
+
+/* JARA: For Dom-V */
+//#define LOG_E printf("[openssl-evp_enc.c] Enter: %s\n", __func__);
+#define LOG_E
+/* End of JARA */
+
 int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX *ctx)
 {
     if (ctx == NULL)
@@ -89,6 +95,8 @@ static int evp_cipher_init_internal(EVP_CIPHER_CTX *ctx,
 #if !defined(OPENSSL_NO_ENGINE) && !defined(FIPS_MODULE)
     ENGINE *tmpimpl = NULL;
 #endif
+
+    LOG_E
 
     ctx->iv_len = -1;
 
@@ -441,6 +449,7 @@ int EVP_CipherInit_ex2(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
 int EVP_CipherInit(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
                    const unsigned char *key, const unsigned char *iv, int enc)
 {
+  LOG_E
     if (cipher != NULL)
         EVP_CIPHER_CTX_reset(ctx);
     return evp_cipher_init_internal(ctx, cipher, NULL, key, iv, enc, NULL);
@@ -450,12 +459,14 @@ int EVP_CipherInit_ex(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
                       ENGINE *impl, const unsigned char *key,
                       const unsigned char *iv, int enc)
 {
+  LOG_E
     return evp_cipher_init_internal(ctx, cipher, impl, key, iv, enc, NULL);
 }
 
 int EVP_CipherUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
                      const unsigned char *in, int inl)
 {
+ LOG_E
     if (ctx->encrypt)
         return EVP_EncryptUpdate(ctx, out, outl, in, inl);
     else
@@ -464,6 +475,7 @@ int EVP_CipherUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
 
 int EVP_CipherFinal_ex(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
 {
+  LOG_E
     if (ctx->encrypt)
         return EVP_EncryptFinal_ex(ctx, out, outl);
     else
@@ -472,6 +484,7 @@ int EVP_CipherFinal_ex(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
 
 int EVP_CipherFinal(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
 {
+  LOG_E
     if (ctx->encrypt)
         return EVP_EncryptFinal(ctx, out, outl);
     else
@@ -481,6 +494,7 @@ int EVP_CipherFinal(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
 int EVP_EncryptInit(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
                     const unsigned char *key, const unsigned char *iv)
 {
+  LOG_E
     return EVP_CipherInit(ctx, cipher, key, iv, 1);
 }
 
@@ -488,6 +502,7 @@ int EVP_EncryptInit_ex(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
                        ENGINE *impl, const unsigned char *key,
                        const unsigned char *iv)
 {
+  LOG_E
     return EVP_CipherInit_ex(ctx, cipher, impl, key, iv, 1);
 }
 
@@ -495,12 +510,14 @@ int EVP_EncryptInit_ex2(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
                         const unsigned char *key, const unsigned char *iv,
                         const OSSL_PARAM params[])
 {
+  LOG_E
     return EVP_CipherInit_ex2(ctx, cipher, key, iv, 1, params);
 }
 
 int EVP_DecryptInit(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
                     const unsigned char *key, const unsigned char *iv)
 {
+  LOG_E
     return EVP_CipherInit(ctx, cipher, key, iv, 0);
 }
 
@@ -508,6 +525,7 @@ int EVP_DecryptInit_ex(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
                        ENGINE *impl, const unsigned char *key,
                        const unsigned char *iv)
 {
+  LOG_E
     return EVP_CipherInit_ex(ctx, cipher, impl, key, iv, 0);
 }
 
@@ -515,6 +533,7 @@ int EVP_DecryptInit_ex2(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
                         const unsigned char *key, const unsigned char *iv,
                         const OSSL_PARAM params[])
 {
+  LOG_E
     return EVP_CipherInit_ex2(ctx, cipher, key, iv, 0, params);
 }
 
@@ -560,6 +579,8 @@ static int evp_EncryptDecryptUpdate(EVP_CIPHER_CTX *ctx,
                                     const unsigned char *in, int inl)
 {
     int i, j, bl, cmpl = inl;
+
+    LOG_E
 
     if (EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS))
         cmpl = (cmpl + 7) / 8;
@@ -653,6 +674,8 @@ int EVP_EncryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
     size_t soutl, inl_ = (size_t)inl;
     int blocksize;
 
+    LOG_E
+
     if (outl != NULL) {
         *outl = 0;
     } else {
@@ -714,6 +737,8 @@ int EVP_EncryptFinal_ex(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
     unsigned int i, b, bl;
     size_t soutl;
     int blocksize;
+
+    LOG_E
 
     if (outl != NULL) {
         *outl = 0;
@@ -801,6 +826,9 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
     unsigned int b;
     size_t soutl, inl_ = (size_t)inl;
     int blocksize;
+    
+    LOG_E
+      //printf("out: %p\toutl: %p\tin: %p\n", out, outl, in);
 
     if (outl != NULL) {
         *outl = 0;
@@ -832,8 +860,11 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
                                inl_ + (size_t)(blocksize == 1 ? 0 : blocksize),
                                in, inl_);
 
+    //printf("cupdate: %d\n", ret);
+    
     if (ret) {
         if (soutl > INT_MAX) {
+	  //printf("soutl > INT_MAX\n");
             ERR_raise(ERR_LIB_EVP, EVP_R_UPDATE_ERROR);
             return 0;
         }
@@ -924,6 +955,7 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
 int EVP_DecryptFinal(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
 {
     int ret;
+    LOG_E
     ret = EVP_DecryptFinal_ex(ctx, out, outl);
     return ret;
 }
@@ -935,6 +967,8 @@ int EVP_DecryptFinal_ex(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
     size_t soutl;
     int ret;
     int blocksize;
+
+    LOG_E
 
     if (outl != NULL) {
         *outl = 0;
@@ -1099,6 +1133,8 @@ int EVP_CIPHER_CTX_ctrl(EVP_CIPHER_CTX *ctx, int type, int arg, void *ptr)
     OSSL_PARAM params[4] = {
         OSSL_PARAM_END, OSSL_PARAM_END, OSSL_PARAM_END, OSSL_PARAM_END
     };
+
+    LOG_E
 
     if (ctx == NULL || ctx->cipher == NULL) {
         ERR_raise(ERR_LIB_EVP, EVP_R_NO_CIPHER_SET);

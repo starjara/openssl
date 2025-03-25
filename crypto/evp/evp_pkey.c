@@ -19,6 +19,10 @@
 #include "crypto/evp.h"
 #include "crypto/x509.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-evp_pkey.c] Enter: %s\n", __func__);
+/* End JARA */
+
 /* Extract a private key from a PKCS8 structure */
 
 EVP_PKEY *evp_pkcs82pkey_legacy(const PKCS8_PRIV_KEY_INFO *p8, OSSL_LIB_CTX *libctx,
@@ -27,6 +31,8 @@ EVP_PKEY *evp_pkcs82pkey_legacy(const PKCS8_PRIV_KEY_INFO *p8, OSSL_LIB_CTX *lib
     EVP_PKEY *pkey = NULL;
     const ASN1_OBJECT *algoid;
     char obj_tmp[80];
+
+    LOG_E
 
     if (!PKCS8_pkey_get0(&algoid, NULL, NULL, NULL, p8))
         return NULL;

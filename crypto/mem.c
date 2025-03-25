@@ -230,6 +230,8 @@ void *CRYPTO_clear_realloc(void *str, size_t old_len, size_t num,
 {
     void *ret = NULL;
 
+    printf("realloc?\n");
+
     if (str == NULL)
         return CRYPTO_malloc(num, file, line);
 
@@ -265,6 +267,7 @@ void CRYPTO_free(void *str, const char *file, int line)
 
 void CRYPTO_clear_free(void *str, size_t num, const char *file, int line)
 {
+  printf("str: %p\n", str);
     if (str == NULL)
         return;
     if (num)

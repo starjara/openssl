@@ -29,6 +29,11 @@
 
 #define TICKET_NONCE_SIZE       8
 
+/* JARA: For Dom-v */
+//#define LOG_E printf("[openssl-statem_srvr.c] Enter: %s\n", __func__);
+#define LOG_E
+/* End of JARA */
+
 typedef struct {
   ASN1_TYPE *kxBlob;
   ASN1_TYPE *opaqueBlob;
@@ -1378,6 +1383,8 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL *s, PACKET *pkt)
     PACKET session_id, compression, extensions, cookie;
     static const unsigned char null_compression = 0;
     CLIENTHELLO_MSG *clienthello = NULL;
+
+    LOG_E
 
     /* Check if this is actually an unexpected renegotiation ClientHello */
     if (s->renegotiate == 0 && !SSL_IS_FIRST_HANDSHAKE(s)) {

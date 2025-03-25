@@ -552,6 +552,10 @@ struct ssl_method_st {
  * I'm using EXPLICIT tags so I can read the damn things using asn1parse :-).
  */
 struct ssl_session_st {
+  /* JARA: vmid */
+  int vmid;
+  /* End JARA */
+ 
     int ssl_version;            /* what ssl version session info is being kept
                                  * in here? */
     size_t master_key_length;

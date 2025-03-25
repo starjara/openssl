@@ -27,6 +27,9 @@
 #include "ssl_local.h"
 #include <openssl/ct.h>
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-t1_lib.c] Enter: %s\n", __func__);
+
 static const SIGALG_LOOKUP *find_sig_alg(SSL *s, X509 *x, EVP_PKEY *pkey);
 static int tls12_sigalg_allowed(const SSL *s, int op, const SIGALG_LOOKUP *lu);
 
@@ -1815,6 +1818,8 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL *s, const unsigned char *etick,
     SSL_HMAC *hctx = NULL;
     EVP_CIPHER_CTX *ctx = NULL;
     SSL_CTX *tctx = s->session_ctx;
+
+    LOG_E
 
     if (eticklen == 0) {
         /*

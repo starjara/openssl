@@ -27,6 +27,11 @@
 # define EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK 0
 #endif
 
+/* JARA: For Dom-v */
+#include "domv/domv.h"
+#define LOG_E printf("[openssl-rec_layer_s3.c] Enter: %s\n", __func__);
+/* End JARA */
+
 void RECORD_LAYER_init(RECORD_LAYER *rl, SSL *s)
 {
     rl->s = s;
@@ -204,6 +209,8 @@ int ssl3_read_n(SSL *s, size_t n, size_t max, int extend, int clearold,
     unsigned char *pkt;
     SSL3_BUFFER *rb;
 
+    LOG_E
+
     if (n == 0)
         return 0;
 
@@ -243,10 +250,22 @@ int ssl3_read_n(SSL *s, size_t n, size_t max, int extend, int clearold,
      * pointed to by 'packet', 'left' extra ones at the end
      */
     if (s->rlayer.packet != pkt && clearold == 1) {
-        memmove(pkt, s->rlayer.packet, len + left);
-        s->rlayer.packet = pkt;
-        rb->offset = len + align;
+      /* JARA */
+      printf("pkt memmove\n");
+      printf("pkt: 0x%p\n", pkt);
+      printf("packet: 0x%p\n", s->rlayer.packet);
+      //domv_read(pkt, s->rlayer.packet, len + left, 0);
+      //domv_read(s->rlayer.packet, s->rlayer.packet, len + left, 0);
+      /* End of JARA */
+      
+      memmove(pkt, s->rlayer.packet, len + left);
+      s->rlayer.packet = pkt;
+      rb->offset = len + align;
     }
+
+    /* JARA */
+    printf("memmove finish\n");
+    /* End of JARA */
 
     /*
      * For DTLS/UDP reads should not span multiple packets because the read
@@ -305,6 +324,9 @@ int ssl3_read_n(SSL *s, size_t n, size_t max, int extend, int clearold,
         clear_sys_error();
         if (s->rbio != NULL) {
             s->rwstate = SSL_READING;
+	    /* JARA */
+	    printf("BIO_read pkt\n");
+	    /* End of JARA */
             ret = BIO_read(s->rbio, pkt + len + left, max - left);
             if (ret >= 0)
                 bioread = ret;
@@ -372,6 +394,8 @@ int ssl3_write_bytes(SSL *s, int type, const void *buf_, size_t len,
     SSL3_BUFFER *wb = &s->rlayer.wbuf[0];
     int i;
     size_t tmpwrit;
+
+    LOG_E
 
     s->rwstate = SSL_NOTHING;
     tot = s->rlayer.wnum;
@@ -694,6 +718,8 @@ int do_ssl3_write(SSL *s, int type, const unsigned char *buf,
     SSL_SESSION *sess;
     size_t totlen = 0, len, wpinited = 0;
     size_t j;
+
+    LOG_E
 
     for (j = 0; j < numpipes; j++)
         totlen += pipelens[j];
@@ -1292,6 +1318,8 @@ int ssl3_read_bytes(SSL *s, int type, int *recvd_type, unsigned char *buf,
     SSL3_BUFFER *rbuf;
     void (*cb) (const SSL *ssl, int type2, int val) = NULL;
     int is_tls13 = SSL_IS_TLS13(s);
+
+    LOG_E
 
     rbuf = &s->rlayer.rbuf;
 

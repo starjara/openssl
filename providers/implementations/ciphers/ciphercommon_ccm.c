@@ -14,6 +14,9 @@
 #include "prov/ciphercommon_ccm.h"
 #include "prov/providercommon.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-ciphercommon_ccm.c] Enter: %s\n", __func__);
+
 static int ccm_cipher_internal(PROV_CCM_CTX *ctx, unsigned char *out,
                                size_t *padlen, const unsigned char *in,
                                size_t len);
@@ -21,6 +24,8 @@ static int ccm_cipher_internal(PROV_CCM_CTX *ctx, unsigned char *out,
 static int ccm_tls_init(PROV_CCM_CTX *ctx, unsigned char *aad, size_t alen)
 {
     size_t len;
+
+    LOG_E
 
     if (!ossl_prov_is_running() || alen != EVP_AEAD_TLS1_AAD_LEN)
         return 0;
@@ -228,6 +233,8 @@ static int ccm_init(void *vctx, const unsigned char *key, size_t keylen,
 {
     PROV_CCM_CTX *ctx = (PROV_CCM_CTX *)vctx;
 
+    LOG_E
+
     if (!ossl_prov_is_running())
         return 0;
 
@@ -290,6 +297,8 @@ int ossl_ccm_stream_final(void *vctx, unsigned char *out, size_t *outl,
     PROV_CCM_CTX *ctx = (PROV_CCM_CTX *)vctx;
     int i;
 
+    LOG_E
+
     if (!ossl_prov_is_running())
         return 0;
 
@@ -305,6 +314,8 @@ int ossl_ccm_cipher(void *vctx, unsigned char *out, size_t *outl, size_t outsize
                     const unsigned char *in, size_t inl)
 {
     PROV_CCM_CTX *ctx = (PROV_CCM_CTX *)vctx;
+
+    LOG_E
 
     if (!ossl_prov_is_running())
         return 0;
@@ -338,6 +349,8 @@ static int ccm_tls_cipher(PROV_CCM_CTX *ctx,
 {
     int rv = 0;
     size_t olen = 0;
+
+    LOG_E
 
     if (!ossl_prov_is_running())
         goto err;
@@ -386,6 +399,8 @@ static int ccm_cipher_internal(PROV_CCM_CTX *ctx, unsigned char *out,
     int rv = 0;
     size_t olen = 0;
     const PROV_CCM_HW *hw = ctx->hw;
+
+    LOG_E
 
     /* If no key set, return error */
     if (!ctx->key_set)

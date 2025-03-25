@@ -46,6 +46,10 @@
 
 #include "e_os.h"
 
+/* JARA: For dom-v */
+#define LOG_E printf("[openssl-kbkdf.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 #define ossl_min(a, b) ((a) < (b)) ? (a) : (b)
 
 typedef enum {
@@ -171,6 +175,8 @@ static int derive(EVP_MAC_CTX *ctx_init, kbkdf_mode mode, unsigned char *iv,
      */
     int has_l = (l != 0);
 
+    LOG_E
+
     /* Setup K(0) for feedback mode. */
     if (iv_len > 0)
         memcpy(k_i, iv, iv_len);
@@ -218,6 +224,8 @@ static int kbkdf_derive(void *vctx, unsigned char *key, size_t keylen,
     uint32_t l = 0;
     size_t h = 0;
 
+    LOG_E
+    
     if (!ossl_prov_is_running() || !kbkdf_set_ctx_params(ctx, params))
         return 0;
 

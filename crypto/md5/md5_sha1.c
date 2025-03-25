@@ -17,8 +17,13 @@
 #include "prov/md5_sha1.h"
 #include <openssl/evp.h>
 
+/* JARA: for dom-v */
+#define LOG_E printf("[openssl-md5_sha1.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 int ossl_md5_sha1_init(MD5_SHA1_CTX *mctx)
 {
+  LOG_E
     if (!MD5_Init(&mctx->md5))
         return 0;
     return SHA1_Init(&mctx->sha1);
@@ -26,6 +31,7 @@ int ossl_md5_sha1_init(MD5_SHA1_CTX *mctx)
 
 int ossl_md5_sha1_update(MD5_SHA1_CTX *mctx, const void *data, size_t count)
 {
+  LOG_E
     if (!MD5_Update(&mctx->md5, data, count))
         return 0;
     return SHA1_Update(&mctx->sha1, data, count);
@@ -33,6 +39,7 @@ int ossl_md5_sha1_update(MD5_SHA1_CTX *mctx, const void *data, size_t count)
 
 int ossl_md5_sha1_final(unsigned char *md, MD5_SHA1_CTX *mctx)
 {
+  LOG_E
     if (!MD5_Final(md, &mctx->md5))
         return 0;
     return SHA1_Final(md + MD5_DIGEST_LENGTH, &mctx->sha1);
@@ -43,6 +50,7 @@ int ossl_md5_sha1_ctrl(MD5_SHA1_CTX *mctx, int cmd, int mslen, void *ms)
     unsigned char padtmp[48];
     unsigned char md5tmp[MD5_DIGEST_LENGTH];
     unsigned char sha1tmp[SHA_DIGEST_LENGTH];
+    LOG_E
 
     if (cmd != EVP_CTRL_SSL3_MASTER_SECRET)
         return -2;

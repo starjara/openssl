@@ -50,6 +50,11 @@
 #include "internal/provider.h"
 #include "evp_local.h"
 
+/* JARA: For Dom-V */
+//#define LOG_E printf("[openssl-p_lib.c] Enter: %s\n", __func__);
+#define LOG_E
+/* End JARA */
+
 static int pkey_set_type(EVP_PKEY *pkey, ENGINE *e, int type, const char *str,
                          int len, EVP_KEYMGMT *keymgmt);
 static void evp_pkey_free_it(EVP_PKEY *key);
@@ -237,6 +242,8 @@ static int evp_pkey_cmp_any(const EVP_PKEY *a, const EVP_PKEY *b,
     EVP_KEYMGMT *keymgmt1 = NULL, *keymgmt2 = NULL;
     void *keydata1 = NULL, *keydata2 = NULL, *tmp_keydata = NULL;
 
+    LOG_E
+
     /* If none of them are provided, this function shouldn't have been called */
     if (!ossl_assert(evp_pkey_is_provided(a) || evp_pkey_is_provided(b)))
         return -2;
@@ -322,6 +329,7 @@ int EVP_PKEY_parameters_eq(const EVP_PKEY *a, const EVP_PKEY *b)
 # ifndef OPENSSL_NO_DEPRECATED_3_0
 int EVP_PKEY_cmp(const EVP_PKEY *a, const EVP_PKEY *b)
 {
+  LOG_E
     return EVP_PKEY_eq(a, b);
 }
 #endif
@@ -332,6 +340,8 @@ int EVP_PKEY_eq(const EVP_PKEY *a, const EVP_PKEY *b)
      * This will just call evp_keymgmt_util_match when legacy support
      * is gone.
      */
+
+  LOG_E
 
     /* Trivial shortcuts */
     if (a == b)
@@ -384,6 +394,8 @@ static EVP_PKEY *new_raw_key_int(OSSL_LIB_CTX *libctx,
     EVP_PKEY_CTX *ctx = NULL;
     const EVP_PKEY_ASN1_METHOD *ameth = NULL;
     int result = 0;
+
+    LOG_E
 
 # ifndef OPENSSL_NO_ENGINE
     /* Check if there is an Engine for this type */
@@ -491,6 +503,7 @@ EVP_PKEY *EVP_PKEY_new_raw_private_key_ex(OSSL_LIB_CTX *libctx,
                                           const char *propq,
                                           const unsigned char *priv, size_t len)
 {
+  LOG_E
     return new_raw_key_int(libctx, keytype, propq, EVP_PKEY_NONE, NULL, priv,
                            len, 1);
 }
@@ -499,6 +512,7 @@ EVP_PKEY *EVP_PKEY_new_raw_private_key(int type, ENGINE *e,
                                        const unsigned char *priv,
                                        size_t len)
 {
+  LOG_E
     return new_raw_key_int(NULL, NULL, NULL, type, e, priv, len, 1);
 }
 
@@ -506,6 +520,7 @@ EVP_PKEY *EVP_PKEY_new_raw_public_key_ex(OSSL_LIB_CTX *libctx,
                                          const char *keytype, const char *propq,
                                          const unsigned char *pub, size_t len)
 {
+  LOG_E
     return new_raw_key_int(libctx, keytype, propq, EVP_PKEY_NONE, NULL, pub,
                            len, 0);
 }
@@ -514,6 +529,7 @@ EVP_PKEY *EVP_PKEY_new_raw_public_key(int type, ENGINE *e,
                                       const unsigned char *pub,
                                       size_t len)
 {
+  LOG_E
     return new_raw_key_int(NULL, NULL, NULL, type, e, pub, len, 0);
 }
 
@@ -550,6 +566,7 @@ static int get_raw_key_details(const OSSL_PARAM params[], void *arg)
 int EVP_PKEY_get_raw_private_key(const EVP_PKEY *pkey, unsigned char *priv,
                                  size_t *len)
 {
+  LOG_E
     if (pkey->keymgmt != NULL) {
         struct raw_key_details_st raw_key;
 
@@ -582,6 +599,7 @@ int EVP_PKEY_get_raw_private_key(const EVP_PKEY *pkey, unsigned char *priv,
 int EVP_PKEY_get_raw_public_key(const EVP_PKEY *pkey, unsigned char *pub,
                                 size_t *len)
 {
+  LOG_E
     if (pkey->keymgmt != NULL) {
         struct raw_key_details_st raw_key;
 
@@ -617,6 +635,7 @@ static EVP_PKEY *new_cmac_key_int(const unsigned char *priv, size_t len,
                                   OSSL_LIB_CTX *libctx,
                                   const char *propq, ENGINE *e)
 {
+  LOG_E
 # ifndef OPENSSL_NO_CMAC
 #  ifndef OPENSSL_NO_ENGINE
     const char *engine_id = e != NULL ? ENGINE_get_id(e) : NULL;
@@ -674,6 +693,7 @@ static EVP_PKEY *new_cmac_key_int(const unsigned char *priv, size_t len,
 EVP_PKEY *EVP_PKEY_new_CMAC_key(ENGINE *e, const unsigned char *priv,
                                 size_t len, const EVP_CIPHER *cipher)
 {
+  LOG_E
     return new_cmac_key_int(priv, len, NULL, cipher, NULL, NULL, e);
 }
 
@@ -690,6 +710,7 @@ int EVP_PKEY_set_type_str(EVP_PKEY *pkey, const char *str, int len)
 # ifndef OPENSSL_NO_ENGINE
 int EVP_PKEY_set1_engine(EVP_PKEY *pkey, ENGINE *e)
 {
+  LOG_E
     if (e != NULL) {
         if (!ENGINE_init(e)) {
             ERR_raise(ERR_LIB_EVP, ERR_R_ENGINE_LIB);
@@ -708,6 +729,7 @@ int EVP_PKEY_set1_engine(EVP_PKEY *pkey, ENGINE *e)
 
 ENGINE *EVP_PKEY_get0_engine(const EVP_PKEY *pkey)
 {
+  LOG_E
     return pkey->engine;
 }
 # endif
@@ -749,8 +771,11 @@ static void detect_foreign_key(EVP_PKEY *pkey)
 
 int EVP_PKEY_assign(EVP_PKEY *pkey, int type, void *key)
 {
+    LOG_E
 #  ifndef OPENSSL_NO_EC
     int pktype;
+
+    printf("\t#ifndef OPENSSL_NO_EC\n");
 
     pktype = EVP_PKEY_type(type);
     if ((key != NULL) && (pktype == EVP_PKEY_EC || pktype == EVP_PKEY_SM2)) {
@@ -770,6 +795,7 @@ int EVP_PKEY_assign(EVP_PKEY *pkey, int type, void *key)
         }
     }
 #  endif
+    printf("\t#endif\n");
 
     if (pkey == NULL || !EVP_PKEY_set_type(pkey, type))
         return 0;
@@ -783,6 +809,7 @@ int EVP_PKEY_assign(EVP_PKEY *pkey, int type, void *key)
 
 void *EVP_PKEY_get0(const EVP_PKEY *pkey)
 {
+  LOG_E
     if (pkey == NULL)
         return NULL;
 
@@ -794,6 +821,7 @@ void *EVP_PKEY_get0(const EVP_PKEY *pkey)
 
 const unsigned char *EVP_PKEY_get0_hmac(const EVP_PKEY *pkey, size_t *len)
 {
+  LOG_E
     const ASN1_OCTET_STRING *os = NULL;
     if (pkey->type != EVP_PKEY_HMAC) {
         ERR_raise(ERR_LIB_EVP, EVP_R_EXPECTING_AN_HMAC_KEY);
@@ -845,6 +873,7 @@ const unsigned char *EVP_PKEY_get0_siphash(const EVP_PKEY *pkey, size_t *len)
 # ifndef OPENSSL_NO_DSA
 static DSA *evp_pkey_get0_DSA_int(const EVP_PKEY *pkey)
 {
+  LOG_E
     if (pkey->type != EVP_PKEY_DSA) {
         ERR_raise(ERR_LIB_EVP, EVP_R_EXPECTING_A_DSA_KEY);
         return NULL;
@@ -854,11 +883,13 @@ static DSA *evp_pkey_get0_DSA_int(const EVP_PKEY *pkey)
 
 const DSA *EVP_PKEY_get0_DSA(const EVP_PKEY *pkey)
 {
+  LOG_E
     return evp_pkey_get0_DSA_int(pkey);
 }
 
 int EVP_PKEY_set1_DSA(EVP_PKEY *pkey, DSA *key)
 {
+  LOG_E
     int ret = EVP_PKEY_assign_DSA(pkey, key);
     if (ret)
         DSA_up_ref(key);
@@ -866,6 +897,7 @@ int EVP_PKEY_set1_DSA(EVP_PKEY *pkey, DSA *key)
 }
 DSA *EVP_PKEY_get1_DSA(EVP_PKEY *pkey)
 {
+  LOG_E
     DSA *ret = evp_pkey_get0_DSA_int(pkey);
 
     if (ret != NULL)
@@ -877,6 +909,7 @@ DSA *EVP_PKEY_get1_DSA(EVP_PKEY *pkey)
 # ifndef OPENSSL_NO_EC
 static const ECX_KEY *evp_pkey_get0_ECX_KEY(const EVP_PKEY *pkey, int type)
 {
+  LOG_E
     if (EVP_PKEY_get_base_id(pkey) != type) {
         ERR_raise(ERR_LIB_EVP, EVP_R_EXPECTING_A_ECX_KEY);
         return NULL;
@@ -886,6 +919,7 @@ static const ECX_KEY *evp_pkey_get0_ECX_KEY(const EVP_PKEY *pkey, int type)
 
 static ECX_KEY *evp_pkey_get1_ECX_KEY(EVP_PKEY *pkey, int type)
 {
+  LOG_E
     ECX_KEY *ret = (ECX_KEY *)evp_pkey_get0_ECX_KEY(pkey, type);
 
     if (ret != NULL && !ossl_ecx_key_up_ref(ret))
@@ -909,6 +943,7 @@ IMPLEMENT_ECX_VARIANT(ED448)
 
 int EVP_PKEY_set1_DH(EVP_PKEY *pkey, DH *dhkey)
 {
+  LOG_E
     int ret, type;
 
     /*
@@ -944,6 +979,7 @@ int EVP_PKEY_set1_DH(EVP_PKEY *pkey, DH *dhkey)
 
 DH *evp_pkey_get0_DH_int(const EVP_PKEY *pkey)
 {
+  LOG_E
     if (pkey->type != EVP_PKEY_DH && pkey->type != EVP_PKEY_DHX) {
         ERR_raise(ERR_LIB_EVP, EVP_R_EXPECTING_A_DH_KEY);
         return NULL;
@@ -953,11 +989,13 @@ DH *evp_pkey_get0_DH_int(const EVP_PKEY *pkey)
 
 const DH *EVP_PKEY_get0_DH(const EVP_PKEY *pkey)
 {
+  LOG_E
     return evp_pkey_get0_DH_int(pkey);
 }
 
 DH *EVP_PKEY_get1_DH(EVP_PKEY *pkey)
 {
+  LOG_E
     DH *ret = evp_pkey_get0_DH_int(pkey);
 
     if (ret != NULL)
@@ -1048,6 +1086,7 @@ const char *evp_pkey_type2name(int type)
 
 int EVP_PKEY_is_a(const EVP_PKEY *pkey, const char *name)
 {
+  LOG_E
     if (pkey == NULL)
         return 0;
     if (pkey->keymgmt == NULL)
@@ -1446,6 +1485,8 @@ EVP_PKEY *EVP_PKEY_new(void)
 {
     EVP_PKEY *ret = OPENSSL_zalloc(sizeof(*ret));
 
+    LOG_E
+    
     if (ret == NULL) {
         ERR_raise(ERR_LIB_EVP, ERR_R_MALLOC_FAILURE);
         return NULL;
@@ -1468,6 +1509,7 @@ EVP_PKEY *EVP_PKEY_new(void)
         goto err;
     }
 #endif
+
     return ret;
 
  err:
@@ -1673,6 +1715,8 @@ EVP_PKEY *EVP_PKEY_dup(EVP_PKEY *pkey)
 {
     EVP_PKEY *dup_pk;
 
+    LOG_E
+
     if (pkey == NULL) {
         ERR_raise(ERR_LIB_EVP, ERR_R_PASSED_NULL_PARAMETER);
         return NULL;
@@ -1728,6 +1772,8 @@ void evp_pkey_free_legacy(EVP_PKEY *x)
     const EVP_PKEY_ASN1_METHOD *ameth = x->ameth;
     ENGINE *tmpe = NULL;
 
+    LOG_E
+
     if (ameth == NULL && x->legacy_cache_pkey.ptr != NULL)
         ameth = EVP_PKEY_asn1_find(&tmpe, x->type);
 
@@ -1779,6 +1825,8 @@ static void evp_pkey_free_it(EVP_PKEY *x)
 void EVP_PKEY_free(EVP_PKEY *x)
 {
     int i;
+
+    //LOG_E
 
     if (x == NULL)
         return;
@@ -1837,6 +1885,8 @@ void *evp_pkey_export_to_provider(EVP_PKEY *pk, OSSL_LIB_CTX *libctx,
     void *keydata = NULL;
     int check;
 
+    LOG_E
+    
     if (pk == NULL)
         return NULL;
 
@@ -2101,6 +2151,8 @@ void *evp_pkey_get_legacy(EVP_PKEY *pk)
 {
     EVP_PKEY *tmp_copy = NULL;
     void *ret = NULL;
+
+    LOG_E
 
     if (!ossl_assert(pk != NULL))
         return NULL;

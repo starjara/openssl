@@ -22,9 +22,15 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-p_legacy.c] Enter: %s\n", __func__);
+/* End JARA */
+
 int EVP_PKEY_set1_RSA(EVP_PKEY *pkey, RSA *key)
 {
     int ret = EVP_PKEY_assign_RSA(pkey, key);
+
+    LOG_E
 
     if (ret)
         RSA_up_ref(key);
@@ -33,6 +39,7 @@ int EVP_PKEY_set1_RSA(EVP_PKEY *pkey, RSA *key)
 
 RSA *evp_pkey_get0_RSA_int(const EVP_PKEY *pkey)
 {
+  LOG_E
     if (pkey->type != EVP_PKEY_RSA && pkey->type != EVP_PKEY_RSA_PSS) {
         ERR_raise(ERR_LIB_EVP, EVP_R_EXPECTING_AN_RSA_KEY);
         return NULL;
@@ -42,11 +49,13 @@ RSA *evp_pkey_get0_RSA_int(const EVP_PKEY *pkey)
 
 const RSA *EVP_PKEY_get0_RSA(const EVP_PKEY *pkey)
 {
+  LOG_E
     return evp_pkey_get0_RSA_int(pkey);
 }
 
 RSA *EVP_PKEY_get1_RSA(EVP_PKEY *pkey)
 {
+  LOG_E
     RSA *ret = evp_pkey_get0_RSA_int(pkey);
 
     if (ret != NULL)
@@ -57,6 +66,7 @@ RSA *EVP_PKEY_get1_RSA(EVP_PKEY *pkey)
 #ifndef OPENSSL_NO_EC
 int EVP_PKEY_set1_EC_KEY(EVP_PKEY *pkey, EC_KEY *key)
 {
+  LOG_E
     if (!EC_KEY_up_ref(key))
         return 0;
     if (!EVP_PKEY_assign_EC_KEY(pkey, key)) {
@@ -68,6 +78,7 @@ int EVP_PKEY_set1_EC_KEY(EVP_PKEY *pkey, EC_KEY *key)
 
 EC_KEY *evp_pkey_get0_EC_KEY_int(const EVP_PKEY *pkey)
 {
+  LOG_E
     if (EVP_PKEY_get_base_id(pkey) != EVP_PKEY_EC) {
         ERR_raise(ERR_LIB_EVP, EVP_R_EXPECTING_A_EC_KEY);
         return NULL;
@@ -77,11 +88,13 @@ EC_KEY *evp_pkey_get0_EC_KEY_int(const EVP_PKEY *pkey)
 
 const EC_KEY *EVP_PKEY_get0_EC_KEY(const EVP_PKEY *pkey)
 {
+  LOG_E
     return evp_pkey_get0_EC_KEY_int(pkey);
 }
 
 EC_KEY *EVP_PKEY_get1_EC_KEY(EVP_PKEY *pkey)
 {
+  LOG_E
     EC_KEY *ret = evp_pkey_get0_EC_KEY_int(pkey);
 
     if (ret != NULL && !EC_KEY_up_ref(ret))

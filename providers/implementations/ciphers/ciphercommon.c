@@ -18,6 +18,10 @@
 #include "prov/provider_ctx.h"
 #include "prov/providercommon.h"
 
+/* JARA: For dom-v */
+#define LOG_E printf("[openssl-ciphercommon.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 /*-
  * Generic cipher functions for OSSL_PARAM gettables and settables
  */
@@ -396,6 +400,8 @@ int ossl_cipher_generic_block_final(void *vctx, unsigned char *out,
     PROV_CIPHER_CTX *ctx = (PROV_CIPHER_CTX *)vctx;
     size_t blksz = ctx->blocksize;
 
+    LOG_E
+
     if (!ossl_prov_is_running())
         return 0;
 
@@ -531,6 +537,8 @@ int ossl_cipher_generic_stream_final(void *vctx, unsigned char *out,
 {
     PROV_CIPHER_CTX *ctx = (PROV_CIPHER_CTX *)vctx;
 
+    LOG_E
+
     if (!ossl_prov_is_running())
         return 0;
 
@@ -548,6 +556,8 @@ int ossl_cipher_generic_cipher(void *vctx, unsigned char *out, size_t *outl,
                                size_t inl)
 {
     PROV_CIPHER_CTX *ctx = (PROV_CIPHER_CTX *)vctx;
+
+    LOG_E
 
     if (!ossl_prov_is_running())
         return 0;

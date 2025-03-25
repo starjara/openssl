@@ -9,6 +9,10 @@
 
 #include "ssl_local.h"
 
+/* JARA: For dom-v */
+#define LOG_E printf("[openssl-d1_msg.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 int dtls1_write_app_data_bytes(SSL *s, int type, const void *buf_, size_t len,
                                size_t *written)
 {
@@ -39,6 +43,8 @@ int dtls1_dispatch_alert(SSL *s)
     unsigned char buf[DTLS1_AL_HEADER_LENGTH];
     unsigned char *ptr = &buf[0];
     size_t written;
+
+    LOG_E
 
     s->s3.alert_dispatch = 0;
 

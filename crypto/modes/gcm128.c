@@ -13,6 +13,10 @@
 #include "internal/endian.h"
 #include "crypto/modes.h"
 
+/* JARA: For Dom-v */
+#define LOG_E printf("[openssl-gcm128.c] Enter: %s\n", __func__);
+/* End JARA */
+
 #if defined(__GNUC__) && !defined(STRICT_ALIGNMENT)
 typedef size_t size_t_aX __attribute((__aligned__(1)));
 #else
@@ -705,6 +709,8 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT *ctx, void *key, block128_f block)
 {
     DECLARE_IS_ENDIAN;
 
+    LOG_E
+    
     memset(ctx, 0, sizeof(*ctx));
     ctx->block = block;
     ctx->key = key;
@@ -821,6 +827,9 @@ void CRYPTO_gcm128_setiv(GCM128_CONTEXT *ctx, const unsigned char *iv,
     void (*gcm_gmult_p) (u64 Xi[2], const u128 Htable[16]) = ctx->gmult;
 #endif
 
+    LOG_E
+      printf("ctx->key: %p\tctx->Yi.c: %p\tctx->Xi.c: %p\tiv: %p\n", ctx->key, ctx->Yi.c, ctx->Xi.c, iv);
+
     ctx->len.u[0] = 0;          /* AAD length */
     ctx->len.u[1] = 0;          /* message length */
     ctx->ares = 0;
@@ -915,6 +924,7 @@ int CRYPTO_gcm128_aad(GCM128_CONTEXT *ctx, const unsigned char *aad,
                          const u8 *inp, size_t len) = ctx->ghash;
 # endif
 #endif
+    LOG_E
 
     if (ctx->len.u[1])
         return -2;
@@ -981,6 +991,8 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT *ctx,
 # endif
 #endif
 
+  LOG_E
+    
     mlen += len;
     if (mlen > ((U64(1) << 36) - 32) || (sizeof(len) == 8 && mlen < len))
         return -1;
@@ -1213,6 +1225,9 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT *ctx,
 # endif
 #endif
 
+  LOG_E
+    printf("in: %p\tout: %p\tkey: %p\n", in, out, key);
+    
     mlen += len;
     if (mlen > ((U64(1) << 36) - 32) || (sizeof(len) == 8 && mlen < len))
         return -1;
@@ -1778,6 +1793,8 @@ int CRYPTO_gcm128_finish(GCM128_CONTEXT *ctx, const unsigned char *tag,
 # endif
 #endif
 
+    LOG_E
+      
 #if defined(GHASH) && !defined(OPENSSL_SMALL_FOOTPRINT)
     u128 bitlen;
     unsigned int mres = ctx->mres;
@@ -1830,13 +1847,14 @@ int CRYPTO_gcm128_finish(GCM128_CONTEXT *ctx, const unsigned char *tag,
     ctx->Xi.u[1] ^= ctx->EK0.u[1];
 
     if (tag && len <= sizeof(ctx->Xi))
-        return CRYPTO_memcmp(ctx->Xi.c, tag, len);
+      return CRYPTO_memcmp(ctx->Xi.c, tag, len);
     else
-        return -1;
+      return -1;
 }
 
 void CRYPTO_gcm128_tag(GCM128_CONTEXT *ctx, unsigned char *tag, size_t len)
 {
+  LOG_E
     CRYPTO_gcm128_finish(ctx, NULL, 0);
     memcpy(tag, ctx->Xi.c,
            len <= sizeof(ctx->Xi.c) ? len : sizeof(ctx->Xi.c));

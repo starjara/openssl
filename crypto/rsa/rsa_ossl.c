@@ -18,6 +18,10 @@
 #include "rsa_local.h"
 #include "internal/constant_time.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-rsa_ossl.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 static int rsa_ossl_public_encrypt(int flen, const unsigned char *from,
                                   unsigned char *to, RSA *rsa, int padding);
 static int rsa_ossl_private_encrypt(int flen, const unsigned char *from,
@@ -78,6 +82,8 @@ static int rsa_ossl_public_encrypt(int flen, const unsigned char *from,
     int i, num = 0, r = -1;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
+
+    LOG_E
 
     if (BN_num_bits(rsa->n) > OPENSSL_RSA_MAX_MODULUS_BITS) {
         ERR_raise(ERR_LIB_RSA, RSA_R_MODULUS_TOO_LARGE);
@@ -255,6 +261,8 @@ static int rsa_ossl_private_encrypt(int flen, const unsigned char *from,
     BIGNUM *unblind = NULL;
     BN_BLINDING *blinding = NULL;
 
+    LOG_E
+      
     if ((ctx = BN_CTX_new_ex(rsa->libctx)) == NULL)
         goto err;
     BN_CTX_start(ctx);
@@ -386,6 +394,8 @@ static int rsa_ossl_private_decrypt(int flen, const unsigned char *from,
      */
     BIGNUM *unblind = NULL;
     BN_BLINDING *blinding = NULL;
+    
+    LOG_E
 
     if ((ctx = BN_CTX_new_ex(rsa->libctx)) == NULL)
         goto err;
@@ -515,6 +525,8 @@ static int rsa_ossl_public_decrypt(int flen, const unsigned char *from,
     int i, num = 0, r = -1;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
+    
+    LOG_E
 
     if (BN_num_bits(rsa->n) > OPENSSL_RSA_MAX_MODULUS_BITS) {
         ERR_raise(ERR_LIB_RSA, RSA_R_MODULUS_TOO_LARGE);
@@ -983,9 +995,12 @@ static int rsa_ossl_init(RSA *rsa)
 
 static int rsa_ossl_finish(RSA *rsa)
 {
+    LOG_E
+      
 #ifndef FIPS_MODULE
     int i;
     RSA_PRIME_INFO *pinfo;
+
 
     for (i = 0; i < sk_RSA_PRIME_INFO_num(rsa->prime_infos); i++) {
         pinfo = sk_RSA_PRIME_INFO_value(rsa->prime_infos, i);

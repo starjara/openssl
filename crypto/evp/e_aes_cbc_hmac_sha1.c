@@ -28,6 +28,10 @@
 #include "internal/constant_time.h"
 #include "evp_local.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-e_aes_cbc_hmac_sha1.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 typedef struct {
     AES_KEY ks;
     SHA_CTX head, tail, md;
@@ -73,6 +77,8 @@ static int aesni_cbc_hmac_sha1_init_key(EVP_CIPHER_CTX *ctx,
     EVP_AES_HMAC_SHA1 *key = data(ctx);
     int ret;
 
+    LOG_E
+
     if (enc)
         ret = aesni_set_encrypt_key(inkey,
                                     EVP_CIPHER_CTX_get_key_length(ctx) * 8,
@@ -104,6 +110,8 @@ static void sha1_update(SHA_CTX *c, const void *data, size_t len)
 {
     const unsigned char *ptr = data;
     size_t res;
+
+    LOG_E
 
     if ((res = c->num)) {
         res = SHA_CBLOCK - res;
@@ -178,6 +186,8 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA1 *key,
 #  if defined(BSWAP8)
     u64 seqnum;
 #  endif
+
+    LOG_E
 
     /* ask for IVs in bulk */
     if (RAND_bytes((IVs = blocks[0].c), 16 * x4) <= 0)
@@ -418,6 +428,8 @@ static int aesni_cbc_hmac_sha1_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 
     sha_off = SHA_CBLOCK - key->md.num;
 # endif
+
+    LOG_E
 
     key->payload_length = NO_PAYLOAD_LENGTH;
 

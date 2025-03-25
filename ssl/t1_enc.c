@@ -21,6 +21,11 @@
 #include <openssl/core_names.h>
 #include <openssl/trace.h>
 
+/* JARA: For Dom-V */
+#include "domv/domv.h"
+#define LOG_E printf("[openssl-t1_enc.c] Enter: %s\n", __func__);
+/* End JARA */
+
 /* seed1 through seed5 are concatenated */
 static int tls1_PRF(SSL *s,
                     const void *seed1, size_t seed1_len,
@@ -36,6 +41,8 @@ static int tls1_PRF(SSL *s,
     EVP_KDF_CTX *kctx = NULL;
     OSSL_PARAM params[8], *p = params;
     const char *mdname;
+
+    LOG_E
 
     if (md == NULL) {
         /* Should never happen */
@@ -86,6 +93,8 @@ static int tls1_PRF(SSL *s,
 static int tls1_generate_key_block(SSL *s, unsigned char *km, size_t num)
 {
     int ret;
+
+    LOG_E
 
     /* Calls SSLfatal() as required */
     ret = tls1_PRF(s,
@@ -209,6 +218,8 @@ int tls1_change_cipher_state(SSL *s, int which)
 # endif
     BIO *bio;
 #endif
+
+    LOG_E
 
     c = s->s3.tmp.new_sym_enc;
     m = s->s3.tmp.new_hash;
@@ -395,6 +406,7 @@ int tls1_change_cipher_state(SSL *s, int which)
         if (!EVP_CipherInit_ex(dd, c, NULL, key, NULL, (which & SSL3_CC_WRITE))
             || EVP_CIPHER_CTX_ctrl(dd, EVP_CTRL_GCM_SET_IV_FIXED, (int)k,
                                     iv) <= 0) {
+	  printf("fatal1\n");
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
             goto err;
         }
@@ -410,11 +422,13 @@ int tls1_change_cipher_state(SSL *s, int which)
             || (EVP_CIPHER_CTX_ctrl(dd, EVP_CTRL_AEAD_SET_TAG, taglen, NULL) <= 0)
             || (EVP_CIPHER_CTX_ctrl(dd, EVP_CTRL_CCM_SET_IV_FIXED, (int)k, iv) <= 0)
             || !EVP_CipherInit_ex(dd, NULL, NULL, key, NULL, -1)) {
+	  printf("fatal2\n");
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
             goto err;
         }
     } else {
         if (!EVP_CipherInit_ex(dd, c, NULL, key, iv, (which & SSL3_CC_WRITE))) {
+	  printf("fatal3\n");
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
             goto err;
         }
@@ -535,6 +549,8 @@ int tls1_setup_key_block(SSL *s)
     size_t num, mac_secret_size = 0;
     int ret = 0;
 
+    LOG_E
+
     if (s->s3.tmp.key_block_length != 0)
         return 1;
 
@@ -556,12 +572,18 @@ int tls1_setup_key_block(SSL *s)
     num *= 2;
 
     ssl3_cleanup_key_block(s);
+    
+    /* if ((p = OPENSSL_malloc(num)) == NULL) { */
+    /*     SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_MALLOC_FAILURE); */
+    /*     goto err; */
+    /* } */
 
-    if ((p = OPENSSL_malloc(num)) == NULL) {
-        SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_MALLOC_FAILURE);
-        goto err;
-    }
-
+    /* JARA: protected region of tls key */
+    domv_enter(s->session->vmid);
+    p = domv_mmap(0x80000000, 0, 4096, PROT_READ | PROT_WRITE);
+    printf("mmap: %p\n", p);
+    /* End JARA */
+    
     s->s3.tmp.key_block_length = num;
     s->s3.tmp.key_block = p;
 
@@ -604,6 +626,9 @@ int tls1_setup_key_block(SSL *s)
         }
     }
 
+    /* JARA: For Debug */
+    printf("End of setup_key_block\n");
+    /* End of JARA */
     ret = 1;
  err:
     return ret;
@@ -615,6 +640,8 @@ size_t tls1_final_finish_mac(SSL *s, const char *str, size_t slen,
     size_t hashlen;
     unsigned char hash[EVP_MAX_MD_SIZE];
     size_t finished_size = TLS1_FINISH_MAC_LENGTH;
+
+    LOG_E
 
     if (s->s3.tmp.new_cipher->algorithm_mkey & SSL_kGOST18)
         finished_size = 32;
@@ -642,6 +669,7 @@ size_t tls1_final_finish_mac(SSL *s, const char *str, size_t slen,
 int tls1_generate_master_secret(SSL *s, unsigned char *out, unsigned char *p,
                                 size_t len, size_t *secret_size)
 {
+  LOG_E
     if (s->session->flags & SSL_SESS_FLAG_EXTMS) {
         unsigned char hash[EVP_MAX_MD_SIZE * 2];
         size_t hashlen;
@@ -710,6 +738,8 @@ int tls1_export_keying_material(SSL *s, unsigned char *out, size_t olen,
     unsigned char *val = NULL;
     size_t vallen = 0, currentvalpos;
     int rv;
+
+    LOG_E
 
     /*
      * construct PRF arguments we construct the PRF argument ourself rather

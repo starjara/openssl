@@ -15,6 +15,11 @@
 #include <openssl/core_names.h>
 #include "internal/cryptlib.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-s3_enc.c] Enter: %s\n", __func__);
+//#define LOG_E
+/* End of JARA */
+
 static int ssl3_generate_key_block(SSL *s, unsigned char *km, int num)
 {
     const EVP_MD *md5 = NULL, *sha1 = NULL;
@@ -24,6 +29,8 @@ static int ssl3_generate_key_block(SSL *s, unsigned char *km, int num)
     unsigned char c = 'A';
     unsigned int i, k;
     int ret = 0;
+
+    LOG_E
 
 #ifdef CHARSET_EBCDIC
     c = os_toascii[c];          /* 'A' in ASCII */
@@ -250,6 +257,8 @@ int ssl3_setup_key_block(SSL *s)
     int ret = 0;
     SSL_COMP *comp;
 
+    LOG_E
+
     if (s->s3.tmp.key_block_length != 0)
         return 1;
 
@@ -311,14 +320,23 @@ int ssl3_setup_key_block(SSL *s)
 
 void ssl3_cleanup_key_block(SSL *s)
 {
+  // OPENSSL_clear_free(s->s3.tmp.key_block, s->s3.tmp.key_block_length);
+  /* JARA: munmap session key */
+  if(s->s3.tmp.key_block != 0x80000000)
     OPENSSL_clear_free(s->s3.tmp.key_block, s->s3.tmp.key_block_length);
-    s->s3.tmp.key_block = NULL;
-    s->s3.tmp.key_block_length = 0;
+  else
+    domv_munmap(s->s3.tmp.key_block);
+  /* End of JARA */
+  
+  s->s3.tmp.key_block = NULL;
+  s->s3.tmp.key_block_length = 0;
 }
 
 int ssl3_init_finished_mac(SSL *s)
 {
     BIO *buf = BIO_new(BIO_s_mem());
+
+    LOG_E
 
     if (buf == NULL) {
         SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_MALLOC_FAILURE);
@@ -347,6 +365,8 @@ int ssl3_finish_mac(SSL *s, const unsigned char *buf, size_t len)
 {
     int ret;
 
+    LOG_E
+
     if (s->s3.handshake_dgst == NULL) {
         /* Note: this writes to a memory BIO so a failure is a fatal error */
         if (len > INT_MAX) {
@@ -360,6 +380,7 @@ int ssl3_finish_mac(SSL *s, const unsigned char *buf, size_t len)
         }
     } else {
         ret = EVP_DigestUpdate(s->s3.handshake_dgst, buf, len);
+	printf("ret: %d\n");
         if (!ret) {
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
             return 0;
@@ -373,6 +394,8 @@ int ssl3_digest_cached_records(SSL *s, int keep)
     const EVP_MD *md;
     long hdatalen;
     void *hdata;
+
+    LOG_E
 
     if (s->s3.handshake_dgst == NULL) {
         hdatalen = BIO_get_mem_data(s->s3.handshake_buffer, &hdata);
@@ -422,6 +445,8 @@ size_t ssl3_final_finish_mac(SSL *s, const char *sender, size_t len,
 {
     int ret;
     EVP_MD_CTX *ctx = NULL;
+
+    LOG_E
 
     if (!ssl3_digest_cached_records(s, 0)) {
         /* SSLfatal() already called */
@@ -473,6 +498,8 @@ size_t ssl3_final_finish_mac(SSL *s, const char *sender, size_t len,
 int ssl3_generate_master_secret(SSL *s, unsigned char *out, unsigned char *p,
                                 size_t len, size_t *secret_size)
 {
+  LOG_E
+    
     static const unsigned char *salt[3] = {
 #ifndef CHARSET_EBCDIC
         (const unsigned char *)"A",

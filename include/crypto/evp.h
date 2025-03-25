@@ -717,6 +717,7 @@ struct evp_pkey_st {
         int security_bits;
         int size;
     } cache;
+
 } /* EVP_PKEY */ ;
 
 #define EVP_PKEY_CTX_IS_SIGNATURE_OP(ctx) \

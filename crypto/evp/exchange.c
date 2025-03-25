@@ -18,6 +18,9 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
+/* JARA: For Dom-v */
+#define LOG_E printf("[openssl-exchange.c] Enter: %s\n", __func__);
+
 static EVP_KEYEXCH *evp_keyexch_new(OSSL_PROVIDER *prov)
 {
     EVP_KEYEXCH *exchange = OPENSSL_zalloc(sizeof(EVP_KEYEXCH));
@@ -505,6 +508,8 @@ int EVP_PKEY_derive_set_peer(EVP_PKEY_CTX *ctx, EVP_PKEY *peer)
 int EVP_PKEY_derive(EVP_PKEY_CTX *ctx, unsigned char *key, size_t *pkeylen)
 {
     int ret;
+
+    LOG_E
 
     if (ctx == NULL || pkeylen == NULL) {
         ERR_raise(ERR_LIB_EVP, ERR_R_PASSED_NULL_PARAMETER);

@@ -16,6 +16,10 @@
 #include "prov/providercommon.h"
 #include "prov/provider_ctx.h"
 
+/* JARA: For Dom-v */
+#define LOG_E printf("[openssl-ciphercommon_gcm.c] Enter: %s\n", __func__);
+/* End JARA */
+
 static int gcm_tls_init(PROV_GCM_CTX *dat, unsigned char *aad, size_t aad_len);
 static int gcm_tls_iv_set_fixed(PROV_GCM_CTX *ctx, unsigned char *iv,
                                 size_t len);
@@ -50,6 +54,8 @@ static int gcm_init(void *vctx, const unsigned char *key, size_t keylen,
                     const OSSL_PARAM params[], int enc)
 {
     PROV_GCM_CTX *ctx = (PROV_GCM_CTX *)vctx;
+
+    LOG_E
 
     if (!ossl_prov_is_running())
         return 0;
@@ -110,6 +116,7 @@ static void ctr64_inc(unsigned char *counter)
 
 static int getivgen(PROV_GCM_CTX *ctx, unsigned char *out, size_t olen)
 {
+  LOG_E
     if (!ctx->iv_gen
         || !ctx->key_set
         || !ctx->hw->setiv(ctx, ctx->iv, ctx->ivlen))
@@ -128,6 +135,7 @@ static int getivgen(PROV_GCM_CTX *ctx, unsigned char *out, size_t olen)
 
 static int setivinv(PROV_GCM_CTX *ctx, unsigned char *in, size_t inl)
 {
+  LOG_E
     if (!ctx->iv_gen
         || !ctx->key_set
         || ctx->enc)
@@ -145,6 +153,8 @@ int ossl_gcm_get_ctx_params(void *vctx, OSSL_PARAM params[])
     PROV_GCM_CTX *ctx = (PROV_GCM_CTX *)vctx;
     OSSL_PARAM *p;
     size_t sz;
+
+    LOG_E
 
     p = OSSL_PARAM_locate(params, OSSL_CIPHER_PARAM_IVLEN);
     if (p != NULL && !OSSL_PARAM_set_size_t(p, ctx->ivlen)) {
@@ -234,6 +244,8 @@ int ossl_gcm_set_ctx_params(void *vctx, const OSSL_PARAM params[])
     size_t sz;
     void *vp;
 
+    LOG_E
+
     if (params == NULL)
         return 1;
 
@@ -302,7 +314,7 @@ int ossl_gcm_set_ctx_params(void *vctx, const OSSL_PARAM params[])
             return 0;
     }
 
-
+    printf("end of ossl_gcm_set_ctx_params\n");
     return 1;
 }
 
@@ -310,6 +322,8 @@ int ossl_gcm_stream_update(void *vctx, unsigned char *out, size_t *outl,
                            size_t outsize, const unsigned char *in, size_t inl)
 {
     PROV_GCM_CTX *ctx = (PROV_GCM_CTX *)vctx;
+
+    LOG_E
 
     if (inl == 0) {
         *outl = 0;
@@ -334,6 +348,8 @@ int ossl_gcm_stream_final(void *vctx, unsigned char *out, size_t *outl,
     PROV_GCM_CTX *ctx = (PROV_GCM_CTX *)vctx;
     int i;
 
+    LOG_E
+
     if (!ossl_prov_is_running())
         return 0;
 
@@ -350,6 +366,8 @@ int ossl_gcm_cipher(void *vctx,
                     const unsigned char *in, size_t inl)
 {
     PROV_GCM_CTX *ctx = (PROV_GCM_CTX *)vctx;
+
+    LOG_E
 
     if (!ossl_prov_is_running())
         return 0;
@@ -398,6 +416,8 @@ static int gcm_cipher_internal(PROV_GCM_CTX *ctx, unsigned char *out,
     int rv = 0;
     const PROV_GCM_HW *hw = ctx->hw;
 
+    LOG_E
+
     if (ctx->tls_aad_len != UNINITIALISED_SIZET)
         return gcm_tls_cipher(ctx, out, padlen, in, len);
 
@@ -445,6 +465,7 @@ finish:
     rv = 1;
 err:
     *padlen = olen;
+    printf("gcm_cipher_internal ret: %d\n", rv);
     return rv;
 }
 
@@ -452,6 +473,9 @@ static int gcm_tls_init(PROV_GCM_CTX *dat, unsigned char *aad, size_t aad_len)
 {
     unsigned char *buf;
     size_t len;
+
+    LOG_E
+      printf("dat: %p\taad:%p\n", dat, aad);
 
     if (!ossl_prov_is_running() || aad_len != EVP_AEAD_TLS1_AAD_LEN)
        return 0;
@@ -482,9 +506,18 @@ static int gcm_tls_init(PROV_GCM_CTX *dat, unsigned char *aad, size_t aad_len)
 static int gcm_tls_iv_set_fixed(PROV_GCM_CTX *ctx, unsigned char *iv,
                                 size_t len)
 {
+  LOG_E
+      printf("ctx->iv: %p\tiv: %p\n", ctx->iv, iv);
     /* Special case: -1 length restores whole IV */
     if (len == (size_t)-1) {
+      /* JARA: memcpy replace */
+      if(0x80000000 <= (unsigned long) iv && (unsigned long) iv <= 0x80001000) {
+	domv_read(iv, ctx->iv, ctx->ivlen, 0);
+      }
+      else {
         memcpy(ctx->iv, iv, ctx->ivlen);
+      }
+      /* End of JARA */
         ctx->iv_gen = 1;
         ctx->iv_state = IV_STATE_BUFFERED;
         return 1;
@@ -494,7 +527,14 @@ static int gcm_tls_iv_set_fixed(PROV_GCM_CTX *ctx, unsigned char *iv,
         || (ctx->ivlen - (int)len) < EVP_GCM_TLS_EXPLICIT_IV_LEN)
             return 0;
     if (len > 0)
+      /* JARA: memcpy replace */
+      if(0x80000000 <= (unsigned long) iv && (unsigned long) iv <= 0x80001000) {
+	domv_read(iv, ctx->iv, len, 0);
+      }
+      else {
         memcpy(ctx->iv, iv, len);
+      }
+      /* End of JARA */
     if (ctx->enc
         && RAND_bytes_ex(ctx->libctx, ctx->iv + len, ctx->ivlen - len, 0) <= 0)
             return 0;
@@ -517,12 +557,17 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
     size_t plen = 0;
     unsigned char *tag = NULL;
 
+    LOG_E
+      printf("ctx: %p\tout: %p\tin: %p\n", ctx, out, in);
+
     if (!ossl_prov_is_running() || !ctx->key_set)
         goto err;
+    printf("ctx->key_set\n");
 
     /* Encrypt/decrypt must be performed in place */
     if (out != in || len < (EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN))
         goto err;
+    printf("out != in\n");
 
     /*
      * Check for too many keys as per FIPS 140-2 IG A.5 "Key/IV Pair Uniqueness
@@ -534,6 +579,7 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
         ERR_raise(ERR_LIB_PROV, PROV_R_TOO_MANY_RECORDS);
         goto err;
     }
+    printf("end of tls_enc_records\n");
 
     /*
      * Set IV from start of buffer or generate IV and write to start of
@@ -546,6 +592,7 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
         if (!setivinv(ctx, out, arg))
             goto err;
     }
+    printf("end of ctx->enc\n");
 
     /* Fix buffer and length to point to payload */
     in += EVP_GCM_TLS_EXPLICIT_IV_LEN;
@@ -559,6 +606,7 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
             OPENSSL_cleanse(out, len);
         goto err;
     }
+    printf("end of oneshot\n");
     if (ctx->enc)
         plen =  len + EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN;
     else
@@ -569,5 +617,6 @@ err:
     ctx->iv_state = IV_STATE_FINISHED;
     ctx->tls_aad_len = UNINITIALISED_SIZET;
     *padlen = plen;
+    printf("tls_cipher ret: %d\n", rv);
     return rv;
 }

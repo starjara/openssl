@@ -28,6 +28,11 @@
 #include <openssl/param_build.h>
 #include "internal/cryptlib.h"
 
+/* JARA: For Dom-V */
+// #define LOG_E printf("[openssl-statem_clnt.c] Enter: %s\n", __func__);
+#define LOG_E
+/* End of JARA */
+
 static MSG_PROCESS_RETURN tls_process_as_hello_retry_request(SSL *s, PACKET *pkt);
 static MSG_PROCESS_RETURN tls_process_encrypted_extensions(SSL *s, PACKET *pkt);
 
@@ -3426,6 +3431,8 @@ WORK_STATE tls_prepare_client_certificate(SSL *s, WORK_STATE wst)
     EVP_PKEY *pkey = NULL;
     int i;
 
+    LOG_E
+
     if (wst == WORK_MORE_A) {
         /* Let cert callback update client certificates if required */
         if (s->cert->cert_cb) {
@@ -3501,6 +3508,7 @@ WORK_STATE tls_prepare_client_certificate(SSL *s, WORK_STATE wst)
 
 int tls_construct_client_certificate(SSL *s, WPACKET *pkt)
 {
+  LOG_E
     if (SSL_IS_TLS13(s)) {
         if (s->pha_context == NULL) {
             /* no context available, add 0-length context */
@@ -3601,6 +3609,7 @@ int tls_construct_next_proto(SSL *s, WPACKET *pkt)
 
 MSG_PROCESS_RETURN tls_process_hello_req(SSL *s, PACKET *pkt)
 {
+  LOG_E
     if (PACKET_remaining(pkt) > 0) {
         /* should contain no data */
         SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_R_LENGTH_MISMATCH);
@@ -3675,6 +3684,8 @@ int ssl_cipher_list_to_bytes(SSL *s, STACK_OF(SSL_CIPHER) *sk, WPACKET *pkt)
     int i;
     size_t totlen = 0, len, maxlen, maxverok = 0;
     int empty_reneg_info_scsv = !s->renegotiate;
+
+    LOG_E
 
     /* Set disabled masks for this session */
     if (!ssl_set_client_disabled(s)) {

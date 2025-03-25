@@ -32,6 +32,10 @@
 #endif
 #include <openssl/sha.h>
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-s3_cbc.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 char ssl3_cbc_record_digest_supported(const EVP_MD_CTX *ctx);
 int ssl3_cbc_digest_record(const EVP_MD *md,
                            unsigned char *md_out,
@@ -118,6 +122,8 @@ static void tls1_sha256_final_raw(void *ctx, unsigned char *md_out)
     SHA256_CTX *sha256 = ctx;
     unsigned i;
 
+    LOG_E
+
     for (i = 0; i < 8; i++) {
         l2n(sha256->h[i], md_out);
     }
@@ -127,6 +133,8 @@ static void tls1_sha512_final_raw(void *ctx, unsigned char *md_out)
 {
     SHA512_CTX *sha512 = ctx;
     unsigned i;
+
+    LOG_E
 
     for (i = 0; i < 8; i++) {
         l2n8(sha512->h[i], md_out);
@@ -191,6 +199,8 @@ int ssl3_cbc_digest_record(const EVP_MD *md,
     size_t md_length_size = 8;
     char length_is_big_endian = 1;
     int ret = 0;
+
+    LOG_E
 
     /*
      * This is a, hopefully redundant, check that allows us to forget about

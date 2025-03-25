@@ -10,9 +10,13 @@
 #include "prov/ciphercommon.h"
 #include "prov/ciphercommon_gcm.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-ciphercommon_gcm_hw.c] Enter: %s\n", __func__);
+
 
 int ossl_gcm_setiv(PROV_GCM_CTX *ctx, const unsigned char *iv, size_t ivlen)
 {
+  LOG_E
     CRYPTO_gcm128_setiv(&ctx->gcm, iv, ivlen);
     return 1;
 }
@@ -20,12 +24,14 @@ int ossl_gcm_setiv(PROV_GCM_CTX *ctx, const unsigned char *iv, size_t ivlen)
 int ossl_gcm_aad_update(PROV_GCM_CTX *ctx, const unsigned char *aad,
                         size_t aad_len)
 {
+  LOG_E
     return CRYPTO_gcm128_aad(&ctx->gcm, aad, aad_len) == 0;
 }
 
 int ossl_gcm_cipher_update(PROV_GCM_CTX *ctx, const unsigned char *in,
                            size_t len, unsigned char *out)
 {
+  LOG_E
     if (ctx->enc) {
         if (CRYPTO_gcm128_encrypt(&ctx->gcm, in, out, len))
             return 0;
@@ -38,6 +44,8 @@ int ossl_gcm_cipher_update(PROV_GCM_CTX *ctx, const unsigned char *in,
 
 int ossl_gcm_cipher_final(PROV_GCM_CTX *ctx, unsigned char *tag)
 {
+  LOG_E
+    printf("ctx->enc: %p\n", ctx->enc);
     if (ctx->enc) {
         CRYPTO_gcm128_tag(&ctx->gcm, tag, GCM_TAG_MAX_SIZE);
         ctx->taglen = GCM_TAG_MAX_SIZE;
@@ -52,6 +60,7 @@ int ossl_gcm_one_shot(PROV_GCM_CTX *ctx, unsigned char *aad, size_t aad_len,
                       const unsigned char *in, size_t in_len,
                       unsigned char *out, unsigned char *tag, size_t tag_len)
 {
+  LOG_E
     int ret = 0;
 
     /* Use saved AAD */

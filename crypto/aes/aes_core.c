@@ -50,6 +50,11 @@
 #include <openssl/aes.h>
 #include "aes_local.h"
 
+/* JARA: For dom-v */
+#include "domv/domv.h"
+#define LOG_E printf("[openssl-aes_core.c] Enter: %s\n", __func__);
+/* End of JARA */
+
 #if defined(OPENSSL_AES_CONST_TIME) && !defined(AES_ASM)
 
 # if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
@@ -536,6 +541,9 @@ static void Cipher(const unsigned char *in, unsigned char *out,
     u64 state[2];
     int i;
 
+    LOG_E
+      printf("in: %p\tout: %p\tw: %p\n", in, out, w);
+
     memcpy(state, in, 16);
 
     AddRoundKey(state, w);
@@ -562,6 +570,8 @@ static void InvCipher(const unsigned char *in, unsigned char *out,
 {
     u64 state[2];
     int i;
+
+    LOG_E
 
     memcpy(state, in, 16);
 
@@ -633,6 +643,9 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 {
     u64 *rk;
 
+    LOG_E
+      printf("set_encrypt_key1\n");
+
     if (!userKey || !key)
         return -1;
     if (bits != 128 && bits != 192 && bits != 256)
@@ -657,6 +670,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
                         AES_KEY *key)
 {
+  LOG_E
     return AES_set_encrypt_key(userKey, bits, key);
 }
 
@@ -668,6 +682,8 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
                  const AES_KEY *key)
 {
     const u64 *rk;
+
+    LOG_E
 
     assert(in && out && key);
     rk = (u64*)key->rd_key;
@@ -684,6 +700,8 @@ void AES_decrypt(const unsigned char *in, unsigned char *out,
 {
     const u64 *rk;
 
+    LOG_E
+    
     assert(in && out && key);
     rk = (u64*)key->rd_key;
 
@@ -1283,6 +1301,11 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     int i = 0;
     u32 temp;
 
+    LOG_E
+      printf("set_encrypt_key2\n");
+    printf("userKey: %p\tkey: %p\trk: %p\n", userKey, key, key->rd_key);
+    unsigned char tempstr[4];
+
     if (!userKey || !key)
         return -1;
     if (bits != 128 && bits != 192 && bits != 256)
@@ -1297,12 +1320,28 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     else
         key->rounds = 14;
 
-    rk[0] = GETU32(userKey     );
-    rk[1] = GETU32(userKey +  4);
-    rk[2] = GETU32(userKey +  8);
-    rk[3] = GETU32(userKey + 12);
+    /* JARA: Dom-V get userKey */
+    if(0x80000000 <= (unsigned long) userKey && (unsigned long) userKey <= 0x80001000) {
+      //domv_read(userKey, rk, sizeof(u32) * 4, 0);
+
+      domv_read(userKey, tempstr, sizeof(u32), 0);
+      rk[0] = GETU32(tempstr);
+      domv_read(userKey + 4, tempstr, sizeof(u32), 0);
+      rk[1] = GETU32(tempstr);
+      domv_read(userKey + 8, tempstr, sizeof(u32), 0);
+      rk[2] = GETU32(tempstr);
+      domv_read(userKey + 12, tempstr, sizeof(u32), 0);
+      rk[3] = GETU32(tempstr);
+    }
+    else {
+      rk[0] = GETU32(userKey     );
+      rk[1] = GETU32(userKey +  4);
+      rk[2] = GETU32(userKey +  8);
+      rk[3] = GETU32(userKey + 12);
+    }
+    /* End of JARA */
     if (bits == 128) {
-        while (1) {
+      while (1) {
             temp  = rk[3];
             rk[4] = rk[0] ^
                 (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
@@ -1319,8 +1358,19 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk += 4;
         }
     }
-    rk[4] = GETU32(userKey + 16);
-    rk[5] = GETU32(userKey + 20);
+    /* JARA: Dom-V get userKey */
+    if(0x80000000 <= (unsigned long) userKey && (unsigned long) userKey <= 0x80001000) {
+      domv_read(userKey + 16, tempstr, sizeof(u32), 0);
+      rk[4] = GETU32(tempstr);
+      domv_read(userKey + 20, tempstr, sizeof(u32), 0);
+      rk[5] = GETU32(tempstr);
+    }
+    else {
+	rk[4] = GETU32(userKey + 16); 
+	rk[5] = GETU32(userKey + 20);
+    }
+    /* End of JARA */
+
     if (bits == 192) {
         while (1) {
             temp = rk[ 5];
@@ -1341,8 +1391,18 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk += 6;
         }
     }
-    rk[6] = GETU32(userKey + 24);
-    rk[7] = GETU32(userKey + 28);
+    /* JARA: Dom-V get userKey */
+    if(0x80000000 <= (unsigned long) userKey && (unsigned long) userKey <= 0x80001000) {
+      domv_read(userKey + 24, tempstr, sizeof(u32), 0);
+      rk[6] = GETU32(tempstr);
+      domv_read(userKey + 28, tempstr, sizeof(u32), 0);
+      rk[7] = GETU32(tempstr);
+    }
+    else { 
+      rk[6] = GETU32(userKey + 24);
+      rk[7] = GETU32(userKey + 28);
+    }
+    /* End of JARA */
     if (bits == 256) {
         while (1) {
             temp = rk[ 7];
@@ -1384,6 +1444,8 @@ int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
     u32 *rk;
     int i, j, status;
     u32 temp;
+
+    LOG_E
 
     /* first, start with an encryption schedule */
     status = AES_set_encrypt_key(userKey, bits, key);
@@ -1438,6 +1500,12 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
 #ifndef FULL_UNROLL
     int r;
 #endif /* ?FULL_UNROLL */
+
+    int temp;
+    LOG_E
+      // No need
+      printf("in: %p\tout: %p\tkey->rd_key: %p\n", in, out, key->rd_key);
+
 
     assert(in && out && key);
     rk = key->rd_key;
@@ -1630,6 +1698,8 @@ void AES_decrypt(const unsigned char *in, unsigned char *out,
 #ifndef FULL_UNROLL
     int r;
 #endif /* ?FULL_UNROLL */
+
+    LOG_E
 
     assert(in && out && key);
     rk = key->rd_key;
@@ -1861,6 +1931,9 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     int i = 0;
     u32 temp;
 
+    LOG_E
+      printf("set_encrypt_key3\n");
+
     if (!userKey || !key)
         return -1;
     if (bits != 128 && bits != 192 && bits != 256)
@@ -1962,6 +2035,8 @@ int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
     u32 *rk;
     int i, j, status;
     u32 temp;
+
+    LOG_E
 
     /* first, start with an encryption schedule */
     status = AES_set_encrypt_key(userKey, bits, key);

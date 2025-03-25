@@ -59,6 +59,11 @@
 #include "internal/cryptlib.h"
 #include "crypto/sha.h"
 
+/* JARA: For Dom-V */
+#define LOG_E printf("[openssl-sha512.c] Enter: %s\n", __func__);
+/* End of JARA */
+
+
 #if defined(__i386) || defined(__i386__) || defined(_M_IX86) || \
     defined(__x86_64) || defined(_M_AMD64) || defined(_M_X64) || \
     defined(__s390__) || defined(__s390x__) || \
@@ -156,6 +161,8 @@ int SHA512_Final(unsigned char *md, SHA512_CTX *c)
 {
     unsigned char *p = (unsigned char *)c->u.p;
     size_t n = c->num;
+
+    LOG_E
 
     p[n] = 0x80;                /* There always is a room for one */
     n++;

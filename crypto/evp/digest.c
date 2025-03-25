@@ -25,6 +25,10 @@
 #include "crypto/evp.h"
 #include "evp_local.h"
 
+/* JARA: For dom-v */
+#define LOG_E printf("[openssl-digest.c] Enter: %s\n", __func__);
+/* End JARA */
+
 static void cleanup_old_md_data(EVP_MD_CTX *ctx, int force)
 {
     if (ctx->digest != NULL) {
@@ -134,6 +138,7 @@ EVP_MD_CTX *EVP_MD_CTX_new(void)
 
 void EVP_MD_CTX_free(EVP_MD_CTX *ctx)
 {
+  LOG_E
     if (ctx == NULL)
         return;
 
@@ -377,6 +382,8 @@ int EVP_DigestUpdate(EVP_MD_CTX *ctx, const void *data, size_t count)
     if (count == 0)
         return 1;
 
+    LOG_E
+
     if (ctx->pctx != NULL
             && EVP_PKEY_CTX_IS_SIGNATURE_OP(ctx->pctx)
             && ctx->pctx->op.sig.algctx != NULL) {
@@ -416,6 +423,7 @@ int EVP_DigestUpdate(EVP_MD_CTX *ctx, const void *data, size_t count)
 int EVP_DigestFinal(EVP_MD_CTX *ctx, unsigned char *md, unsigned int *size)
 {
     int ret;
+    LOG_E
     ret = EVP_DigestFinal_ex(ctx, md, size);
     EVP_MD_CTX_reset(ctx);
     return ret;
@@ -427,6 +435,8 @@ int EVP_DigestFinal_ex(EVP_MD_CTX *ctx, unsigned char *md, unsigned int *isize)
     int ret, sz;
     size_t size = 0;
     size_t mdsize = 0;
+
+    LOG_E
 
     if (ctx->digest == NULL)
         return 0;
@@ -443,7 +453,11 @@ int EVP_DigestFinal_ex(EVP_MD_CTX *ctx, unsigned char *md, unsigned int *isize)
         return 0;
     }
 
+    printf("Before dfinal\n");
+    printf("md: %p\n", md);
+    printf("type: %s\n", OBJ_nid2ln(ctx->digest->type));
     ret = ctx->digest->dfinal(ctx->algctx, md, &size, mdsize);
+    printf("After dfinal\n");
 
     if (isize != NULL) {
         if (size <= UINT_MAX) {
@@ -524,6 +538,8 @@ int EVP_MD_CTX_copy_ex(EVP_MD_CTX *out, const EVP_MD_CTX *in)
 {
     int digest_change = 0;
     unsigned char *tmp_buf;
+
+    LOG_E
 
     if (in == NULL) {
         ERR_raise(ERR_LIB_EVP, ERR_R_PASSED_NULL_PARAMETER);
@@ -649,6 +665,8 @@ int EVP_Digest(const void *data, size_t count,
 {
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     int ret;
+
+    LOG_E
 
     if (ctx == NULL)
         return 0;

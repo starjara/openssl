@@ -22,6 +22,10 @@
 #include <openssl/core_names.h>
 #include "hmac_local.h"
 
+/* JARA: For dom-v */
+#define LOG_E printf("[openssl-hmac.c] Enter: %s\n", __func__);
+/* End JARA */
+
 int HMAC_Init_ex(HMAC_CTX *ctx, const void *key, int len,
                  const EVP_MD *md, ENGINE *impl)
 {
@@ -30,6 +34,8 @@ int HMAC_Init_ex(HMAC_CTX *ctx, const void *key, int len,
     unsigned char pad[HMAC_MAX_MD_CBLOCK_SIZE];
     unsigned int keytmp_length;
     unsigned char keytmp[HMAC_MAX_MD_CBLOCK_SIZE];
+
+    LOG_E
 
     /* If we are changing MD then we must have a key */
     if (md != NULL && md != ctx->md && (key == NULL || len < 0))
@@ -118,6 +124,8 @@ int HMAC_Final(HMAC_CTX *ctx, unsigned char *md, unsigned int *len)
 {
     unsigned int i;
     unsigned char buf[EVP_MAX_MD_SIZE];
+
+    LOG_E
 
     if (!ctx->md)
         goto err;
