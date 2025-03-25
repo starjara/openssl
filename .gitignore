@@ -1,6 +1,9 @@
 # Ignore editor artefacts
 /.dir-locals.el
 
+# Build folder
+/.openssl
+
 # Top level excludes
 /Makefile.in
 /Makefile
