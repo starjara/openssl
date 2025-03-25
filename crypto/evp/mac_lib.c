@@ -20,7 +20,8 @@
 #include "evp_local.h"
 
 /* JARA: For Dom-v */
-#define LOG_E printf("[openssl-mac_lib.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-mac_lib.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 EVP_MAC_CTX *EVP_MAC_CTX_new(EVP_MAC *mac)

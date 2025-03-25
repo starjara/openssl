@@ -22,7 +22,8 @@
 
 /* JARA: For Dom-V */
 #include "domv/domv.h"
-#define LOG_E printf("[openssl-ssl_sess.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-ssl_sess.c] Enter: %s\n", __func__);
+#define LOG_E
 static int domcount = 0;
 /* End of JARA */
 
@@ -163,6 +164,9 @@ SSL_SESSION *SSL_SESSION_new(void)
     domcount ++;
     ss->vmid = domcount;
     domv_create(ss->vmid);
+    if(domcount >= 1000) {
+      domcount = 0;
+    }
     /* End JARA */
     
     return ss;

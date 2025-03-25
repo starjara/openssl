@@ -29,7 +29,8 @@
 # include "crypto/evp.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-e_rc4_hmac_md5.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-e_rc4_hmac_md5.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 typedef struct {

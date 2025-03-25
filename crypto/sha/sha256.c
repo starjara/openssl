@@ -25,7 +25,8 @@
 
 /* JARA: For Dom-V */
 #include "domv/domv.h"
-#define LOG_E printf("[openssl-sha256.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-sha256.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 int SHA224_Init(SHA256_CTX *c)

@@ -19,7 +19,8 @@
 #include <openssl/crypto.h>
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-md5_one.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-md5_one.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 #ifdef CHARSET_EBCDIC

@@ -11,7 +11,8 @@
 #include "prov/ciphercommon_gcm.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-ciphercommon_gcm_hw.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-ciphercommon_gcm_hw.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 

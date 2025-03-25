@@ -17,7 +17,9 @@
 #include "prov/provider_ctx.h"
 
 /* JARA: For Dom-v */
-#define LOG_E printf("[openssl-ciphercommon_gcm.c] Enter: %s\n", __func__);
+#include "domv/domv.h"
+//#define LOG_E printf("[openssl-ciphercommon_gcm.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 static int gcm_tls_init(PROV_GCM_CTX *dat, unsigned char *aad, size_t aad_len);

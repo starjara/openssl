@@ -775,8 +775,6 @@ int EVP_PKEY_assign(EVP_PKEY *pkey, int type, void *key)
 #  ifndef OPENSSL_NO_EC
     int pktype;
 
-    printf("\t#ifndef OPENSSL_NO_EC\n");
-
     pktype = EVP_PKEY_type(type);
     if ((key != NULL) && (pktype == EVP_PKEY_EC || pktype == EVP_PKEY_SM2)) {
         const EC_GROUP *group = EC_KEY_get0_group(key);
@@ -795,8 +793,6 @@ int EVP_PKEY_assign(EVP_PKEY *pkey, int type, void *key)
         }
     }
 #  endif
-    printf("\t#endif\n");
-
     if (pkey == NULL || !EVP_PKEY_set_type(pkey, type))
         return 0;
 

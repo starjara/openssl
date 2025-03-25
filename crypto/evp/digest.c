@@ -26,7 +26,8 @@
 #include "evp_local.h"
 
 /* JARA: For dom-v */
-#define LOG_E printf("[openssl-digest.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-digest.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 static void cleanup_old_md_data(EVP_MD_CTX *ctx, int force)

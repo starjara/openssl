@@ -36,7 +36,8 @@
 
 /* JARA: For Dom-v */
 #include "domv/domv.h"
-#define LOG_E printf("[openssl-hkdf.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-hkdf.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 static OSSL_FUNC_kdf_newctx_fn kdf_hkdf_new;

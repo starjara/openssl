@@ -230,7 +230,7 @@ int HASH_FINAL(unsigned char *md, HASH_CTX *c)
     unsigned char *p = (unsigned char *)c->data;
     size_t n = c->num;
 
-    printf("[openssl-md32_common.h] Enter: %s\n", __func__);
+    //printf("[openssl-md32_common.h] Enter: %s\n", __func__);
 
     p[n] = 0x80;                /* there is always room for one */
     n++;

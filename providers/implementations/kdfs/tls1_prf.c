@@ -64,7 +64,8 @@
 
 /* JARA: For dom-v */
 #include "domv/domv.h"
-#define LOG_E printf("[openssl-tls1_prf.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-tls1_prf.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 static OSSL_FUNC_kdf_newctx_fn kdf_tls1_prf_new;

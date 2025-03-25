@@ -10,7 +10,8 @@
 #include "ssl_local.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-s3_msg.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-s3_msg.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 int ssl3_do_change_cipher_spec(SSL *s)

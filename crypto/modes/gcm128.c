@@ -14,7 +14,8 @@
 #include "crypto/modes.h"
 
 /* JARA: For Dom-v */
-#define LOG_E printf("[openssl-gcm128.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-gcm128.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 #if defined(__GNUC__) && !defined(STRICT_ALIGNMENT)

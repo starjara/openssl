@@ -19,7 +19,9 @@
 #include "evp_local.h"
 
 /* JARA: For Dom-v */
-#define LOG_E printf("[openssl-exchange.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-exchange.c] Enter: %s\n", __func__);
+#define LOG_E
+/* End of JARA */
 
 static EVP_KEYEXCH *evp_keyexch_new(OSSL_PROVIDER *prov)
 {

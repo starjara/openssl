@@ -26,7 +26,8 @@
 #include "internal/ktls.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-ssl_lib.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-ssl_lib.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 static int ssl_undefined_function_1(SSL *ssl, SSL3_RECORD *r, size_t s, int t,

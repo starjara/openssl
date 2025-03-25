@@ -21,7 +21,8 @@
 #include "evp_local.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-kdf_lib.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-kdf_lib.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 EVP_KDF_CTX *EVP_KDF_CTX_new(EVP_KDF *kdf)

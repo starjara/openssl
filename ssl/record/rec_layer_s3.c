@@ -29,7 +29,8 @@
 
 /* JARA: For Dom-v */
 #include "domv/domv.h"
-#define LOG_E printf("[openssl-rec_layer_s3.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-rec_layer_s3.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 void RECORD_LAYER_init(RECORD_LAYER *rl, SSL *s)

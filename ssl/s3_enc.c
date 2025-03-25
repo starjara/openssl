@@ -16,8 +16,9 @@
 #include "internal/cryptlib.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-s3_enc.c] Enter: %s\n", __func__);
-//#define LOG_E
+#include "domv/domv.h"
+//#define LOG_E printf("[openssl-s3_enc.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 static int ssl3_generate_key_block(SSL *s, unsigned char *km, int num)

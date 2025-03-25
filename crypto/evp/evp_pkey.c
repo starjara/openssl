@@ -20,7 +20,8 @@
 #include "crypto/x509.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-evp_pkey.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-evp_pkey.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 /* Extract a private key from a PKCS8 structure */

@@ -19,7 +19,8 @@
 #include "prov/implementations.h"
 
 /* JARA: for dom-v */
-#define LOG_E printf("[openssl-sha3_prov.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-sha3_prov.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 #define SHA3_FLAGS PROV_DIGEST_FLAG_ALGID_ABSENT

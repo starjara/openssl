@@ -18,7 +18,8 @@
 #include <openssl/evp.h>
 
 /* JARA: for dom-v */
-#define LOG_E printf("[openssl-md5_sha1.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-md5_sha1.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 int ossl_md5_sha1_init(MD5_SHA1_CTX *mctx)

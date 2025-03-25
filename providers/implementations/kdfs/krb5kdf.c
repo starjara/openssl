@@ -32,7 +32,8 @@
 #include "prov/providercommon.h"
 
 /* JARA: For Dom-v */
-#define LOG_E printf("[openssl-krb5kdf.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-krb5kdf.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 /* KRB5 KDF defined in RFC 3961, Section 5.1 */

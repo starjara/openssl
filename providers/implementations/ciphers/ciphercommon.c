@@ -19,7 +19,8 @@
 #include "prov/providercommon.h"
 
 /* JARA: For dom-v */
-#define LOG_E printf("[openssl-ciphercommon.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-ciphercommon.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 /*-

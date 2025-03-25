@@ -35,7 +35,8 @@
 #define RSA_DEFAULT_DIGEST_NAME OSSL_DIGEST_NAME_SHA1
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-rsa_sig.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-rsa_sig.c] Enter: %s\n", __func__);
+#define LOG_E
 
 static OSSL_FUNC_signature_newctx_fn rsa_newctx;
 static OSSL_FUNC_signature_sign_init_fn rsa_sign_init;

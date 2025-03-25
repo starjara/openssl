@@ -23,7 +23,8 @@
 
 /* JARA: For dom-v */
 #include "domv/domv.h"
-#define LOG_E printf("[openssl-s3_lib.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-s3_lib.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 #define TLS13_NUM_CIPHERS       OSSL_NELEM(tls13_ciphers)

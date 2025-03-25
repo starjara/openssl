@@ -15,7 +15,8 @@
 #include "prov/providercommon.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-ciphercommon_ccm.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-ciphercommon_ccm.c] Enter: %s\n", __func__);
+#define LOG_E
 
 static int ccm_cipher_internal(PROV_CCM_CTX *ctx, unsigned char *out,
                                size_t *padlen, const unsigned char *in,

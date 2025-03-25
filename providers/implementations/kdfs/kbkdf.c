@@ -47,7 +47,8 @@
 #include "e_os.h"
 
 /* JARA: For dom-v */
-#define LOG_E printf("[openssl-kbkdf.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-kbkdf.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 #define ossl_min(a, b) ((a) < (b)) ? (a) : (b)

@@ -29,7 +29,8 @@
 #include "internal/sizes.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[opensll-x_pubkey.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[opensll-x_pubkey.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 struct X509_pubkey_st {

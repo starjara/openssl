@@ -52,7 +52,8 @@
 
 /* JARA: For dom-v */
 #include "domv/domv.h"
-#define LOG_E printf("[openssl-aes_core.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-aes_core.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 #if defined(OPENSSL_AES_CONST_TIME) && !defined(AES_ASM)

@@ -19,7 +19,8 @@
 #include "internal/constant_time.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-rsa_ossl.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-rsa_ossl.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 static int rsa_ossl_public_encrypt(int flen, const unsigned char *from,

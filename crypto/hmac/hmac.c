@@ -23,7 +23,8 @@
 #include "hmac_local.h"
 
 /* JARA: For dom-v */
-#define LOG_E printf("[openssl-hmac.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-hmac.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 int HMAC_Init_ex(HMAC_CTX *ctx, const void *key, int len,

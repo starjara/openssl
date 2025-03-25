@@ -23,7 +23,8 @@
 #include "evp_local.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-p_legacy.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-p_legacy.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 int EVP_PKEY_set1_RSA(EVP_PKEY *pkey, RSA *key)

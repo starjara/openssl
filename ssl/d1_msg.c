@@ -10,7 +10,8 @@
 #include "ssl_local.h"
 
 /* JARA: For dom-v */
-#define LOG_E printf("[openssl-d1_msg.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-d1_msg.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 int dtls1_write_app_data_bytes(SSL *s, int type, const void *buf_, size_t len,

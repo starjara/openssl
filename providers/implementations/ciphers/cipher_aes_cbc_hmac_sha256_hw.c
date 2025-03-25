@@ -17,7 +17,8 @@
 #include "cipher_aes_cbc_hmac_sha.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-cipher_aes_cbc_hmac_sha256_hw.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-cipher_aes_cbc_hmac_sha256_hw.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 #if !defined(AES_CBC_HMAC_SHA_CAPABLE) || !defined(AESNI_CAPABLE)

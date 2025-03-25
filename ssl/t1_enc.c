@@ -23,7 +23,8 @@
 
 /* JARA: For Dom-V */
 #include "domv/domv.h"
-#define LOG_E printf("[openssl-t1_enc.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-t1_enc.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End JARA */
 
 /* seed1 through seed5 are concatenated */

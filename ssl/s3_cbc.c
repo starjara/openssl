@@ -33,7 +33,8 @@
 #include <openssl/sha.h>
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-s3_cbc.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-s3_cbc.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 char ssl3_cbc_record_digest_supported(const EVP_MD_CTX *ctx);

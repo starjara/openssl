@@ -22,7 +22,8 @@
 #include <openssl/trace.h>
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-statem_lib.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-statem_lib.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 /*

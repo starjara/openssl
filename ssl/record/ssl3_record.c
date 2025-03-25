@@ -15,7 +15,8 @@
 #include "internal/cryptlib.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-ssl3_record.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-ssl3_record.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 static const unsigned char ssl3_pad_1[48] = {

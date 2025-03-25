@@ -17,7 +17,8 @@
 #include "evp_local.h"
 
 /* JARA: For Dom-V */
-#define LOG_E printf("[openssl-m_sigver.c] Enter: %s\n", __func__);
+//#define LOG_E printf("[openssl-m_sigver.c] Enter: %s\n", __func__);
+#define LOG_E
 /* End of JARA */
 
 #ifndef FIPS_MODULE
