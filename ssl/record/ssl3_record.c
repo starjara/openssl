@@ -222,7 +222,6 @@ int ssl3_get_record(SSL *s)
                     return rret;     /* error or non-blocking */
                 switch (errno) {
                 case EBADMSG:
-	  printf("BAD_RECORD_MAC 1\n");
                     SSLfatal(s, SSL_AD_BAD_RECORD_MAC,
                              SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
                     break;
@@ -563,7 +562,6 @@ int ssl3_get_record(SSL *s)
             mac = thisrr->data + thisrr->length;
             i = s->method->ssl3_enc->mac(s, thisrr, md, 0 /* not send */ );
             if (i == 0 || CRYPTO_memcmp(md, mac, mac_size) != 0) {
-	  printf("BAD_RECORD_MAC 2\n");
                 SSLfatal(s, SSL_AD_BAD_RECORD_MAC,
                          SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
                 return -1;
@@ -586,11 +584,7 @@ int ssl3_get_record(SSL *s)
 
     ERR_set_mark();
     
-    printf("Call ssl3_enc->enc\n");
-
     enc_err = s->method->ssl3_enc->enc(s, rr, num_recs, 0, macbufs, mac_size);
-
-    printf("enc_err: %d\n", enc_err);
 
     /*-
      * enc_err is:
@@ -632,7 +626,6 @@ int ssl3_get_record(SSL *s)
             goto end;
         }
         ERR_clear_last_mark();
-	  printf("BAD_RECORD_MAC 3\n");
         SSLfatal(s, SSL_AD_BAD_RECORD_MAC,
                  SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
         goto end;
@@ -675,7 +668,6 @@ int ssl3_get_record(SSL *s)
          * not reveal which kind of error occurred -- this might become
          * visible to an attacker (e.g. via a logfile)
          */
-	  printf("BAD_RECORD_MAC 4\n");
         SSLfatal(s, SSL_AD_BAD_RECORD_MAC,
                  SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
         goto end;
@@ -957,7 +949,6 @@ int ssl3_enc(SSL *s, SSL3_RECORD *inrecs, size_t n_recs, int sending,
         } else {
             if (EVP_Cipher(ds, rec->data, rec->input, (unsigned int)l) < 1) {
                 /* Shouldn't happen */
-	  printf("BAD_RECORD_MAC 5\n");
                 SSLfatal(s, SSL_AD_BAD_RECORD_MAC, ERR_R_INTERNAL_ERROR);
                 return 0;
             }
@@ -1002,7 +993,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
                               : (s->mac_flags & SSL_MAC_FLAG_READ_MAC_TLSTREE);
 
     LOG_E
-      printf("recs: %p\tmacs: %p\n", recs, macs);
     
     if (n_recs == 0) {
         SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
@@ -1070,7 +1060,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
         }
     } else {
         int provided = (EVP_CIPHER_get0_provider(enc) != NULL);
-	printf("check NULL else\n");
 
         bs = EVP_CIPHER_get_block_size(EVP_CIPHER_CTX_get0_cipher(ds));
 
@@ -1078,7 +1067,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
             if ((EVP_CIPHER_get_flags(EVP_CIPHER_CTX_get0_cipher(ds))
                   & EVP_CIPH_FLAG_PIPELINE) == 0) {
 
-	      printf("if ((EVP_CIPHER_get_flags(EVP_CIPHER_CTX_get0_cipher(ds))\n");
                 /*
                  * We shouldn't have been called with pipeline data if the
                  * cipher doesn't support pipelining
@@ -1122,7 +1110,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
                 pad = EVP_CIPHER_CTX_ctrl(ds, EVP_CTRL_AEAD_TLS1_AAD,
                                           EVP_AEAD_TLS1_AAD_LEN, buf[ctr]);
                 if (pad <= 0) {
-		  printf("pad <= 0\n");
                     SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
                     return 0;
                 }
@@ -1142,7 +1129,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
                 /* Add weird padding of up to 256 bytes */
 
                 if (padnum > MAX_PADDING) {
-		  printf("MAX_PADDING\n");
                     SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
                     return 0;
                 }
@@ -1156,7 +1142,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
 
             if (!sending) {
                 if (reclen[ctr] == 0 || reclen[ctr] % bs != 0) {
-		  printf("Publicly invalid\n");
                     /* Publicly invalid */
                     return 0;
                 }
@@ -1169,7 +1154,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
             }
             if (EVP_CIPHER_CTX_ctrl(ds, EVP_CTRL_SET_PIPELINE_OUTPUT_BUFS,
                                     (int)n_recs, data) <= 0) {
-	      printf("output buffer\n");
                 SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_R_PIPELINE_FAILURE);
                 return 0;
             }
@@ -1181,7 +1165,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
                                     (int)n_recs, data) <= 0
                 || EVP_CIPHER_CTX_ctrl(ds, EVP_CTRL_SET_PIPELINE_INPUT_LENS,
                                        (int)n_recs, reclen) <= 0) {
-	      printf("input buffer\n");
                 SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_R_PIPELINE_FAILURE);
                 return 0;
             }
@@ -1202,7 +1185,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
             seq = sending ? RECORD_LAYER_get_write_sequence(&s->rlayer)
                           : RECORD_LAYER_get_read_sequence(&s->rlayer);
             if (EVP_CIPHER_CTX_ctrl(ds, EVP_CTRL_TLSTREE, decrement_seq, seq) <= 0) {
-	      printf("CTX_ctrl <= 0\n");
                 SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
                 return 0;
             }
@@ -1213,16 +1195,14 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
 
             /* Provided cipher - we do not support pipelining on this path */
             if (n_recs > 1)  {
-	      printf("n_recs > 1\n");
                 SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
                 return 0;
             }
 
-	    printf("CypherUpdate\n");
             if (!EVP_CipherUpdate(ds, recs[0].data, &outlen, recs[0].input,
                                   (unsigned int)reclen[0]))
                 return 0;
-	    printf("CypherUpdate Passed\n");
+	    
             recs[0].length = outlen;
 
             /*
@@ -1256,7 +1236,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
                     *p = OSSL_PARAM_construct_end();
 
                     if (!EVP_CIPHER_CTX_get_params(ds, params)) {
-		      printf("Shouldn't normally\n");
                         /* Shouldn't normally happen */
                         SSLfatal(s, SSL_AD_INTERNAL_ERROR,
                                  ERR_R_INTERNAL_ERROR);
@@ -1317,7 +1296,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
             }
         }
     }
-    printf("return 1\n");
     return 1;
 }
 
@@ -1619,7 +1597,6 @@ int dtls1_process_record(SSL *s, DTLS1_BITMAP *bitmap)
         mac = rr->data + rr->length;
         i = s->method->ssl3_enc->mac(s, rr, md, 0 /* not send */ );
         if (i == 0 || CRYPTO_memcmp(md, mac, (size_t)mac_size) != 0) {
-	  printf("BAD_RECORD_MAC 6\n");
             SSLfatal(s, SSL_AD_BAD_RECORD_MAC,
                      SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
             return 0;

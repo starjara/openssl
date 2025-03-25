@@ -453,11 +453,7 @@ int EVP_DigestFinal_ex(EVP_MD_CTX *ctx, unsigned char *md, unsigned int *isize)
         return 0;
     }
 
-    printf("Before dfinal\n");
-    printf("md: %p\n", md);
-    printf("type: %s\n", OBJ_nid2ln(ctx->digest->type));
     ret = ctx->digest->dfinal(ctx->algctx, md, &size, mdsize);
-    printf("After dfinal\n");
 
     if (isize != NULL) {
         if (size <= UINT_MAX) {

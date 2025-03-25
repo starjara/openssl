@@ -231,7 +231,6 @@ int HASH_FINAL(unsigned char *md, HASH_CTX *c)
     size_t n = c->num;
 
     printf("[openssl-md32_common.h] Enter: %s\n", __func__);
-    printf("md: %p\tp: %p\n", md, p);
 
     p[n] = 0x80;                /* there is always room for one */
     n++;

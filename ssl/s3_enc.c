@@ -380,7 +380,6 @@ int ssl3_finish_mac(SSL *s, const unsigned char *buf, size_t len)
         }
     } else {
         ret = EVP_DigestUpdate(s->s3.handshake_dgst, buf, len);
-	printf("ret: %d\n");
         if (!ret) {
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
             return 0;

@@ -171,10 +171,7 @@ static int evp_mac_final(EVP_MAC_CTX *ctx, int xof,
             return 0;
         }
     }
-    printf("ctx->meth->final !isNULL %d\n", NULL != ctx->meth->final);
-    printf("MAC type: %s\n", ctx->meth->type_name);
     res = ctx->meth->final(ctx->algctx, out, &l, outsize);
-    printf("End of evp_mac_final\n");
     if (outl != NULL)
         *outl = l;
     return res;

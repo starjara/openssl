@@ -250,22 +250,10 @@ int ssl3_read_n(SSL *s, size_t n, size_t max, int extend, int clearold,
      * pointed to by 'packet', 'left' extra ones at the end
      */
     if (s->rlayer.packet != pkt && clearold == 1) {
-      /* JARA */
-      printf("pkt memmove\n");
-      printf("pkt: 0x%p\n", pkt);
-      printf("packet: 0x%p\n", s->rlayer.packet);
-      //domv_read(pkt, s->rlayer.packet, len + left, 0);
-      //domv_read(s->rlayer.packet, s->rlayer.packet, len + left, 0);
-      /* End of JARA */
-      
       memmove(pkt, s->rlayer.packet, len + left);
       s->rlayer.packet = pkt;
       rb->offset = len + align;
     }
-
-    /* JARA */
-    printf("memmove finish\n");
-    /* End of JARA */
 
     /*
      * For DTLS/UDP reads should not span multiple packets because the read
@@ -324,9 +312,6 @@ int ssl3_read_n(SSL *s, size_t n, size_t max, int extend, int clearold,
         clear_sys_error();
         if (s->rbio != NULL) {
             s->rwstate = SSL_READING;
-	    /* JARA */
-	    printf("BIO_read pkt\n");
-	    /* End of JARA */
             ret = BIO_read(s->rbio, pkt + len + left, max - left);
             if (ret >= 0)
                 bioread = ret;

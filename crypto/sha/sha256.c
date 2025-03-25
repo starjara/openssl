@@ -88,7 +88,6 @@ int SHA224_Final(unsigned char *md, SHA256_CTX *c)
 #define HASH_MAKE_STRING(c,s)   do {    \
         unsigned long ll;               \
         unsigned int  nn;               \
-	printf("HASH_MAKE_STRING\n"); \
         switch ((c)->md_len)            \
         {   case SHA224_DIGEST_LENGTH:  \
                 for (nn=0;nn<SHA224_DIGEST_LENGTH/4;nn++)       \
@@ -168,9 +167,6 @@ static void sha256_block_data_order(SHA256_CTX *ctx, const void *in,
     const unsigned char *data = in;
 
     LOG_E
-      printf("ORDER1\n");
-    printf("ctx->h: %p\n", ctx->h);
-    printf("in: %p\n", in);
 
     while (num--) {
 
@@ -252,7 +248,6 @@ static void sha256_block_data_order(SHA256_CTX *ctx, const void *in,
     DECLARE_IS_ENDIAN;
 
     LOG_E
-      printf("ORDER2\n");
 
     while (num--) {
 
@@ -377,7 +372,6 @@ static void sha256_block_data_order(SHA256_CTX *ctx, const void *in,
         ctx->h[7] += h;
 
     }
-    printf("End of ORDER2\n");
 }
 
 # endif

@@ -828,7 +828,6 @@ void CRYPTO_gcm128_setiv(GCM128_CONTEXT *ctx, const unsigned char *iv,
 #endif
 
     LOG_E
-      printf("ctx->key: %p\tctx->Yi.c: %p\tctx->Xi.c: %p\tiv: %p\n", ctx->key, ctx->Yi.c, ctx->Xi.c, iv);
 
     ctx->len.u[0] = 0;          /* AAD length */
     ctx->len.u[1] = 0;          /* message length */
@@ -1226,7 +1225,6 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT *ctx,
 #endif
 
   LOG_E
-    printf("in: %p\tout: %p\tkey: %p\n", in, out, key);
     
     mlen += len;
     if (mlen > ((U64(1) << 36) - 32) || (sizeof(len) == 8 && mlen < len))

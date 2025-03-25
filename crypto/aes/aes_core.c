@@ -542,8 +542,7 @@ static void Cipher(const unsigned char *in, unsigned char *out,
     int i;
 
     LOG_E
-      printf("in: %p\tout: %p\tw: %p\n", in, out, w);
-
+      
     memcpy(state, in, 16);
 
     AddRoundKey(state, w);
@@ -644,7 +643,6 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     u64 *rk;
 
     LOG_E
-      printf("set_encrypt_key1\n");
 
     if (!userKey || !key)
         return -1;
@@ -1302,9 +1300,9 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     u32 temp;
 
     LOG_E
-      printf("set_encrypt_key2\n");
-    printf("userKey: %p\tkey: %p\trk: %p\n", userKey, key, key->rd_key);
+      /* JARA: For GETU32 optmizable? */
     unsigned char tempstr[4];
+    /* End of JARA */
 
     if (!userKey || !key)
         return -1;
@@ -1503,9 +1501,6 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
 
     int temp;
     LOG_E
-      // No need
-      printf("in: %p\tout: %p\tkey->rd_key: %p\n", in, out, key->rd_key);
-
 
     assert(in && out && key);
     rk = key->rd_key;
@@ -1932,7 +1927,6 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     u32 temp;
 
     LOG_E
-      printf("set_encrypt_key3\n");
 
     if (!userKey || !key)
         return -1;

@@ -12,6 +12,7 @@
 
 /* JARA: For Dom-V */
 #define LOG_E printf("[openssl-ciphercommon_gcm_hw.c] Enter: %s\n", __func__);
+/* End of JARA */
 
 
 int ossl_gcm_setiv(PROV_GCM_CTX *ctx, const unsigned char *iv, size_t ivlen)
@@ -45,7 +46,6 @@ int ossl_gcm_cipher_update(PROV_GCM_CTX *ctx, const unsigned char *in,
 int ossl_gcm_cipher_final(PROV_GCM_CTX *ctx, unsigned char *tag)
 {
   LOG_E
-    printf("ctx->enc: %p\n", ctx->enc);
     if (ctx->enc) {
         CRYPTO_gcm128_tag(&ctx->gcm, tag, GCM_TAG_MAX_SIZE);
         ctx->taglen = GCM_TAG_MAX_SIZE;

@@ -314,7 +314,6 @@ int ossl_gcm_set_ctx_params(void *vctx, const OSSL_PARAM params[])
             return 0;
     }
 
-    printf("end of ossl_gcm_set_ctx_params\n");
     return 1;
 }
 
@@ -465,7 +464,6 @@ finish:
     rv = 1;
 err:
     *padlen = olen;
-    printf("gcm_cipher_internal ret: %d\n", rv);
     return rv;
 }
 
@@ -475,7 +473,6 @@ static int gcm_tls_init(PROV_GCM_CTX *dat, unsigned char *aad, size_t aad_len)
     size_t len;
 
     LOG_E
-      printf("dat: %p\taad:%p\n", dat, aad);
 
     if (!ossl_prov_is_running() || aad_len != EVP_AEAD_TLS1_AAD_LEN)
        return 0;
@@ -507,7 +504,6 @@ static int gcm_tls_iv_set_fixed(PROV_GCM_CTX *ctx, unsigned char *iv,
                                 size_t len)
 {
   LOG_E
-      printf("ctx->iv: %p\tiv: %p\n", ctx->iv, iv);
     /* Special case: -1 length restores whole IV */
     if (len == (size_t)-1) {
       /* JARA: memcpy replace */
@@ -558,16 +554,13 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
     unsigned char *tag = NULL;
 
     LOG_E
-      printf("ctx: %p\tout: %p\tin: %p\n", ctx, out, in);
 
     if (!ossl_prov_is_running() || !ctx->key_set)
         goto err;
-    printf("ctx->key_set\n");
 
     /* Encrypt/decrypt must be performed in place */
     if (out != in || len < (EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN))
         goto err;
-    printf("out != in\n");
 
     /*
      * Check for too many keys as per FIPS 140-2 IG A.5 "Key/IV Pair Uniqueness
@@ -579,7 +572,6 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
         ERR_raise(ERR_LIB_PROV, PROV_R_TOO_MANY_RECORDS);
         goto err;
     }
-    printf("end of tls_enc_records\n");
 
     /*
      * Set IV from start of buffer or generate IV and write to start of
@@ -592,7 +584,6 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
         if (!setivinv(ctx, out, arg))
             goto err;
     }
-    printf("end of ctx->enc\n");
 
     /* Fix buffer and length to point to payload */
     in += EVP_GCM_TLS_EXPLICIT_IV_LEN;
@@ -606,7 +597,7 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
             OPENSSL_cleanse(out, len);
         goto err;
     }
-    printf("end of oneshot\n");
+    
     if (ctx->enc)
         plen =  len + EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN;
     else
@@ -617,6 +608,5 @@ err:
     ctx->iv_state = IV_STATE_FINISHED;
     ctx->tls_aad_len = UNINITIALISED_SIZET;
     *padlen = plen;
-    printf("tls_cipher ret: %d\n", rv);
     return rv;
 }

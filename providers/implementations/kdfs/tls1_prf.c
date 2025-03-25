@@ -317,14 +317,12 @@ static int tls1_prf_P_hash(EVP_MAC_CTX *ctx_init,
         goto err;
 
     for (;;) {
-      printf("In For\n");
         /* calc: A(i) = HMAC_<hash>(secret, A(i-1)) */
         if (!EVP_MAC_final(ctx_Ai, Ai, &Ai_len, sizeof(Ai)))
             goto err;
         EVP_MAC_CTX_free(ctx_Ai);
         ctx_Ai = NULL;
 
-	printf("calc next chunk\n");
         /* calc next chunk: HMAC_<hash>(secret, A(i) + seed) */
         ctx = EVP_MAC_CTX_dup(ctx_init);
         if (ctx == NULL)
@@ -339,14 +337,10 @@ static int tls1_prf_P_hash(EVP_MAC_CTX *ctx_init,
         }
         if (seed != NULL && !EVP_MAC_update(ctx, seed, seed_len))
             goto err;
-	printf("last chunk\n");
         if (olen <= chunk) {
             /* last chunk - use Ai as temp bounce buffer */
             if (!EVP_MAC_final(ctx, Ai, &Ai_len, sizeof(Ai)))
                 goto err;
-	    
-	    printf("Ai: %p\n", Ai);
-	    printf("out: %p\n", out);
 	    
 	    // memcpy(out, Ai, olen);
 	    /* JARA: Write key */
@@ -358,7 +352,6 @@ static int tls1_prf_P_hash(EVP_MAC_CTX *ctx_init,
 	    
             break;
         }
-	printf("final\n");
         if (!EVP_MAC_final(ctx, out, NULL, olen))
             goto err;
         EVP_MAC_CTX_free(ctx);
@@ -366,13 +359,11 @@ static int tls1_prf_P_hash(EVP_MAC_CTX *ctx_init,
         out += chunk;
         olen -= chunk;
     }
-    printf("Out of For\n");
     ret = 1;
  err:
     EVP_MAC_CTX_free(ctx);
     EVP_MAC_CTX_free(ctx_Ai);
     OPENSSL_cleanse(Ai, sizeof(Ai));
-    printf("End of prf_P_hash\n"); 
     return ret;
 }
 

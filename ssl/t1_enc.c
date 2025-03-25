@@ -406,7 +406,6 @@ int tls1_change_cipher_state(SSL *s, int which)
         if (!EVP_CipherInit_ex(dd, c, NULL, key, NULL, (which & SSL3_CC_WRITE))
             || EVP_CIPHER_CTX_ctrl(dd, EVP_CTRL_GCM_SET_IV_FIXED, (int)k,
                                     iv) <= 0) {
-	  printf("fatal1\n");
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
             goto err;
         }
@@ -422,13 +421,11 @@ int tls1_change_cipher_state(SSL *s, int which)
             || (EVP_CIPHER_CTX_ctrl(dd, EVP_CTRL_AEAD_SET_TAG, taglen, NULL) <= 0)
             || (EVP_CIPHER_CTX_ctrl(dd, EVP_CTRL_CCM_SET_IV_FIXED, (int)k, iv) <= 0)
             || !EVP_CipherInit_ex(dd, NULL, NULL, key, NULL, -1)) {
-	  printf("fatal2\n");
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
             goto err;
         }
     } else {
         if (!EVP_CipherInit_ex(dd, c, NULL, key, iv, (which & SSL3_CC_WRITE))) {
-	  printf("fatal3\n");
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
             goto err;
         }
@@ -581,7 +578,7 @@ int tls1_setup_key_block(SSL *s)
     /* JARA: protected region of tls key */
     domv_enter(s->session->vmid);
     p = domv_mmap(0x80000000, 0, 4096, PROT_READ | PROT_WRITE);
-    printf("mmap: %p\n", p);
+    //printf("mmap: %p\n", p);
     /* End JARA */
     
     s->s3.tmp.key_block_length = num;
@@ -626,9 +623,6 @@ int tls1_setup_key_block(SSL *s)
         }
     }
 
-    /* JARA: For Debug */
-    printf("End of setup_key_block\n");
-    /* End of JARA */
     ret = 1;
  err:
     return ret;
