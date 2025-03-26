@@ -17,11 +17,23 @@
 
 #include "cipher_aes_gcm.h"
 
+/* JARA: For Dom-V */
+//#define LOG_E printf("[openssl-cipher_aes_gcm_hw.c] Enter: %s\n", __func__);
+#define LOG_E
+/* End of JARA */
+
 static int aes_gcm_initkey(PROV_GCM_CTX *ctx, const unsigned char *key,
                                    size_t keylen)
 {
     PROV_AES_GCM_CTX *actx = (PROV_AES_GCM_CTX *)ctx;
-    AES_KEY *ks = &actx->ks.ks;
+    //AES_KEY *ks = &actx->ks.ks;
+
+    /* JARA: ks.ks is a pointer no need dereferrencing */
+    AES_KEY *ks = actx->ks.ks;
+    domv_enter(ctx->vmid);
+    /* End of JARA */
+
+    LOG_E
 
 # ifdef HWAES_CAPABLE
     if (HWAES_CAPABLE) {
@@ -56,12 +68,17 @@ static int aes_gcm_initkey(PROV_GCM_CTX *ctx, const unsigned char *key,
 # endif /* AES_CTR_ASM */
     }
     ctx->key_set = 1;
+    
+    /* JARA: exit from the domain */
+    domv_exit();
+    /* End of JARA */
     return 1;
 }
 
 static int generic_aes_gcm_cipher_update(PROV_GCM_CTX *ctx, const unsigned char *in,
                                          size_t len, unsigned char *out)
 {
+  LOG_E
     if (ctx->enc) {
         if (ctx->ctr != NULL) {
 #if defined(AES_GCM_ASM)

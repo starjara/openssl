@@ -76,6 +76,9 @@ typedef struct prov_gcm_ctx_st {
     GCM128_CONTEXT gcm;
     ctr128_f ctr;
     const void *ks;
+    /* JARA: domain number */
+      int vmid;
+  /* End of JARA */
 } PROV_GCM_CTX;
 
 PROV_CIPHER_FUNC(int, GCM_setkey, (PROV_GCM_CTX *ctx, const unsigned char *key,

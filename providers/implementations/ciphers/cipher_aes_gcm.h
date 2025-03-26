@@ -14,11 +14,15 @@
 
 typedef struct prov_aes_gcm_ctx_st {
     PROV_GCM_CTX base;          /* must be first entry in struct */
+
     union {
         OSSL_UNION_ALIGN;
-        AES_KEY ks;
+      //AES_KEY ks;
+      /* JARA: Allocate ks struct externally */
+      AES_KEY *ks;
+      /* End of JARA */
     } ks;                       /* AES key schedule to use */
-
+  
     /* Platform specific data */
     union {
         int dummy;

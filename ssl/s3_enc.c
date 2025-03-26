@@ -323,16 +323,18 @@ void ssl3_cleanup_key_block(SSL *s)
 {
   // OPENSSL_clear_free(s->s3.tmp.key_block, s->s3.tmp.key_block_length);
   /* JARA: munmap session key */
-  if(s->s3.tmp.key_block != 0x80000000) {
-    OPENSSL_clear_free(s->s3.tmp.key_block, s->s3.tmp.key_block_length);
-  }
-  else {
-    domv_enter(s->session->vmid);
-    domv_munmap(s->s3.tmp.key_block);
-    domv_exit();
-  }
+  /* if(s->s3.tmp.key_block != 0x80000000) { */
+  /*   OPENSSL_clear_free(s->s3.tmp.key_block, s->s3.tmp.key_block_length); */
+  /* } */
+  /* else { */
+  /*   domv_enter(s->session->vmid); */
+  /*   domv_munmap(s->s3.tmp.key_block); */
+  /*   domv_exit(); */
+  /* } */
   /* End of JARA */
   
+  OPENSSL_clear_free(s->s3.tmp.key_block, s->s3.tmp.key_block_length);
+
   s->s3.tmp.key_block = NULL;
   s->s3.tmp.key_block_length = 0;
 }

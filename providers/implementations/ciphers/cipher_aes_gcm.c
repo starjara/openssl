@@ -20,17 +20,35 @@
 #include "prov/implementations.h"
 #include "prov/providercommon.h"
 
+/* JARA: For Dom-V */
+#include "domv/domv.h"
+//#define LOG_E printf("[openssl-cipher_aes_gcm.c] Enter: %s\n", __func__);
+#define LOG_E
+/* End of JARA */
+
 static void *aes_gcm_newctx(void *provctx, size_t keybits)
 {
     PROV_AES_GCM_CTX *ctx;
+
+    LOG_E
 
     if (!ossl_prov_is_running())
         return NULL;
 
     ctx = OPENSSL_zalloc(sizeof(*ctx));
+   
     if (ctx != NULL)
         ossl_gcm_initctx(provctx, &ctx->base, keybits,
                          ossl_prov_aes_hw_gcm(keybits));
+
+   /* JARA: allocate AESkey */
+    domv_create(ctx->base.vmid);
+   domv_enter(ctx->base.vmid);
+    ctx->ks.ks = domv_mmap(0x90000000, 0, 4096, PROT_READ|PROT_WRITE);
+    domv_exit();
+    /* End of JARA */
+  
+
     return ctx;
 }
 
@@ -53,6 +71,13 @@ static OSSL_FUNC_cipher_freectx_fn aes_gcm_freectx;
 static void aes_gcm_freectx(void *vctx)
 {
     PROV_AES_GCM_CTX *ctx = (PROV_AES_GCM_CTX *)vctx;
+
+    /* JARA: destroy the domain */
+    domv_enter(ctx->base.vmid);
+    domv_munmap(ctx->ks.ks);
+    domv_exit();
+    domv_destroy(ctx->base.vmid);
+    /* End of JARA */
 
     OPENSSL_clear_free(ctx,  sizeof(*ctx));
 }

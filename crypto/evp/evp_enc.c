@@ -828,7 +828,6 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
     int blocksize;
     
     LOG_E
-      //printf("out: %p\toutl: %p\tin: %p\n", out, outl, in);
 
     if (outl != NULL) {
         *outl = 0;
@@ -860,11 +859,9 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
                                inl_ + (size_t)(blocksize == 1 ? 0 : blocksize),
                                in, inl_);
 
-    //printf("cupdate: %d\n", ret);
     
     if (ret) {
         if (soutl > INT_MAX) {
-	  //printf("soutl > INT_MAX\n");
             ERR_raise(ERR_LIB_EVP, EVP_R_UPDATE_ERROR);
             return 0;
         }

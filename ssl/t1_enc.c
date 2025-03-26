@@ -98,7 +98,7 @@ static int tls1_generate_key_block(SSL *s, unsigned char *km, size_t num)
   LOG_E
 
   /* JARA: Enter to the domain */
-  domv_enter(s->session->vmid);
+  //domv_enter(s->session->vmid);
   
   /* Calls SSLfatal() as required */
   ret = tls1_PRF(s,
@@ -109,7 +109,7 @@ static int tls1_generate_key_block(SSL *s, unsigned char *km, size_t num)
 		 s->session->master_key_length, km, num, 1);
   
   /* JARA: Exit from the domain */
-  domv_exit();
+  //domv_exit();
   
   return ret;
 }
@@ -228,7 +228,7 @@ int tls1_change_cipher_state(SSL *s, int which)
 
     LOG_E
     /* JARA: Enter to the domain */
-      domv_enter(s->session->vmid);
+      //domv_enter(s->session->vmid);
 
     c = s->s3.tmp.new_sym_enc;
     m = s->s3.tmp.new_hash;
@@ -498,7 +498,8 @@ int tls1_change_cipher_state(SSL *s, int which)
     else
         rl_sequence = RECORD_LAYER_get_read_sequence(&s->rlayer);
 
-    domv_enter(s->session->vmid);
+    /* JARA: Domv enter */
+    //domv_enter(s->session->vmid);
     if (!ktls_configure_crypto(s, c, dd, rl_sequence, &crypto_info, &rec_seq,
                                iv, key, ms, *mac_secret_size))
         goto skip_ktls;
@@ -542,11 +543,11 @@ int tls1_change_cipher_state(SSL *s, int which)
     } OSSL_TRACE_END(TLS);
 
     /* JARA: Exit from the domain */
-    domv_exit();
+    //domv_exit();
     return 1;
  err:
     /* JARA: Exit from the domain */
-    domv_exit();
+    //domv_exit();
     return 0;
 }
 
@@ -584,15 +585,15 @@ int tls1_setup_key_block(SSL *s)
 
     ssl3_cleanup_key_block(s);
     
-    /* if ((p = OPENSSL_malloc(num)) == NULL) { */
-    /*     SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_MALLOC_FAILURE); */
-    /*     goto err; */
-    /* } */
+    if ((p = OPENSSL_malloc(num)) == NULL) {
+        SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_MALLOC_FAILURE);
+        goto err;
+    }
 
     /* JARA: protected region of tls key */
-    domv_enter(s->session->vmid);
-    p = domv_mmap(0x80000000, 0, 4096, PROT_READ | PROT_WRITE);
-    domv_exit();
+    /* domv_enter(s->session->vmid); */
+    /* p = domv_mmap(0x80000000, 0, 4096, PROT_READ | PROT_WRITE); */
+    /* domv_exit(); */
     //printf("mmap: %p\n", p);
     /* End JARA */
     

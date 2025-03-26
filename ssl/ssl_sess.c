@@ -24,7 +24,7 @@
 #include "domv/domv.h"
 //#define LOG_E printf("[openssl-ssl_sess.c] Enter: %s\n", __func__);
 #define LOG_E
-static int domcount = 0;
+//static int domcount = 0;
 /* End of JARA */
 
 static void SSL_SESSION_list_remove(SSL_CTX *ctx, SSL_SESSION *s);
@@ -161,12 +161,12 @@ SSL_SESSION *SSL_SESSION_new(void)
     }
 
     /* JARA: Create a new domain */
-    domcount ++;
-    ss->vmid = domcount;
-    domv_create(ss->vmid);
-    if(domcount >= 1000) {
-      domcount = 0;
-    }
+    /* domcount ++; */
+    /* ss->vmid = domcount; */
+    /* domv_create(ss->vmid); */
+    /* if(domcount >= 1000) { */
+    /*   domcount = 0; */
+    /* } */
     /* End JARA */
     
     return ss;
@@ -887,7 +887,7 @@ void SSL_SESSION_free(SSL_SESSION *ss)
 
     /* JARA: Destroy the domain */
     //if(ss->vmid >= 1)
-    domv_destroy(ss->vmid);
+    //domv_destroy(ss->vmid);
     /* End of JARA */   
 
     CRYPTO_free_ex_data(CRYPTO_EX_INDEX_SSL_SESSION, ss, &ss->ex_data);

@@ -1302,7 +1302,10 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 
     LOG_E
       /* JARA: For GETU32 optmizable? */
-    unsigned char tempstr[4];
+    //unsigned char tempstr[4];
+    u32 target;
+    u32 inter;
+    bool flag = key == 0x90000000 ? 1 : 0;
     /* End of JARA */
 
     if (!userKey || !key)
@@ -1310,66 +1313,335 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     if (bits != 128 && bits != 192 && bits != 256)
         return -2;
 
-    rk = key->rd_key;
+    if(flag) {
+      rk = &key->rd_key;
 
+
+    /* JARA: key, kr is domv mmaped, use domv_read, write */
     if (bits == 128)
-        key->rounds = 10;
+      temp = 10;
     else if (bits == 192)
-        key->rounds = 12;
+      temp = 12;
     else
-        key->rounds = 14;
+      temp = 14;
 
+    domv_write(&(key->rounds), &temp, sizeof(temp), 0);
+
+    /* rk[0] = GETU32(userKey     ); */
+    /* rk[1] = GETU32(userKey +  4); */
+    /* rk[2] = GETU32(userKey +  8); */
+    /* rk[3] = GETU32(userKey + 12); */
+
+    /******************** Key block version ***************************/
     /* JARA: Dom-V get userKey */
-    if(0x80000000 <= (unsigned long) userKey && (unsigned long) userKey <= 0x80001000) {
-      //domv_read(userKey, rk, sizeof(u32) * 4, 0);
+    /* if(0x80000000 <= (unsigned long) userKey && (unsigned long) userKey <= 0x80001000) { */
+    /*   //domv_read(userKey, rk, sizeof(u32) * 4, 0); */
 
-      domv_read(userKey, tempstr, sizeof(u32), 0);
-      rk[0] = GETU32(tempstr);
-      domv_read(userKey + 4, tempstr, sizeof(u32), 0);
-      rk[1] = GETU32(tempstr);
-      domv_read(userKey + 8, tempstr, sizeof(u32), 0);
-      rk[2] = GETU32(tempstr);
-      domv_read(userKey + 12, tempstr, sizeof(u32), 0);
-      rk[3] = GETU32(tempstr);
+    /*   domv_read(userKey, tempstr, sizeof(u32), 0); */
+    /*   rk[0] = GETU32(tempstr); */
+    /*   domv_read(userKey + 4, tempstr, sizeof(u32), 0); */
+    /*   rk[1] = GETU32(tempstr); */
+    /*   domv_read(userKey + 8, tempstr, sizeof(u32), 0); */
+    /*   rk[2] = GETU32(tempstr); */
+    /*   domv_read(userKey + 12, tempstr, sizeof(u32), 0); */
+    /*   rk[3] = GETU32(tempstr); */
+    /* } */
+    /* else { */
+    /*   rk[0] = GETU32(userKey     ); */
+    /*   rk[1] = GETU32(userKey +  4); */
+    /*   rk[2] = GETU32(userKey +  8); */
+    /*   rk[3] = GETU32(userKey + 12); */
+    /* } */
+   /* End of JARA */
+
+    /*********************** AES Key version **************************/
+    /* JARA: write key through domv_write */
+    temp = GETU32(userKey     );
+    domv_write(rk, &temp, sizeof(temp), 0);
+    temp = GETU32(userKey +  4);
+    domv_write(rk + 1, &temp, sizeof(temp), 0);
+    temp = GETU32(userKey +  8);
+    domv_write(rk + 2, &temp, sizeof(temp), 0);
+    temp = GETU32(userKey + 12);
+    domv_write(rk + 3, &temp, sizeof(temp), 0);
+    /* End of JARA */
+    
+    if (bits == 128) {
+      while (1) {
+	/* temp  = rk[3]; */
+	/* rk[4] = rk[0] ^ */
+	/*   (Te2[(temp >> 16) & 0xff] & 0xff000000) ^ */
+	/*   (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^ */
+	/*   (Te0[(temp      ) & 0xff] & 0x0000ff00) ^ */
+	/*   (Te1[(temp >> 24)       ] & 0x000000ff) ^ */
+	/*   rcon[i]; */
+	/* rk[5] = rk[1] ^ rk[4]; */
+	/* rk[6] = rk[2] ^ rk[5]; */
+	/* rk[7] = rk[3] ^ rk[6]; */
+
+	/* JARA: read rk through domv read/write */
+	domv_read(rk + 3, &temp, sizeof(temp), 0);
+	
+	domv_read(rk, &target, sizeof(target), 0);
+	target = target ^
+	  (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
+	  (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
+	  (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
+	  (Te1[(temp >> 24)       ] & 0x000000ff) ^
+	  rcon[i];
+	domv_write(rk + 4, &target, sizeof(target), 0);
+	
+	  domv_read(rk + 1, &target, sizeof(target), 0);
+	  domv_read(rk + 4, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 5, &target, sizeof(target), 0);
+
+	  domv_read(rk + 2, &target, sizeof(target), 0);
+	  domv_read(rk + 5, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 6, &target, sizeof(target), 0);
+
+	  domv_read(rk + 3, &target, sizeof(target), 0);
+	  domv_read(rk + 6, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 7, &target, sizeof(target), 0);
+
+	/* End of JARA */
+
+	if (++i == 10) {
+	  return 0;
+	}
+	
+	rk += 4;
+      }
+    }
+    /******************* keyblock version ***********************/
+    /* JARA: Dom-V get userKey */
+    /* if(0x80000000 <= (unsigned long) userKey && (unsigned long) userKey <= 0x80001000) { */
+    /*   domv_read(userKey + 16, tempstr, sizeof(u32), 0); */
+    /*   rk[4] = GETU32(tempstr); */
+    /*   domv_read(userKey + 20, tempstr, sizeof(u32), 0); */
+    /*   rk[5] = GETU32(tempstr); */
+    /* } */
+    /* else { */
+    /* 	rk[4] = GETU32(userKey + 16);  */
+    /* 	rk[5] = GETU32(userKey + 20); */
+    /* } */
+    /* End of JARA */
+    /****************** AESkey version ********************/
+	temp = GETU32(userKey + 16);
+	domv_write(rk + 4, &temp, sizeof(temp), 0);
+	temp = GETU32(userKey + 20);
+	domv_write(rk + 5, &temp, sizeof(temp), 0);
+ 
+    if (bits == 192) {
+        while (1) {
+            /* temp = rk[ 5]; */
+            /* rk[ 6] = rk[ 0] ^ */
+            /*     (Te2[(temp >> 16) & 0xff] & 0xff000000) ^ */
+            /*     (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^ */
+            /*     (Te0[(temp      ) & 0xff] & 0x0000ff00) ^ */
+            /*     (Te1[(temp >> 24)       ] & 0x000000ff) ^ */
+            /*     rcon[i]; */
+            /* rk[ 7] = rk[ 1] ^ rk[ 6]; */
+            /* rk[ 8] = rk[ 2] ^ rk[ 7]; */
+            /* rk[ 9] = rk[ 3] ^ rk[ 8]; */
+            /* if (++i == 8) { */
+            /*     return 0; */
+            /* } */
+            /* rk[10] = rk[ 4] ^ rk[ 9]; */
+            /* rk[11] = rk[ 5] ^ rk[10]; */
+            /* rk += 6; */
+
+	  domv_write(rk + 5, &temp, sizeof(temp), 0);
+	  domv_read(rk, &target, sizeof(target), 0);
+	  target = target ^
+	    (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
+	    (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
+	    (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
+	    (Te1[(temp >> 24)       ] & 0x000000ff) ^
+	    rcon[i];
+	  domv_write(rk + 6, &target, sizeof(target), 0);
+	  
+	  domv_read(rk + 1, &target, sizeof(target), 0);
+	  domv_read(rk + 6, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 7, &target, sizeof(target), 0);
+
+
+	  domv_read(rk + 2, &target, sizeof(target), 0);
+	  domv_read(rk + 7, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 8, &target, sizeof(target), 0);
+
+
+	  domv_read(rk + 3, &target, sizeof(target), 0);
+	  domv_read(rk + 8, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 9, &target, sizeof(target), 0);
+
+	  if (++i == 8) {
+	    return 0;
+	  }
+
+	  domv_read(rk + 4, &target, sizeof(target), 0);
+	  domv_read(rk + 9, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 10, &target, sizeof(target), 0);
+
+	  domv_read(rk + 5, &target, sizeof(target), 0);
+	  domv_read(rk + 10, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 11, &target, sizeof(target), 0);
+	  
+	  rk += 6;
+        }
+    }
+    /****************** keyblock version ******************/
+    /* JARA: Dom-V get userKey */
+    /* if(0x80000000 <= (unsigned long) userKey && (unsigned long) userKey <= 0x80001000) { */
+    /*   domv_read(userKey + 24, tempstr, sizeof(u32), 0); */
+    /*   rk[6] = GETU32(tempstr); */
+    /*   domv_read(userKey + 28, tempstr, sizeof(u32), 0); */
+    /*   rk[7] = GETU32(tempstr); */
+    /* } */
+    /* else {  */
+    /*   rk[6] = GETU32(userKey + 24); */
+    /*   rk[7] = GETU32(userKey + 28); */
+    /* } */
+    /* End of JARA */
+
+    /**************** AESkey version ********************/
+    temp = GETU32(userKey + 24);
+    domv_write(rk + 6, &temp, sizeof(temp), 0);
+    temp = GETU32(userKey + 28);
+    domv_write(rk + 7, &temp, sizeof(temp), 0);
+    
+    if (bits == 256) {
+        while (1) {
+            /* temp = rk[ 7]; */
+            /* rk[ 8] = rk[ 0] ^ */
+            /*     (Te2[(temp >> 16) & 0xff] & 0xff000000) ^ */
+            /*     (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^ */
+            /*     (Te0[(temp      ) & 0xff] & 0x0000ff00) ^ */
+            /*     (Te1[(temp >> 24)       ] & 0x000000ff) ^ */
+            /*     rcon[i]; */
+            /* rk[ 9] = rk[ 1] ^ rk[ 8]; */
+            /* rk[10] = rk[ 2] ^ rk[ 9]; */
+            /* rk[11] = rk[ 3] ^ rk[10]; */
+            /* if (++i == 7) { */
+            /*     return 0; */
+            /* } */
+            /* temp = rk[11]; */
+            /* rk[12] = rk[ 4] ^ */
+            /*     (Te2[(temp >> 24)       ] & 0xff000000) ^ */
+            /*     (Te3[(temp >> 16) & 0xff] & 0x00ff0000) ^ */
+            /*     (Te0[(temp >>  8) & 0xff] & 0x0000ff00) ^ */
+            /*     (Te1[(temp      ) & 0xff] & 0x000000ff); */
+            /* rk[13] = rk[ 5] ^ rk[12]; */
+            /* rk[14] = rk[ 6] ^ rk[13]; */
+            /* rk[15] = rk[ 7] ^ rk[14]; */
+
+            /* rk += 8; */
+	  
+	  domv_write(rk + 7, &temp, sizeof(temp), 0);
+	  
+	  domv_read(rk, &target, sizeof(target), 0);
+	  target = target ^
+	    (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
+	    (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
+	    (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
+	    (Te1[(temp >> 24)       ] & 0x000000ff) ^
+	    rcon[i];
+	  domv_write(rk + 8, &target, sizeof(target), 0);
+	  
+	  domv_read(rk + 1, &target, sizeof(target), 0);
+	  domv_read(rk + 8, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 9, &target, sizeof(target), 0);
+
+
+	  domv_read(rk + 2, &target, sizeof(target), 0);
+	  domv_read(rk + 9, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 10, &target, sizeof(target), 0);
+
+
+	  domv_read(rk + 3, &target, sizeof(target), 0);
+	  domv_read(rk + 10, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 11, &target, sizeof(target), 0);
+
+	  if (++i == 7) {
+	    return 0;
+	  }
+
+	  domv_write(rk + 11, &temp, sizeof(temp), 0);
+	  
+	  domv_read(rk + 4, &target, sizeof(target), 0);
+          target = target ^
+                (Te2[(temp >> 24)       ] & 0xff000000) ^
+                (Te3[(temp >> 16) & 0xff] & 0x00ff0000) ^
+                (Te0[(temp >>  8) & 0xff] & 0x0000ff00) ^
+                (Te1[(temp      ) & 0xff] & 0x000000ff);
+	  domv_write(rk + 12, &target, sizeof(target), 0);
+  
+	  domv_read(rk + 5, &target, sizeof(target), 0);
+	  domv_read(rk + 12, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 13, &target, sizeof(target), 0);
+
+	  domv_read(rk + 6, &target, sizeof(target), 0);
+	  domv_read(rk + 13, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 14, &target, sizeof(target), 0);
+
+	  domv_read(rk + 7, &target, sizeof(target), 0);
+	  domv_read(rk + 14, &inter, sizeof(target), 0);
+	  target = target ^ inter;
+	  domv_write(rk + 15, &target, sizeof(target), 0);
+	
+	  
+	  rk += 8;
+  
+            }
+    }
     }
     else {
+      rk = key->rd_key;
+      
+      if (bits == 128)
+	key->rounds = 10;
+      else if (bits == 192)
+	key->rounds = 12;
+      else
+	key->rounds = 14;
+  
       rk[0] = GETU32(userKey     );
       rk[1] = GETU32(userKey +  4);
       rk[2] = GETU32(userKey +  8);
       rk[3] = GETU32(userKey + 12);
-    }
-    /* End of JARA */
     if (bits == 128) {
       while (1) {
-            temp  = rk[3];
-            rk[4] = rk[0] ^
-                (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
-                (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
-                (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
-                (Te1[(temp >> 24)       ] & 0x000000ff) ^
-                rcon[i];
-            rk[5] = rk[1] ^ rk[4];
-            rk[6] = rk[2] ^ rk[5];
-            rk[7] = rk[3] ^ rk[6];
-            if (++i == 10) {
-                return 0;
-            }
-            rk += 4;
-        }
-    }
-    /* JARA: Dom-V get userKey */
-    if(0x80000000 <= (unsigned long) userKey && (unsigned long) userKey <= 0x80001000) {
-      domv_read(userKey + 16, tempstr, sizeof(u32), 0);
-      rk[4] = GETU32(tempstr);
-      domv_read(userKey + 20, tempstr, sizeof(u32), 0);
-      rk[5] = GETU32(tempstr);
-    }
-    else {
-	rk[4] = GETU32(userKey + 16); 
-	rk[5] = GETU32(userKey + 20);
-    }
-    /* End of JARA */
+	temp  = rk[3];
+	rk[4] = rk[0] ^
+	  (Te2[(temp >> 16) & 0xff] & 0xff000000) ^
+	  (Te3[(temp >>  8) & 0xff] & 0x00ff0000) ^
+	  (Te0[(temp      ) & 0xff] & 0x0000ff00) ^
+	  (Te1[(temp >> 24)       ] & 0x000000ff) ^
+	  rcon[i];
+	rk[5] = rk[1] ^ rk[4];
+	rk[6] = rk[2] ^ rk[5];
+	rk[7] = rk[3] ^ rk[6];
 
+	if (++i == 10) {
+	  return 0;
+	}
+	rk += 4;
+      }
+    }
+    rk[4] = GETU32(userKey + 16);
+    rk[5] = GETU32(userKey + 20);
     if (bits == 192) {
         while (1) {
             temp = rk[ 5];
@@ -1388,20 +1660,11 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk[10] = rk[ 4] ^ rk[ 9];
             rk[11] = rk[ 5] ^ rk[10];
             rk += 6;
+
         }
     }
-    /* JARA: Dom-V get userKey */
-    if(0x80000000 <= (unsigned long) userKey && (unsigned long) userKey <= 0x80001000) {
-      domv_read(userKey + 24, tempstr, sizeof(u32), 0);
-      rk[6] = GETU32(tempstr);
-      domv_read(userKey + 28, tempstr, sizeof(u32), 0);
-      rk[7] = GETU32(tempstr);
-    }
-    else { 
-      rk[6] = GETU32(userKey + 24);
-      rk[7] = GETU32(userKey + 28);
-    }
-    /* End of JARA */
+    rk[6] = GETU32(userKey + 24);
+    rk[7] = GETU32(userKey + 28);
     if (bits == 256) {
         while (1) {
             temp = rk[ 7];
@@ -1428,7 +1691,10 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk[15] = rk[ 7] ^ rk[14];
 
             rk += 8;
+	  
+  
             }
+    }
     }
     return 0;
 }
@@ -1500,10 +1766,223 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     int r;
 #endif /* ?FULL_UNROLL */
 
-    int temp;
+    u32 temp;
+    int flag = key == 0x90000000 ? 1 : 0;
     LOG_E
-
+      
     assert(in && out && key);
+
+    if(flag){
+      rk = &key->rd_key;
+
+      /*
+       * map byte array block to cipher state
+       * and add initial round key:
+       */
+      domv_read(&(rk[0]), &temp, sizeof(temp), 0);
+      s0 = GETU32(in     ) ^ temp;
+      
+      domv_read(&(rk[1]), &temp, sizeof(temp), 0);
+      s1 = GETU32(in +  4) ^ temp;
+      
+      domv_read(&(rk[2]), &temp, sizeof(temp), 0);
+      s2 = GETU32(in +  8) ^ temp;
+      
+      domv_read(&(rk[3]), &temp, sizeof(temp), 0);
+      s3 = GETU32(in + 12) ^ temp;
+    
+#ifdef FULL_UNROLL
+    /* round 1: */
+    t0	       = Te0[s0 >> 24] ^ Te1[(s1 >> 16) & 0xff] ^ Te2[(s2 >>  8) & 0xff] ^ Te3[s3 & 0xff] ^ rk[ 4];
+    t1	       = Te0[s1 >> 24] ^ Te1[(s2 >> 16) & 0xff] ^ Te2[(s3 >>  8) & 0xff] ^ Te3[s0 & 0xff] ^ rk[ 5];
+    t2	       = Te0[s2 >> 24] ^ Te1[(s3 >> 16) & 0xff] ^ Te2[(s0 >>  8) & 0xff] ^ Te3[s1 & 0xff] ^ rk[ 6];
+    t3	       = Te0[s3 >> 24] ^ Te1[(s0 >> 16) & 0xff] ^ Te2[(s1 >>  8) & 0xff] ^ Te3[s2 & 0xff] ^ rk[ 7];
+    /* round 2: */
+    s0	       = Te0[t0 >> 24] ^ Te1[(t1 >> 16) & 0xff] ^ Te2[(t2 >>  8) & 0xff] ^ Te3[t3 & 0xff] ^ rk[ 8];
+    s1	       = Te0[t1 >> 24] ^ Te1[(t2 >> 16) & 0xff] ^ Te2[(t3 >>  8) & 0xff] ^ Te3[t0 & 0xff] ^ rk[ 9];
+    s2	       = Te0[t2 >> 24] ^ Te1[(t3 >> 16) & 0xff] ^ Te2[(t0 >>  8) & 0xff] ^ Te3[t1 & 0xff] ^ rk[10];
+    s3	       = Te0[t3 >> 24] ^ Te1[(t0 >> 16) & 0xff] ^ Te2[(t1 >>  8) & 0xff] ^ Te3[t2 & 0xff] ^ rk[11];
+    /* round 3: */
+    t0	       = Te0[s0 >> 24] ^ Te1[(s1 >> 16) & 0xff] ^ Te2[(s2 >>  8) & 0xff] ^ Te3[s3 & 0xff] ^ rk[12];
+    t1	       = Te0[s1 >> 24] ^ Te1[(s2 >> 16) & 0xff] ^ Te2[(s3 >>  8) & 0xff] ^ Te3[s0 & 0xff] ^ rk[13];
+    t2	       = Te0[s2 >> 24] ^ Te1[(s3 >> 16) & 0xff] ^ Te2[(s0 >>  8) & 0xff] ^ Te3[s1 & 0xff] ^ rk[14];
+    t3	       = Te0[s3 >> 24] ^ Te1[(s0 >> 16) & 0xff] ^ Te2[(s1 >>  8) & 0xff] ^ Te3[s2 & 0xff] ^ rk[15];
+    /* round 4: */
+    s0	       = Te0[t0 >> 24] ^ Te1[(t1 >> 16) & 0xff] ^ Te2[(t2 >>  8) & 0xff] ^ Te3[t3 & 0xff] ^ rk[16];
+    s1	       = Te0[t1 >> 24] ^ Te1[(t2 >> 16) & 0xff] ^ Te2[(t3 >>  8) & 0xff] ^ Te3[t0 & 0xff] ^ rk[17];
+    s2	       = Te0[t2 >> 24] ^ Te1[(t3 >> 16) & 0xff] ^ Te2[(t0 >>  8) & 0xff] ^ Te3[t1 & 0xff] ^ rk[18];
+    s3	       = Te0[t3 >> 24] ^ Te1[(t0 >> 16) & 0xff] ^ Te2[(t1 >>  8) & 0xff] ^ Te3[t2 & 0xff] ^ rk[19];
+    /* round 5: */
+    t0	       = Te0[s0 >> 24] ^ Te1[(s1 >> 16) & 0xff] ^ Te2[(s2 >>  8) & 0xff] ^ Te3[s3 & 0xff] ^ rk[20];
+    t1	       = Te0[s1 >> 24] ^ Te1[(s2 >> 16) & 0xff] ^ Te2[(s3 >>  8) & 0xff] ^ Te3[s0 & 0xff] ^ rk[21];
+    t2	       = Te0[s2 >> 24] ^ Te1[(s3 >> 16) & 0xff] ^ Te2[(s0 >>  8) & 0xff] ^ Te3[s1 & 0xff] ^ rk[22];
+    t3	       = Te0[s3 >> 24] ^ Te1[(s0 >> 16) & 0xff] ^ Te2[(s1 >>  8) & 0xff] ^ Te3[s2 & 0xff] ^ rk[23];
+    /* round 6: */
+    s0	       = Te0[t0 >> 24] ^ Te1[(t1 >> 16) & 0xff] ^ Te2[(t2 >>  8) & 0xff] ^ Te3[t3 & 0xff] ^ rk[24];
+    s1	       = Te0[t1 >> 24] ^ Te1[(t2 >> 16) & 0xff] ^ Te2[(t3 >>  8) & 0xff] ^ Te3[t0 & 0xff] ^ rk[25];
+    s2	       = Te0[t2 >> 24] ^ Te1[(t3 >> 16) & 0xff] ^ Te2[(t0 >>  8) & 0xff] ^ Te3[t1 & 0xff] ^ rk[26];
+    s3	       = Te0[t3 >> 24] ^ Te1[(t0 >> 16) & 0xff] ^ Te2[(t1 >>  8) & 0xff] ^ Te3[t2 & 0xff] ^ rk[27];
+    /* round 7: */
+    t0	       = Te0[s0 >> 24] ^ Te1[(s1 >> 16) & 0xff] ^ Te2[(s2 >>  8) & 0xff] ^ Te3[s3 & 0xff] ^ rk[28];
+    t1	       = Te0[s1 >> 24] ^ Te1[(s2 >> 16) & 0xff] ^ Te2[(s3 >>  8) & 0xff] ^ Te3[s0 & 0xff] ^ rk[29];
+    t2	       = Te0[s2 >> 24] ^ Te1[(s3 >> 16) & 0xff] ^ Te2[(s0 >>  8) & 0xff] ^ Te3[s1 & 0xff] ^ rk[30];
+    t3	       = Te0[s3 >> 24] ^ Te1[(s0 >> 16) & 0xff] ^ Te2[(s1 >>  8) & 0xff] ^ Te3[s2 & 0xff] ^ rk[31];
+    /* round 8: */
+    s0	       = Te0[t0 >> 24] ^ Te1[(t1 >> 16) & 0xff] ^ Te2[(t2 >>  8) & 0xff] ^ Te3[t3 & 0xff] ^ rk[32];
+    s1	       = Te0[t1 >> 24] ^ Te1[(t2 >> 16) & 0xff] ^ Te2[(t3 >>  8) & 0xff] ^ Te3[t0 & 0xff] ^ rk[33];
+    s2	       = Te0[t2 >> 24] ^ Te1[(t3 >> 16) & 0xff] ^ Te2[(t0 >>  8) & 0xff] ^ Te3[t1 & 0xff] ^ rk[34];
+    s3	       = Te0[t3 >> 24] ^ Te1[(t0 >> 16) & 0xff] ^ Te2[(t1 >>  8) & 0xff] ^ Te3[t2 & 0xff] ^ rk[35];
+    /* round 9: */
+    t0	       = Te0[s0 >> 24] ^ Te1[(s1 >> 16) & 0xff] ^ Te2[(s2 >>  8) & 0xff] ^ Te3[s3 & 0xff] ^ rk[36];
+    t1	       = Te0[s1 >> 24] ^ Te1[(s2 >> 16) & 0xff] ^ Te2[(s3 >>  8) & 0xff] ^ Te3[s0 & 0xff] ^ rk[37];
+    t2	       = Te0[s2 >> 24] ^ Te1[(s3 >> 16) & 0xff] ^ Te2[(s0 >>  8) & 0xff] ^ Te3[s1 & 0xff] ^ rk[38];
+    t3	       = Te0[s3 >> 24] ^ Te1[(s0 >> 16) & 0xff] ^ Te2[(s1 >>  8) & 0xff] ^ Te3[s2 & 0xff] ^ rk[39];
+    if (key->rounds > 10) {
+        /* round 10: */
+        s0     = Te0[t0 >> 24] ^ Te1[(t1 >> 16) & 0xff] ^ Te2[(t2 >>  8) & 0xff] ^ Te3[t3 & 0xff] ^ rk[40];
+        s1     = Te0[t1 >> 24] ^ Te1[(t2 >> 16) & 0xff] ^ Te2[(t3 >>  8) & 0xff] ^ Te3[t0 & 0xff] ^ rk[41];
+        s2     = Te0[t2 >> 24] ^ Te1[(t3 >> 16) & 0xff] ^ Te2[(t0 >>  8) & 0xff] ^ Te3[t1 & 0xff] ^ rk[42];
+        s3     = Te0[t3 >> 24] ^ Te1[(t0 >> 16) & 0xff] ^ Te2[(t1 >>  8) & 0xff] ^ Te3[t2 & 0xff] ^ rk[43];
+        /* round 11: */
+        t0     = Te0[s0 >> 24] ^ Te1[(s1 >> 16) & 0xff] ^ Te2[(s2 >>  8) & 0xff] ^ Te3[s3 & 0xff] ^ rk[44];
+        t1     = Te0[s1 >> 24] ^ Te1[(s2 >> 16) & 0xff] ^ Te2[(s3 >>  8) & 0xff] ^ Te3[s0 & 0xff] ^ rk[45];
+        t2     = Te0[s2 >> 24] ^ Te1[(s3 >> 16) & 0xff] ^ Te2[(s0 >>  8) & 0xff] ^ Te3[s1 & 0xff] ^ rk[46];
+        t3     = Te0[s3 >> 24] ^ Te1[(s0 >> 16) & 0xff] ^ Te2[(s1 >>  8) & 0xff] ^ Te3[s2 & 0xff] ^ rk[47];
+        if (key->rounds > 12) {
+            /* round 12: */
+            s0 = Te0[t0 >> 24] ^ Te1[(t1 >> 16) & 0xff] ^ Te2[(t2 >>  8) & 0xff] ^ Te3[t3 & 0xff] ^ rk[48];
+            s1 = Te0[t1 >> 24] ^ Te1[(t2 >> 16) & 0xff] ^ Te2[(t3 >>  8) & 0xff] ^ Te3[t0 & 0xff] ^ rk[49];
+            s2 = Te0[t2 >> 24] ^ Te1[(t3 >> 16) & 0xff] ^ Te2[(t0 >>  8) & 0xff] ^ Te3[t1 & 0xff] ^ rk[50];
+            s3 = Te0[t3 >> 24] ^ Te1[(t0 >> 16) & 0xff] ^ Te2[(t1 >>  8) & 0xff] ^ Te3[t2 & 0xff] ^ rk[51];
+            /* round 13: */
+            t0 = Te0[s0 >> 24] ^ Te1[(s1 >> 16) & 0xff] ^ Te2[(s2 >>  8) & 0xff] ^ Te3[s3 & 0xff] ^ rk[52];
+            t1 = Te0[s1 >> 24] ^ Te1[(s2 >> 16) & 0xff] ^ Te2[(s3 >>  8) & 0xff] ^ Te3[s0 & 0xff] ^ rk[53];
+            t2 = Te0[s2 >> 24] ^ Te1[(s3 >> 16) & 0xff] ^ Te2[(s0 >>  8) & 0xff] ^ Te3[s1 & 0xff] ^ rk[54];
+            t3 = Te0[s3 >> 24] ^ Te1[(s0 >> 16) & 0xff] ^ Te2[(s1 >>  8) & 0xff] ^ Te3[s2 & 0xff] ^ rk[55];
+        }
+    }
+    rk += key->rounds << 2;
+#else				/* !FULL_UNROLL */
+    /*
+     * Nr - 1 full rounds:
+     */
+    domv_read(&(key->rounds), &temp, sizeof(temp), 0);
+    r = temp >> 1;
+
+    for (;;) {
+      domv_read(&(rk[4]), &temp, sizeof(temp), 0);
+      t0 = 
+	Te0[(s0 >> 24)       ] ^
+	Te1[(s1 >> 16) & 0xff] ^
+	Te2[(s2 >>  8) & 0xff] ^
+	Te3[(s3      ) & 0xff] ^
+	temp;
+
+      domv_read(&(rk[5]), &temp, sizeof(temp), 0);
+      t1 = 
+	Te0[(s1 >> 24)       ] ^
+	Te1[(s2 >> 16) & 0xff] ^
+	Te2[(s3 >>  8) & 0xff] ^
+	Te3[(s0      ) & 0xff] ^
+	temp;
+      
+      domv_read(&(rk[6]), &temp, sizeof(temp), 0);
+        t2 = 
+            Te0[(s2 >> 24)       ] ^
+            Te1[(s3 >> 16) & 0xff] ^
+            Te2[(s0 >>  8) & 0xff] ^
+            Te3[(s1      ) & 0xff] ^
+            temp;
+
+	domv_read(&(rk[7]), &temp, sizeof(temp), 0);
+      t3 = 
+	Te0[(s3 >> 24)       ] ^
+	Te1[(s0 >> 16) & 0xff] ^
+	Te2[(s1 >>  8) & 0xff] ^
+	Te3[(s2      ) & 0xff] ^
+	temp;
+
+        rk += 8;
+        if (--r == 0) {
+            break;
+        }
+
+      domv_read(rk, &temp, sizeof(temp), 0);
+        s0 = 
+            Te0[(t0 >> 24)       ] ^
+            Te1[(t1 >> 16) & 0xff] ^
+            Te2[(t2 >>  8) & 0xff] ^
+            Te3[(t3      ) & 0xff] ^
+	  temp;
+	
+      domv_read(rk + 1, &temp, sizeof(temp), 0);
+        s1 = 
+            Te0[(t1 >> 24)       ] ^
+            Te1[(t2 >> 16) & 0xff] ^
+            Te2[(t3 >>  8) & 0xff] ^
+            Te3[(t0      ) & 0xff] ^
+	  temp;
+
+      domv_read(rk + 2, &temp, sizeof(temp), 0);
+        s2 = 
+            Te0[(t2 >> 24)       ] ^
+            Te1[(t3 >> 16) & 0xff] ^
+            Te2[(t0 >>  8) & 0xff] ^
+            Te3[(t1      ) & 0xff] ^
+	  temp;
+
+      domv_read(rk + 3, &temp, sizeof(temp), 0);
+        s3 = 
+            Te0[(t3 >> 24)       ] ^
+            Te1[(t0 >> 16) & 0xff] ^
+            Te2[(t1 >>  8) & 0xff] ^
+            Te3[(t2      ) & 0xff] ^
+	  temp;
+    }
+#endif /* ?FULL_UNROLL */
+    /*
+     * apply last round and
+     * map cipher state to byte array block:
+     */
+    
+    domv_read(rk, &temp, sizeof(temp), 0);
+    s0 = 
+        (Te2[(t0 >> 24)       ] & 0xff000000) ^
+        (Te3[(t1 >> 16) & 0xff] & 0x00ff0000) ^
+        (Te0[(t2 >>  8) & 0xff] & 0x0000ff00) ^
+        (Te1[(t3      ) & 0xff] & 0x000000ff) ^
+      temp;
+    PUTU32(out     , s0);
+
+    domv_read(rk + 1, &temp, sizeof(temp), 0);
+    s1 = 
+        (Te2[(t1 >> 24)       ] & 0xff000000) ^
+        (Te3[(t2 >> 16) & 0xff] & 0x00ff0000) ^
+        (Te0[(t3 >>  8) & 0xff] & 0x0000ff00) ^
+        (Te1[(t0      ) & 0xff] & 0x000000ff) ^
+      temp;
+    PUTU32(out +  4, s1);
+
+
+    domv_read(rk + 2, &temp, sizeof(temp), 0);
+    s2 = 
+        (Te2[(t2 >> 24)       ] & 0xff000000) ^
+        (Te3[(t3 >> 16) & 0xff] & 0x00ff0000) ^
+        (Te0[(t0 >>  8) & 0xff] & 0x0000ff00) ^
+        (Te1[(t1      ) & 0xff] & 0x000000ff) ^
+      temp;
+    PUTU32(out +  8, s2);
+
+    domv_read(rk + 3, &temp, sizeof(temp), 0);
+    s3 = 
+        (Te2[(t3 >> 24)       ] & 0xff000000) ^
+        (Te3[(t0 >> 16) & 0xff] & 0x00ff0000) ^
+        (Te0[(t1 >>  8) & 0xff] & 0x0000ff00) ^
+        (Te1[(t2      ) & 0xff] & 0x000000ff) ^
+      temp;
+    PUTU32(out + 12, s3);
+    }
+    else {
     rk = key->rd_key;
 
     /*
@@ -1679,6 +2158,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
         (Te1[(t2      ) & 0xff] & 0x000000ff) ^
         rk[3];
     PUTU32(out + 12, s3);
+    }
 }
 
 /*

@@ -20,6 +20,7 @@
 #include "domv/domv.h"
 //#define LOG_E printf("[openssl-ciphercommon_gcm.c] Enter: %s\n", __func__);
 #define LOG_E
+static int domcount = 0;
 /* End JARA */
 
 static int gcm_tls_init(PROV_GCM_CTX *dat, unsigned char *aad, size_t aad_len);
@@ -46,6 +47,12 @@ void ossl_gcm_initctx(void *provctx, PROV_GCM_CTX *ctx, size_t keybits,
     ctx->keylen = keybits / 8;
     ctx->hw = hw;
     ctx->libctx = PROV_LIBCTX_OF(provctx);
+    /* JARA: init domain number */
+    ctx->vmid = domcount ++;
+    if(domcount >= 1000) {
+      domcount = 0;
+    }
+    /* End of JARA */
 }
 
 /*
@@ -556,6 +563,7 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
     unsigned char *tag = NULL;
 
     LOG_E
+      domv_enter(ctx->vmid);
 
     if (!ossl_prov_is_running() || !ctx->key_set)
         goto err;
@@ -610,5 +618,8 @@ err:
     ctx->iv_state = IV_STATE_FINISHED;
     ctx->tls_aad_len = UNINITIALISED_SIZET;
     *padlen = plen;
+    /* JARA: Exit from the domain */
+    domv_exit();
+    /* End of JARA */
     return rv;
 }
