@@ -32,12 +32,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-/* Note: rewritten a little bit to provide error control and an OpenSSL-
-   compatible API */
-
-/*
- * AES low level APIs are deprecated for public use, but still ok for internal
+/* * AES low level APIs are deprecated for public use, but still ok for internal
  * use where we're using them to implement the higher level EVP interface, as is
  * the case here.
  */
@@ -67,9 +62,9 @@
 # endif
 
 typedef union {
-    unsigned char b[8];
-    u32 w[2];
-    u64 d;
+  unsigned char b[8];
+  u32 w[2];
+  u64 d;
 } uni;
 
 /*
@@ -78,28 +73,28 @@ typedef union {
  */
 static void XtimeWord(u32 *w)
 {
-    u32 a, b;
+  u32 a, b;
 
-    a = *w;
-    b = a & 0x80808080u;
-    a ^= b;
-    b -= b >> 7;
-    b &= 0x1B1B1B1Bu;
-    b ^= a << 1;
-    *w = b;
+  a = *w;
+  b = a & 0x80808080u;
+  a ^= b;
+  b -= b >> 7;
+  b &= 0x1B1B1B1Bu;
+  b ^= a << 1;
+  *w = b;
 }
 
 static void XtimeLong(u64 *w)
 {
-    u64 a, b;
+  u64 a, b;
 
-    a = *w;
-    b = a & U64(0x8080808080808080);
-    a ^= b;
-    b -= b >> 7;
-    b &= U64(0x1B1B1B1B1B1B1B1B);
-    b ^= a << 1;
-    *w = b;
+  a = *w;
+  b = a & U64(0x8080808080808080);
+  a ^= b;
+  b -= b >> 7;
+  b &= U64(0x1B1B1B1B1B1B1B1B);
+  b ^= a << 1;
+  *w = b;
 }
 
 /*
@@ -150,94 +145,97 @@ static void XtimeLong(u64 *w)
  */
 static void SubWord(u32 *w)
 {
-    u32 x, y, a1, a2, a3, a4, a5, a6;
+  u32 x, y, a1, a2, a3, a4, a5, a6;
 
-    x = *w;
-    y = ((x & 0xFEFEFEFEu) >> 1) | ((x & 0x01010101u) << 7);
-    x &= 0xDDDDDDDDu;
-    x ^= y & 0x57575757u;
-    y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
-    x ^= y & 0x1C1C1C1Cu;
-    y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
-    x ^= y & 0x4A4A4A4Au;
-    y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
-    x ^= y & 0x42424242u;
-    y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
-    x ^= y & 0x64646464u;
-    y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
-    x ^= y & 0xE0E0E0E0u;
-    a1 = x;
-    a1 ^= (x & 0xF0F0F0F0u) >> 4;
-    a2 = ((x & 0xCCCCCCCCu) >> 2) | ((x & 0x33333333u) << 2);
-    a3 = x & a1;
-    a3 ^= (a3 & 0xAAAAAAAAu) >> 1;
-    a3 ^= (((x << 1) & a1) ^ ((a1 << 1) & x)) & 0xAAAAAAAAu;
-    a4 = a2 & a1;
-    a4 ^= (a4 & 0xAAAAAAAAu) >> 1;
-    a4 ^= (((a2 << 1) & a1) ^ ((a1 << 1) & a2)) & 0xAAAAAAAAu;
-    a5 = (a3 & 0xCCCCCCCCu) >> 2;
-    a3 ^= ((a4 << 2) ^ a4) & 0xCCCCCCCCu;
-    a4 = a5 & 0x22222222u;
-    a4 |= a4 >> 1;
-    a4 ^= (a5 << 1) & 0x22222222u;
-    a3 ^= a4;
-    a5 = a3 & 0xA0A0A0A0u;
-    a5 |= a5 >> 1;
-    a5 ^= (a3 << 1) & 0xA0A0A0A0u;
-    a4 = a5 & 0xC0C0C0C0u;
-    a6 = a4 >> 2;
-    a4 ^= (a5 << 2) & 0xC0C0C0C0u;
-    a5 = a6 & 0x20202020u;
-    a5 |= a5 >> 1;
-    a5 ^= (a6 << 1) & 0x20202020u;
-    a4 |= a5;
-    a3 ^= a4 >> 4;
-    a3 &= 0x0F0F0F0Fu;
-    a2 = a3;
-    a2 ^= (a3 & 0x0C0C0C0Cu) >> 2;
-    a4 = a3 & a2;
-    a4 ^= (a4 & 0x0A0A0A0A0Au) >> 1;
-    a4 ^= (((a3 << 1) & a2) ^ ((a2 << 1) & a3)) & 0x0A0A0A0Au;
-    a5 = a4 & 0x08080808u;
-    a5 |= a5 >> 1;
-    a5 ^= (a4 << 1) & 0x08080808u;
-    a4 ^= a5 >> 2;
-    a4 &= 0x03030303u;
-    a4 ^= (a4 & 0x02020202u) >> 1;
-    a4 |= a4 << 2;
-    a3 = a2 & a4;
-    a3 ^= (a3 & 0x0A0A0A0Au) >> 1;
-    a3 ^= (((a2 << 1) & a4) ^ ((a4 << 1) & a2)) & 0x0A0A0A0Au;
-    a3 |= a3 << 4;
-    a2 = ((a1 & 0xCCCCCCCCu) >> 2) | ((a1 & 0x33333333u) << 2);
-    x = a1 & a3;
-    x ^= (x & 0xAAAAAAAAu) >> 1;
-    x ^= (((a1 << 1) & a3) ^ ((a3 << 1) & a1)) & 0xAAAAAAAAu;
-    a4 = a2 & a3;
-    a4 ^= (a4 & 0xAAAAAAAAu) >> 1;
-    a4 ^= (((a2 << 1) & a3) ^ ((a3 << 1) & a2)) & 0xAAAAAAAAu;
-    a5 = (x & 0xCCCCCCCCu) >> 2;
-    x ^= ((a4 << 2) ^ a4) & 0xCCCCCCCCu;
-    a4 = a5 & 0x22222222u;
-    a4 |= a4 >> 1;
-    a4 ^= (a5 << 1) & 0x22222222u;
-    x ^= a4;
-    y = ((x & 0xFEFEFEFEu) >> 1) | ((x & 0x01010101u) << 7);
-    x &= 0x39393939u;
-    x ^= y & 0x3F3F3F3Fu;
-    y = ((y & 0xFCFCFCFCu) >> 2) | ((y & 0x03030303u) << 6);
-    x ^= y & 0x97979797u;
-    y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
-    x ^= y & 0x9B9B9B9Bu;
-    y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
-    x ^= y & 0x3C3C3C3Cu;
-    y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
-    x ^= y & 0xDDDDDDDDu;
-    y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
-    x ^= y & 0x72727272u;
-    x ^= 0x63636363u;
-    *w = x;
+  x = *w;
+  y = ((x & 0xFEFEFEFEu) >> 1) | ((x & 0x01010101u) << 7);
+  x &= 0xDDDDDDDDu;
+  x ^= y & 0x57575757u;
+  y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
+  x ^= y & 0x1C1C1C1Cu;
+  y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
+  x ^= y & 0x4A4A4A4Au;
+  y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
+  x ^= y & 0x42424242u;
+  y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
+  x ^= y & 0x64646464u;
+  y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
+  x ^= y & 0xE0E0E0E0u;
+  a1 = x;
+  a1 ^= (x & 0xF0F0F0F0u) >> 4;
+  a2 = ((x & 0xCCCCCCCCu) >> 2) | ((x & 0x33333333u) << 2);
+  a3 = x & a1;
+  a3 ^= (a3 & 0xAAAAAAAAu) >> 1;
+  a3 ^= (((x << 1) & a1) ^ ((a1 << 1) & x)) & 0xAAAAAAAAu;
+  a4 = a2 & a1;
+  a4 ^= (a4 & 0xAAAAAAAAu) >> 1;
+  a4 ^= (((a2 << 1) & a1) ^ ((a1 << 1) & a2)) & 0xAAAAAAAAu;
+  a5 = (a3 & 0xCCCCCCCCu) >> 2;
+  a3 ^= ((a4 << 2) ^ a4) & 0xCCCCCCCCu;
+  a4 = a5 & 0x22222222u;
+  a4 |= a4 >> 1;
+  a4 ^= (a5 << 1) & 0x22222222u;
+  a3 ^= a4;
+  a5 = a3 & 0xA0A0A0A0u;
+  a5 |= a5 >> 1;
+  a5 ^= (a3 << 1) & 0xA0A0A0A0u;
+  a4 = a5 & 0xC0C0C0C0u;
+  a6 = a4 >> 2;
+  a4 ^= (a5 << 2) & 0xC0C0C0C0u;
+  a5 = a6 & 0x20202020u;
+  a5 |= a5 >> 1;
+  a5 ^= (a6 << 1) & 0x20202020u;
+  a4 |= a5;
+  a3 ^= a4 >> 4;
+  a3 &= 0x0F0F0F0Fu;
+  a2 = a3;
+  a2 ^= (a3 & 0x0C0C0C0Cu) >> 2;
+  a4 = a3 & a2;
+  a4 ^= (a4 & 0x0A0A0A0A0Au) >> 1;
+  a4 ^= (((a3 << 1) & a2) ^ ((a2 << 1) & a3)) & 0x0A0A0A0Au;
+  a5 = a4 & 0x08080808u;
+  a5 |= a5 >> 1;
+  a5 ^= (a4 << 1) & 0x08080808u;
+  a4 ^= a5 >> 2;
+  a4 &= 0x03030303u;
+  a4 ^= (a4 & 0x02020202u) >> 1;
+  a4 |= a4 << 2;
+  a3 = a2 & a4;
+  a3 ^= (a3 & 0x0A0A0A0Au) >> 1;
+  a3 ^= (((a2 << 1) & a4) ^ ((a4 << 1) & a2)) & 0x0A0A0A0Au;
+  a3 |= a3 << 4;
+  a2 = ((a1 & 0xCCCCCCCCu) >> 2) | ((a1 & 0x33333333u) << 2);
+  x = a1 & a3;
+  x ^= (x & 0xAAAAAAAAu) >> 1;
+  x ^= (((a1 << 1) & a3) ^ ((a3 << 1) & a1)) & 0xAAAAAAAAu;
+  a4 = a2 & a3;
+  a4 ^= (a4 & 0xAAAAAAAAu) >> 1;
+  a4 ^= (((a2 << 1) & a3) ^ ((a3 << 1) & a2)) & 0xAAAAAAAAu;
+  a5 = (x & 0xCCCCCCCCu) >> 2;
+  x ^= ((a4 << 2) ^ a4) & 0xCCCCCCCCu;
+  a4 = a5 & 0x22222222u;
+  a4 |= a4 >> 1;
+  a4 ^= (a5 << 1) & 0x22222222u;
+  x ^= a4;
+  y = ((x & 0xFEFEFEFEu) >> 1) | ((x & 0x01010101u) << 7);
+  x &= 0x39393939u;
+  x ^= y & 0x3F3F3F3Fu;
+  y = ((y & 0xFCFCFCFCu) >> 2) | ((y & 0x03030303u) << 6);
+  x ^= y & 0x97979797u;
+  y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
+  x ^= y & 0x9B9B9B9Bu;
+  y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
+  x ^= y & 0x3C3C3C3Cu;
+  y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
+  x ^= y & 0xDDDDDDDDu;
+  y = ((y & 0xFEFEFEFEu) >> 1) | ((y & 0x01010101u) << 7);
+  x ^= y & 0x72727272u;
+  x ^= 0x63636363u;
+  *w = x;
 }
+
+/* Note: rewritten a little bit to provide error control and an OpenSSL-
+   compatible API */
 
 static void SubLong(u64 *w)
 {
@@ -1301,11 +1299,11 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     u32 temp;
 
     LOG_E
-      /* JARA: For GETU32 optmizable? */
+      
     //unsigned char tempstr[4];
     u32 target;
     u32 inter;
-    bool flag = key == 0x90000000 ? 1 : 0;
+    bool flag = key >= 0x90000000 ? 1 : 0;
     /* End of JARA */
 
     if (!userKey || !key)
@@ -1314,8 +1312,9 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
         return -2;
 
     if(flag) {
-      rk = &key->rd_key;
-
+      rk = (u32 *)((u32)key & 0xFFFF0000);
+      temp = (u32)(key) & 0x0000FFFF;
+      domv_enter(temp);
 
     /* JARA: key, kr is domv mmaped, use domv_read, write */
     if (bits == 128)
@@ -1325,7 +1324,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     else
       temp = 14;
 
-    domv_write(&(key->rounds), &temp, sizeof(temp), 0);
+    domv_write(rk + sizeof(key->rd_key), &temp, sizeof(temp), 0);
 
     /* rk[0] = GETU32(userKey     ); */
     /* rk[1] = GETU32(userKey +  4); */
@@ -1409,6 +1408,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 	/* End of JARA */
 
 	if (++i == 10) {
+	  domv_exit();
 	  return 0;
 	}
 	
@@ -1481,6 +1481,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 	  domv_write(rk + 9, &target, sizeof(target), 0);
 
 	  if (++i == 8) {
+	    domv_exit();
 	    return 0;
 	  }
 
@@ -1573,6 +1574,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 	  domv_write(rk + 11, &target, sizeof(target), 0);
 
 	  if (++i == 7) {
+	    domv_exit();
 	    return 0;
 	  }
 
@@ -1767,28 +1769,30 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
 #endif /* ?FULL_UNROLL */
 
     u32 temp;
-    int flag = key == 0x90000000 ? 1 : 0;
+    int flag = key >= 0x90000000 ? 1 : 0;
     LOG_E
       
     assert(in && out && key);
 
     if(flag){
-      rk = &key->rd_key;
+      rk = (u32 *)((u32)key & 0xFFFF0000);
+      temp = (u32)(key) & 0x0000FFFF;
+      domv_enter(temp);
 
       /*
        * map byte array block to cipher state
        * and add initial round key:
        */
-      domv_read(&(rk[0]), &temp, sizeof(temp), 0);
+      domv_read(rk, &temp, sizeof(temp), 0);
       s0 = GETU32(in     ) ^ temp;
       
-      domv_read(&(rk[1]), &temp, sizeof(temp), 0);
+      domv_read(rk + 1, &temp, sizeof(temp), 0);
       s1 = GETU32(in +  4) ^ temp;
       
-      domv_read(&(rk[2]), &temp, sizeof(temp), 0);
+      domv_read(rk + 2, &temp, sizeof(temp), 0);
       s2 = GETU32(in +  8) ^ temp;
       
-      domv_read(&(rk[3]), &temp, sizeof(temp), 0);
+      domv_read(rk + 3, &temp, sizeof(temp), 0);
       s3 = GETU32(in + 12) ^ temp;
     
 #ifdef FULL_UNROLL
@@ -1866,7 +1870,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     /*
      * Nr - 1 full rounds:
      */
-    domv_read(&(key->rounds), &temp, sizeof(temp), 0);
+    domv_read(rk + sizeof(key->rd_key), &temp, sizeof(temp), 0);
     r = temp >> 1;
 
     for (;;) {
@@ -1981,6 +1985,8 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
         (Te1[(t2      ) & 0xff] & 0x000000ff) ^
       temp;
     PUTU32(out + 12, s3);
+    
+    domv_exit();
     }
     else {
     rk = key->rd_key;

@@ -110,21 +110,16 @@
                          *((c)++)=(unsigned char)(((l)    )&0xff),      \
                          l)
 /* JARA: For Dom-v */
-#define HOST_l2c_hyp(l,c)                     \
-  ({                                          \
-  unsigned char temp;                    \
-  temp = (l >> 24) & 0xff; domv_write(c++, &temp, 1, 0); \
-  temp = (l >> 16) & 0xff; domv_write(c++, &temp, 1, 0); \
-  temp = (l >>  8) & 0xff; domv_write(c++, &temp, 1, 0); \
-  temp = (l      ) & 0xff; domv_write(c++, &temp, 1, 0); \
-  l;                                      \
-    })
+/* #define HOST_l2c_hyp(l,c)                     \ */
+/*   ({                                          \ */
+/*   unsigned char temp;                    \ */
+/*   temp = (l >> 24) & 0xff; domv_write(c++, &temp, 1, 0); \ */
+/*   temp = (l >> 16) & 0xff; domv_write(c++, &temp, 1, 0); \ */
+/*   temp = (l >>  8) & 0xff; domv_write(c++, &temp, 1, 0); \ */
+/*   temp = (l      ) & 0xff; domv_write(c++, &temp, 1, 0); \ */
+/*   l;                                      \ */
+/*     }) */
 
-/* (*((c)++)=(unsigned char)(((l)>>24)&0xff),				\ */
-/*  *((c)++)=(unsigned char)(((l)>>16)&0xff),				\ */
-/*  *((c)++)=(unsigned char)(((l)>> 8)&0xff),				\ */
-/*  *((c)++)=(unsigned char)(((l)    )&0xff),				\ */
-/*  l) */
 /* End of JARA */
 
 #elif defined(DATA_ORDER_IS_LITTLE_ENDIAN)
@@ -139,21 +134,16 @@
                          *((c)++)=(unsigned char)(((l)>>24)&0xff),      \
                          l)
 /* JARA: For Dom-v */
-#define HOST_l2c_hyp(l,c)                     \
-  ({                                          \
-  unsigned char temp;                    \
-  temp = (l      ) & 0xff; domv_write(c++, &temp, 1, 0); \
-  temp = (l >>  8) & 0xff; domv_write(c++, &temp, 1, 0); \
-  temp = (l >> 16) & 0xff; domv_write(c++, &temp, 1, 0); \
-  temp = (l >> 24) & 0xff; domv_write(c++, &temp, 1, 0); \
-  l;                                      \
-    })
+/* #define HOST_l2c_hyp(l,c)				\ */
+  /* ({                                          \ */
+  /* unsigned char temp;                    \ */
+  /* temp = (l      ) & 0xff; domv_write(c++, &temp, 1, 0); \ */
+  /* temp = (l >>  8) & 0xff; domv_write(c++, &temp, 1, 0); \ */
+  /* temp = (l >> 16) & 0xff; domv_write(c++, &temp, 1, 0); \ */
+  /* temp = (l >> 24) & 0xff; domv_write(c++, &temp, 1, 0); \ */
+  /* l;                                      \ */
+  /*   }) */
 
-/* (*((c)++)=(unsigned char)(((l)>>24)&0xff),				\ */
-/*  *((c)++)=(unsigned char)(((l)>>16)&0xff),				\ */
-/*  *((c)++)=(unsigned char)(((l)>> 8)&0xff),				\ */
-/*  *((c)++)=(unsigned char)(((l)    )&0xff),				\ */
-/*  l) */
 /* End of JARA */
 
 #endif

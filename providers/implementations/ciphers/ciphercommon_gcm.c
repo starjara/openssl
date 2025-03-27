@@ -516,13 +516,14 @@ static int gcm_tls_iv_set_fixed(PROV_GCM_CTX *ctx, unsigned char *iv,
     /* Special case: -1 length restores whole IV */
     if (len == (size_t)-1) {
       /* JARA: memcpy replace */
-      if(0x80000000 <= (unsigned long) iv && (unsigned long) iv <= 0x80001000) {
-	domv_read(iv, ctx->iv, ctx->ivlen, 0);
-      }
-      else {
-        memcpy(ctx->iv, iv, ctx->ivlen);
-      }
+      /* if(0x80000000 <= (unsigned long) iv && (unsigned long) iv <= 0x80001000) { */
+      /* 	domv_read(iv, ctx->iv, ctx->ivlen, 0); */
+      /* } */
+      /* else { */
+      /*   memcpy(ctx->iv, iv, ctx->ivlen); */
+      /* } */
       /* End of JARA */
+      memcpy(ctx->iv, iv, ctx->ivlen);
         ctx->iv_gen = 1;
         ctx->iv_state = IV_STATE_BUFFERED;
         return 1;
@@ -533,13 +534,14 @@ static int gcm_tls_iv_set_fixed(PROV_GCM_CTX *ctx, unsigned char *iv,
             return 0;
     if (len > 0)
       /* JARA: memcpy replace */
-      if(0x80000000 <= (unsigned long) iv && (unsigned long) iv <= 0x80001000) {
-	domv_read(iv, ctx->iv, len, 0);
-      }
-      else {
-        memcpy(ctx->iv, iv, len);
-      }
+      /* if(0x80000000 <= (unsigned long) iv && (unsigned long) iv <= 0x80001000) { */
+      /* 	domv_read(iv, ctx->iv, len, 0); */
+      /* } */
+      /* else { */
+      /*   memcpy(ctx->iv, iv, len); */
+      /* } */
       /* End of JARA */
+      memcpy(ctx->iv, iv, len);
     if (ctx->enc
         && RAND_bytes_ex(ctx->libctx, ctx->iv + len, ctx->ivlen - len, 0) <= 0)
             return 0;
@@ -563,7 +565,7 @@ static int gcm_tls_cipher(PROV_GCM_CTX *ctx, unsigned char *out, size_t *padlen,
     unsigned char *tag = NULL;
 
     LOG_E
-      domv_enter(ctx->vmid);
+      //domv_enter(ctx->vmid);
 
     if (!ossl_prov_is_running() || !ctx->key_set)
         goto err;
@@ -619,7 +621,7 @@ err:
     ctx->tls_aad_len = UNINITIALISED_SIZET;
     *padlen = plen;
     /* JARA: Exit from the domain */
-    domv_exit();
+    //domv_exit();
     /* End of JARA */
     return rv;
 }

@@ -30,7 +30,7 @@ static int aes_gcm_initkey(PROV_GCM_CTX *ctx, const unsigned char *key,
 
     /* JARA: ks.ks is a pointer no need dereferrencing */
     AES_KEY *ks = actx->ks.ks;
-    domv_enter(ctx->vmid);
+    //domv_enter(ctx->vmid);
     /* End of JARA */
 
     LOG_E
@@ -70,7 +70,7 @@ static int aes_gcm_initkey(PROV_GCM_CTX *ctx, const unsigned char *key,
     ctx->key_set = 1;
     
     /* JARA: exit from the domain */
-    domv_exit();
+    //domv_exit();
     /* End of JARA */
     return 1;
 }

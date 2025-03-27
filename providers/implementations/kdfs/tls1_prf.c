@@ -345,12 +345,12 @@ static int tls1_prf_P_hash(EVP_MAC_CTX *ctx_init,
 	    
 	    // memcpy(out, Ai, olen);
 	    /* JARA: Write key */
-	    if(0x80000000 <= out && out <= 0x80001000) 
-	      domv_write(out, Ai, olen, 0);
-	    else
-	      memcpy(out, Ai, olen);
+	    /* if(0x80000000 <= out && out <= 0x80001000)  */
+	    /*   domv_write(out, Ai, olen, 0); */
+	    /* else */
+	    /*   memcpy(out, Ai, olen); */
 	    /* End of JARA */
-	    
+	    memcpy(out, Ai, olen);
             break;
         }
         if (!EVP_MAC_final(ctx, out, NULL, olen))
