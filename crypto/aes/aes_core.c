@@ -50,6 +50,13 @@
 #include <openssl/aes.h>
 #include "aes_local.h"
 
+
+/* JARA: lwC swtiching overhead */
+#include "lwc/lwc.h"
+/* End of JARA */
+
+
+
 #if defined(OPENSSL_AES_CONST_TIME) && !defined(AES_ASM)
 
 # if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
@@ -65,7 +72,6 @@ typedef union {
     u32 w[2];
     u64 d;
 } uni;
-
 /*
  * Compute w := (w * x) mod (x^8 + x^4 + x^3 + x^1 + 1)
  * Therefore the name "xtime".
@@ -1288,8 +1294,15 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     if (bits != 128 && bits != 192 && bits != 256)
         return -2;
 
-    rk = key->rd_key;
 
+    /* JARA: lwC domain switching overhead */
+    if(key->vmid) {
+      delay_6000_cycles();
+    }
+    /* End of JARA */
+
+    rk = key->rd_key;
+    
     if (bits == 128)
         key->rounds = 10;
     else if (bits == 192)
@@ -1314,6 +1327,11 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk[6] = rk[2] ^ rk[5];
             rk[7] = rk[3] ^ rk[6];
             if (++i == 10) {
+	      /* JARA: lwC domain switching overhead */
+	      if(key->vmid) {
+		delay_6000_cycles();
+	      }
+	      /* End of JARA */
                 return 0;
             }
             rk += 4;
@@ -1334,6 +1352,11 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk[ 8] = rk[ 2] ^ rk[ 7];
             rk[ 9] = rk[ 3] ^ rk[ 8];
             if (++i == 8) {
+	      /* JARA: lwC domain switching overhead */
+	      if(key->vmid) {
+		delay_6000_cycles();
+	      }
+	      /* End of JARA */
                 return 0;
             }
             rk[10] = rk[ 4] ^ rk[ 9];
@@ -1356,6 +1379,11 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk[10] = rk[ 2] ^ rk[ 9];
             rk[11] = rk[ 3] ^ rk[10];
             if (++i == 7) {
+	      /* JARA: lwC domain switching overhead */
+	      if(key->vmid) {
+		delay_6000_cycles();
+	      }
+	      /* End of JARA */
                 return 0;
             }
             temp = rk[11];
@@ -1371,6 +1399,11 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
             rk += 8;
             }
     }
+    /* JARA: lwC domain switching overhead */
+    if(key->vmid) {
+      delay_6000_cycles();
+    }
+    /* End of JARA */
     return 0;
 }
 
@@ -1440,8 +1473,15 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
 #endif /* ?FULL_UNROLL */
 
     assert(in && out && key);
-    rk = key->rd_key;
 
+    /* JARA: lwC domain switching overhead */
+    if(key->vmid) {
+      delay_6000_cycles();
+    }
+    /* End of JARA */
+
+    rk = key->rd_key;
+    
     /*
      * map byte array block to cipher state
      * and add initial round key:
@@ -1615,6 +1655,13 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
         (Te1[(t2      ) & 0xff] & 0x000000ff) ^
         rk[3];
     PUTU32(out + 12, s3);
+
+    /* JARA: lwC domain switching overhead */
+    if(key->vmid) {
+      delay_6000_cycles();
+    }
+    /* End of JARA */
+
 }
 
 /*

@@ -41,6 +41,9 @@ struct aes_key_st {
     unsigned int rd_key[4 * (AES_MAXNR + 1)];
 #  endif
     int rounds;
+  /* JARA: flag field */
+  int vmid;
+  /* End of JARA */
 };
 typedef struct aes_key_st AES_KEY;
 

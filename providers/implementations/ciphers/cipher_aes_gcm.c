@@ -31,6 +31,7 @@ static void *aes_gcm_newctx(void *provctx, size_t keybits)
     if (ctx != NULL)
         ossl_gcm_initctx(provctx, &ctx->base, keybits,
                          ossl_prov_aes_hw_gcm(keybits));
+    ctx->ks.ks.vmid = 1;
     return ctx;
 }
 
