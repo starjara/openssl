@@ -74,7 +74,7 @@ static void aes_gcm_freectx(void *vctx)
 
     /* JARA: destroy the domain */
     domv_enter(ctx->base.vmid);
-    domv_munmap(0x90000000);
+    domv_munmap((void *)0x90000000);
     domv_exit();
     domv_destroy(ctx->base.vmid);
     /* End of JARA */
