@@ -48,7 +48,8 @@
 /* JARA: For dom-v */
 #include "domv/domv.h"
 // #define LOG_E printf("[openssl-aes_core.c] Enter: %s\n", __func__);
-define LOG_E
+#define LOG_E
+
 /* End of JARA */
 
 #if defined(OPENSSL_AES_CONST_TIME) && !defined(AES_ASM)
@@ -60,6 +61,7 @@ define LOG_E
 # else
 #  define U64(C) C##ULL
 # endif
+
 
 typedef union {
   unsigned char b[8];
@@ -1314,7 +1316,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
     if(flag) {
       rk = (u32 *)((u32)key & 0xFFFF0000);
       temp = (u32)(key) & 0x0000FFFF;
-      domv_enter(temp);
+      //domv_enter(temp);
 
     /* JARA: key, kr is domv mmaped, use domv_read, write */
     if (bits == 128)
@@ -1408,7 +1410,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 	/* End of JARA */
 
 	if (++i == 10) {
-	  domv_exit();
+	  //domv_exit();
 	  return 0;
 	}
 	
@@ -1481,7 +1483,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 	  domv_write(rk + 9, &target, sizeof(target), 0);
 
 	  if (++i == 8) {
-	    domv_exit();
+	    //domv_exit();
 	    return 0;
 	  }
 
@@ -1574,7 +1576,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 	  domv_write(rk + 11, &target, sizeof(target), 0);
 
 	  if (++i == 7) {
-	    domv_exit();
+	    //domv_exit();
 	    return 0;
 	  }
 
@@ -1777,7 +1779,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     if(flag){
       rk = (u32 *)((u32)key & 0xFFFF0000);
       temp = (u32)(key) & 0x0000FFFF;
-      domv_enter(temp);
+      //domv_enter(temp);
 
       /*
        * map byte array block to cipher state
@@ -1986,7 +1988,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
       temp;
     PUTU32(out + 12, s3);
     
-    domv_exit();
+    //domv_exit();
     }
     else {
     rk = key->rd_key;
