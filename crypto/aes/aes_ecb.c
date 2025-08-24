@@ -18,6 +18,8 @@
 #include <openssl/aes.h>
 #include "aes_local.h"
 
+#include <domv/domv.h>
+
 void AES_ecb_encrypt(const unsigned char *in, unsigned char *out,
                      const AES_KEY *key, const int enc)
 {
@@ -25,8 +27,19 @@ void AES_ecb_encrypt(const unsigned char *in, unsigned char *out,
     assert(in && out && key);
     assert((AES_ENCRYPT == enc) || (AES_DECRYPT == enc));
 
+    int flag = key >= 0x90000000 ? 1 : 0;
+    if (flag){
+            u32 temp = (u32)(key) & 0x0000FFFF;
+            domv_enter(temp);
+    }
+
     if (AES_ENCRYPT == enc)
         AES_encrypt(in, out, key);
     else
         AES_decrypt(in, out, key);
+
+    if (flag){
+            domv_exit();
+    }
+
 }

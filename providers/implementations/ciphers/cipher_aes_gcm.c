@@ -45,7 +45,7 @@ static void *aes_gcm_newctx(void *provctx, size_t keybits)
     domv_create(ctx->base.vmid);
     domv_enter(ctx->base.vmid);
     ctx->ks.ks = (AES_KEY *)((u32)domv_mmap(0x90000000, 0, 4096, PROT_READ|PROT_WRITE) | (u32)ctx->base.vmid);
-    //domv_exit();
+    domv_exit();
     /* End of JARA */
   
 
@@ -73,7 +73,7 @@ static void aes_gcm_freectx(void *vctx)
     PROV_AES_GCM_CTX *ctx = (PROV_AES_GCM_CTX *)vctx;
 
     /* JARA: destroy the domain */
-    //domv_enter(ctx->base.vmid);
+    domv_enter(ctx->base.vmid);
     domv_munmap((void *)0x90000000);
     domv_exit();
     domv_destroy(ctx->base.vmid);

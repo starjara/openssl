@@ -1775,14 +1775,14 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     bool flag = (key >= UINT32_C(0x90000000));
     //int flag = key >= 0x90000000 ? 1 : 0;
     LOG_E
-
       
     assert(in && out && key);
 
     if(flag){
       rk = (u32 *)((u32)key & 0xFFFF0000);
       temp = (u32)(key) & 0x0000FFFF;
-      //domv_enter(temp);
+      domv_enter(temp);
+      domv_enter(temp);
 
       /*
        * map byte array block to cipher state
@@ -1991,7 +1991,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
       temp;
     PUTU32(out + 12, s3);
     
-    //domv_exit();
+    domv_exit();
     }
     else {
     rk = key->rd_key;

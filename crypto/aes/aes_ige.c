@@ -18,6 +18,8 @@
 #include <openssl/aes.h>
 #include "aes_local.h"
 
+#include <domv/domv.h>
+
 /* XXX: probably some better way to do this */
 #if defined(__i386__) || defined(__x86_64__)
 # define UNALIGNED_MEMOPS_ARE_FAST 1
@@ -51,6 +53,12 @@ void AES_ige_encrypt(const unsigned char *in, unsigned char *out,
 {
     size_t n;
     size_t len = length / AES_BLOCK_SIZE;
+	    /*JADU*/
+    bool flag = (key >= UINT32_C(0x90000000));
+    if (flag){
+            u32 temp = (u32)(key) & 0x0000FFFF;
+            domv_enter(temp);
+    }
 
     if (length == 0)
         return;
@@ -66,6 +74,7 @@ void AES_ige_encrypt(const unsigned char *in, unsigned char *out,
              0)) {
             aes_block_t *ivp = (aes_block_t *) ivec;
             aes_block_t *iv2p = (aes_block_t *) (ivec + AES_BLOCK_SIZE);
+
 
             while (len) {
                 aes_block_t *inp = (aes_block_t *) in;
@@ -166,6 +175,8 @@ void AES_ige_encrypt(const unsigned char *in, unsigned char *out,
             memcpy(ivec + AES_BLOCK_SIZE, iv2.data, AES_BLOCK_SIZE);
         }
     }
+    if (flag)
+    	domv_exit();
 }
 
 /*
@@ -196,6 +207,11 @@ void AES_bi_ige_encrypt(const unsigned char *in, unsigned char *out,
     unsigned char prev[AES_BLOCK_SIZE];
     const unsigned char *iv;
     const unsigned char *iv2;
+    bool flag = (key >= UINT32_C(0x90000000));
+    if (flag){
+            u32 temp = (u32)(key) & 0x0000FFFF;
+            domv_enter(temp);
+    }
 
     OPENSSL_assert(in && out && key && ivec);
     OPENSSL_assert((AES_ENCRYPT == enc) || (AES_DECRYPT == enc));
@@ -298,4 +314,6 @@ void AES_bi_ige_encrypt(const unsigned char *in, unsigned char *out,
             out += AES_BLOCK_SIZE;
         }
     }
+    if (flag)
+    	domv_exit();
 }

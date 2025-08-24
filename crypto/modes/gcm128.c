@@ -16,6 +16,7 @@
 /* JARA: For Dom-v */
 //#define LOG_E printf("[openssl-gcm128.c] Enter: %s\n", __func__);
 #define LOG_E
+#include <domv/domv.h>
 /* End JARA */
 
 #if defined(__GNUC__) && !defined(STRICT_ALIGNMENT)
@@ -715,8 +716,16 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT *ctx, void *key, block128_f block)
     memset(ctx, 0, sizeof(*ctx));
     ctx->block = block;
     ctx->key = key;
+    /*JADU*/
+    int flag = key >= 0x90000000 ? 1 : 0;
+    if (flag){
+            u32 temp = (u32)(key) & 0x0000FFFF;
+            domv_enter(temp);
+    }
 
     (*block) (ctx->H.c, ctx->H.c, key);
+
+    if(flag) domv_exit();
 
     if (IS_LITTLE_ENDIAN) {
         /* H is stored in host byte order */
@@ -899,7 +908,15 @@ void CRYPTO_gcm128_setiv(GCM128_CONTEXT *ctx, const unsigned char *iv,
     ctx->Xi.u[0] = 0;
     ctx->Xi.u[1] = 0;
 
+    /*JADU*/
+    int flag = ctx->key >= 0x90000000 ? 1 : 0;
+    if (flag){
+            u32 temp = (u32)(ctx->key) & 0x0000FFFF;
+            domv_enter(temp);
+    }
     (*ctx->block) (ctx->Yi.c, ctx->EK0.c, ctx->key);
+    if(flag) domv_exit();
+
     ++ctr;
     if (IS_LITTLE_ENDIAN)
 #ifdef BSWAP4
@@ -992,7 +1009,6 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT *ctx,
 #endif
 
   LOG_E
-    
     mlen += len;
     if (mlen > ((U64(1) << 36) - 32) || (sizeof(len) == 8 && mlen < len))
         return -1;
@@ -1028,6 +1044,16 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT *ctx,
         ctr = ctx->Yi.d[3];
 
     n = mres % 16;
+
+    /*JADU*/
+    int flag = key >= 0x90000000 ? 1 : 0;
+    if (flag){
+            u32 temp = (u32)(key) & 0x0000FFFF;
+            domv_enter(temp);
+    }
+
+
+
 #if !defined(OPENSSL_SMALL_FOOTPRINT)
     if (16 % sizeof(size_t) == 0) { /* always true actually */
         do {
@@ -1043,6 +1069,8 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT *ctx,
                     mres = 0;
                 } else {
                     ctx->mres = mres;
+		    /*JADU*/
+      	            if(flag) domv_exit();
                     return 0;
                 }
 # else
@@ -1056,6 +1084,8 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT *ctx,
                     mres = 0;
                 } else {
                     ctx->mres = n;
+		    /*JADU*/
+      	            if(flag) domv_exit();
                     return 0;
                 }
 # endif
@@ -1171,6 +1201,8 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT *ctx,
             }
 
             ctx->mres = mres;
+	    /*JADU*/
+      	    if(flag) domv_exit();
             return 0;
         } while (0);
     }
@@ -1204,6 +1236,8 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT *ctx,
     }
 
     ctx->mres = mres;
+    /*JADU*/
+    if(flag) domv_exit();
     return 0;
 }
 
@@ -1262,6 +1296,14 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT *ctx,
         ctr = ctx->Yi.d[3];
 
     n = mres % 16;
+
+    /*JADU*/
+    int flag = key >= 0x90000000 ? 1 : 0;
+    if (flag){
+            u32 temp = (u32)(key) & 0x0000FFFF;
+            domv_enter(temp);
+    }
+
 #if !defined(OPENSSL_SMALL_FOOTPRINT)
     if (16 % sizeof(size_t) == 0) { /* always true actually */
         do {
@@ -1277,6 +1319,8 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT *ctx,
                     mres = 0;
                 } else {
                     ctx->mres = mres;
+    	            /*JADU*/
+    		    if(flag) domv_exit();
                     return 0;
                 }
 # else
@@ -1292,6 +1336,8 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT *ctx,
                     mres = 0;
                 } else {
                     ctx->mres = n;
+    	            /*JADU*/
+    		    if(flag) domv_exit();
                     return 0;
                 }
 # endif
@@ -1410,6 +1456,8 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT *ctx,
             }
 
             ctx->mres = mres;
+    	    /*JADU*/
+   	    if(flag) domv_exit();
             return 0;
         } while (0);
     }
@@ -1446,6 +1494,8 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT *ctx,
     }
 
     ctx->mres = mres;
+    /*JADU*/
+    if(flag) domv_exit();
     return 0;
 }
 
